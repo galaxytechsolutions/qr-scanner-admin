@@ -137,9 +137,9 @@ const UserPanel = () => {
           <Card>
             <CardBody>
               <div className="d-flex text-muted align-items-center">
-                <FaUserTie className="icon text-primary me-3" size={30} />
+                 <FaRegBuilding className="icon text-success me-3" size={30} />
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Users</p>
+                  <p className="mb-1">Total Houses</p>
                   <h5 className="mb-3">{30}</h5>
                 </div>
               </div>
@@ -152,9 +152,10 @@ const UserPanel = () => {
           <Card>
             <CardBody>
               <div className="d-flex text-muted align-items-center">
-                <FaRegBuilding className="icon text-success me-3" size={30} />
+              
+                 <FaUserTie className="icon text-primary me-3" size={30} />
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Properties</p>
+                  <p className="mb-1">Total Field Staff</p>
                   <h5 className="mb-3">{3}</h5>
                 </div>
               </div>
@@ -163,13 +164,11 @@ const UserPanel = () => {
         </Col>
 
         {/* Franchise Count */}
-        <Col xl={3} sm={6}>
+        {/* <Col xl={3} sm={6}>
           <Card>
             <CardBody>
               <div className="d-flex text-muted align-items-center">
                 <MdRealEstateAgent className="icon text-warning me-3" size={30} />
-
-                {/* <MdRealEstateAgent  className="icon text-warning me-3" size={30} /> */}
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Franchise</p>
                   <h5 className="mb-3">{11}</h5>
@@ -177,10 +176,10 @@ const UserPanel = () => {
               </div>
             </CardBody>
           </Card>
-        </Col>
+        </Col> */}
 
         {/* Locations Count */}
-        <Col xl={3} sm={6}>
+        {/* <Col xl={3} sm={6}>
           <Card>
             <CardBody>
               <div className="d-flex text-muted align-items-center">
@@ -192,7 +191,7 @@ const UserPanel = () => {
               </div>
             </CardBody>
           </Card>
-        </Col>
+        </Col> */}
       </Row>
     </React.Fragment>
 

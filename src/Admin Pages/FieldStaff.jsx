@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button } from "reactstrap";
+import { Table, Button, Container } from "reactstrap";
 import { FaRegEye, FaUserEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import Swal from "sweetalert2";
 import CustomPagination from "../AdminComponents/CustomPagination";
 import FieldStaffModal from "../AdminComponents/FieldStaffModal";
+import Breadcrumbs from "../components/Common/Breadcrumb";
 
 const dummyStaffData = [
   {
@@ -132,12 +133,10 @@ const FieldStaff = () => {
 
   return (
     <div className="page-content">
+        <Container fluid={true}>
+        <Breadcrumbs title="QR INTI ID" breadcrumbItem="Field Staff Data" />
          <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Field Staff Data</h2>
-        <Button color="primary" onClick={() => setModalOpen(true)}>+ Add Staff</Button>
-      </div>
-      <div className="d-flex justify-content-end">
-        <div className="col-md-6 border-1px-gray">
+                <div className="col-md-6 border-1px-gray">
           <input
             className="form-control cursor-pointer border border-primary"
             type="search"
@@ -146,9 +145,9 @@ const FieldStaff = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <Button color="primary" onClick={() => setModalOpen(true)}>+ Add Staff</Button>
       </div>
-
-      <div className="py-5" style={{ width: "100%", overflowX: "auto" }}>
+      <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
         <Table striped bordered hover responsive>
           <thead>
             <tr>
@@ -209,13 +208,12 @@ const FieldStaff = () => {
           </tbody>
         </Table>
       </div>
-
       <CustomPagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
-
+    </Container>
      <FieldStaffModal
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
