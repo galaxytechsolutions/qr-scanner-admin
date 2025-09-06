@@ -11,6 +11,7 @@ const dummyHouseData = [
   {
     qrCode: "KOD-HYD123",
     locationCode: "HYD",
+    phoneNumber: "1234567890",
     booth: "Booth 12",
     mandal: "Serilingampally",
     headOfFamily: "Ramesh Yadav",
@@ -28,6 +29,7 @@ const dummyHouseData = [
   {
     qrCode: "KOD-WGL456",
     locationCode: "WGL",
+    phoneNumber: "9876543210",
     booth: "Booth 8",
     mandal: "Hanamkonda",
     headOfFamily: "Saroja Bai",
@@ -45,6 +47,7 @@ const dummyHouseData = [
   {
     qrCode: "KOD-NZB789",
     locationCode: "NZB",
+    phoneNumber: "5555555555",
     booth: "Booth 3",
     mandal: "Nizamabad Rural",
     headOfFamily: "Mahesh Reddy",
@@ -62,6 +65,7 @@ const dummyHouseData = [
   {
     qrCode: "KOD-KRM234",
     locationCode: "KRM",
+    phoneNumber: "6666666666",
     booth: "Booth 15",
     mandal: "Karimnagar Urban",
     headOfFamily: "Lakshmi Narayana",
@@ -88,6 +92,7 @@ const [modalOpen, setModalOpen] = useState(false);
   const [newHouse, setNewHouse] = useState({
     qrCode: "",
     locationCode: "",
+    phoneNumber: "",
     booth: "",
     mandal: "",
     headOfFamily: "",
@@ -129,6 +134,7 @@ const [modalOpen, setModalOpen] = useState(false);
     setNewHouse({
       qrCode: "",
       locationCode: "",
+      phoneNumber: "",
       booth: "",
       mandal: "",
       headOfFamily: "",
@@ -180,8 +186,10 @@ const [modalOpen, setModalOpen] = useState(false);
           <thead>
             <tr>
               <th>S.No.</th>
+
               <th>QR Code</th>
               <th>Location</th>
+              <th>Phone Number</th>
               <th>Booth</th>
               <th>Mandal</th>
               <th>Head of Family</th>
@@ -204,6 +212,7 @@ const [modalOpen, setModalOpen] = useState(false);
                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                 <td>{house.qrCode}</td>
                 <td>{house.locationCode}</td>
+                <td>{house.phoneNumber}</td>
                 <td>{house.booth}</td>
                 <td>{house.mandal}</td>
                 <td>{house.headOfFamily}</td>

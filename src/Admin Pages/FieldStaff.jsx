@@ -13,7 +13,7 @@ const dummyStaffData = [
     name: "Ravi Kumar",
     locationCode: "HYD-NML-001",
     assignedRegion: "Hyderabad - Nampally",
-    contact: "9876543210",
+    phoneNumber: "9876543210",
     whatsappActive: true,
     totalHousesCovered: 120,
     notes: "Very active in community engagement."
@@ -23,7 +23,7 @@ const dummyStaffData = [
     name: "Srilatha Reddy",
     locationCode: "HYD-CHN-002",
     assignedRegion: "Hyderabad - Charminar",
-    contact: "9876501234",
+    phoneNumber: "9876501234",
     whatsappActive: true,
     totalHousesCovered: 95,
     notes: "Special focus on women's welfare schemes."
@@ -33,7 +33,7 @@ const dummyStaffData = [
     name: "Venkatesh Goud",
     locationCode: "WGL-HNK-003",
     assignedRegion: "Warangal - Hanamkonda",
-    contact: "9876123456",
+    phoneNumber: "9876123456",
     whatsappActive: false,
     totalHousesCovered: 105,
     notes: "Needs more training on data collection app."
@@ -43,7 +43,7 @@ const dummyStaffData = [
     name: "Fatima Begum",
     locationCode: "KNR-KRM-004",
     assignedRegion: "Karimnagar - Kothapalli",
-    contact: "9876345120",
+    phoneNumber: "9876345120",
     whatsappActive: true,
     totalHousesCovered: 87,
     notes: "Well connected in local community."
@@ -53,7 +53,7 @@ const dummyStaffData = [
     name: "Mahesh Babu",
     locationCode: "NLG-MIR-005",
     assignedRegion: "Nalgonda - Miryalaguda",
-    contact: "9876987451",
+    phoneNumber: "9876987451",
     whatsappActive: false,
     totalHousesCovered: 110,
     notes: "Focuses on agricultural welfare schemes."
@@ -72,7 +72,7 @@ const FieldStaff = () => {
     name: "",
     locationCode: "",
     assignedRegion: "",
-    contact: "",
+    phoneNumber: "",
     whatsappActive: false,
     totalHousesCovered: "",
     notes: ""
@@ -94,7 +94,7 @@ const FieldStaff = () => {
       name: "",
       locationCode: "",
       assignedRegion: "",
-      contact: "",
+      phoneNumber: "",
       whatsappActive: false,
       totalHousesCovered: "",
       notes: ""
@@ -156,7 +156,7 @@ const FieldStaff = () => {
               <th>Name</th>
               <th>Location Code</th>
               <th>Assigned Region</th>
-              <th>Contact</th>
+              <th>Phone Number</th>
               <th>WhatsApp Active</th>
               <th>Total Houses Covered</th>
               <th>Notes</th>
@@ -171,7 +171,7 @@ const FieldStaff = () => {
                 <td>{staff.name}</td>
                 <td>{staff.locationCode}</td>
                 <td>{staff.assignedRegion}</td>
-                <td>{staff.contact}</td>
+                <td>{staff.phoneNumber}</td>
                 <td>{staff.whatsappActive ? "Yes" : "No"}</td>
                 <td>{staff.totalHousesCovered}</td>
                 <td>{staff.notes}</td>
