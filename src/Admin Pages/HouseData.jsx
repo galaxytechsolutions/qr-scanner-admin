@@ -6,12 +6,14 @@ import Swal from "sweetalert2";
 import CustomPagination from "../AdminComponents/CustomPagination";
 import AddHouseholdModal from "../AdminComponents/AddHouseholdModal";
 import Breadcrumbs from "../components/Common/Breadcrumb";
+import { Instance } from "../Instence/Instence";
+
+import { useNavigate } from "react-router-dom";
 
 const dummyHouseData = [
   {
     qrCode: "KOD-HYD123",
     locationCode: "HYD",
-    phoneNumber: "1234567890",
     booth: "Booth 12",
     mandal: "Serilingampally",
     headOfFamily: "Ramesh Yadav",
@@ -29,7 +31,6 @@ const dummyHouseData = [
   {
     qrCode: "KOD-WGL456",
     locationCode: "WGL",
-    phoneNumber: "9876543210",
     booth: "Booth 8",
     mandal: "Hanamkonda",
     headOfFamily: "Saroja Bai",
@@ -47,7 +48,6 @@ const dummyHouseData = [
   {
     qrCode: "KOD-NZB789",
     locationCode: "NZB",
-    phoneNumber: "5555555555",
     booth: "Booth 3",
     mandal: "Nizamabad Rural",
     headOfFamily: "Mahesh Reddy",
@@ -65,7 +65,6 @@ const dummyHouseData = [
   {
     qrCode: "KOD-KRM234",
     locationCode: "KRM",
-    phoneNumber: "6666666666",
     booth: "Booth 15",
     mandal: "Karimnagar Urban",
     headOfFamily: "Lakshmi Narayana",
@@ -83,6 +82,7 @@ const dummyHouseData = [
 ];
 
 const HouseData = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [households, setHouseholds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,15 +90,16 @@ const HouseData = () => {
 
 const [modalOpen, setModalOpen] = useState(false);
   const [newHouse, setNewHouse] = useState({
+    _id:"",
     qrCode: "",
-    locationCode: "",
-    phoneNumber: "",
+    location: "",
     booth: "",
     mandal: "",
+    phoneNo:"",
     headOfFamily: "",
     caste: "",
     noOfMembers: "",
-    ageGenderList: "",
+    ageGenderList:[],
     votedLastTime: "",
     preferredParty: "",
     schemesReceived: "",
@@ -108,57 +109,131 @@ const [modalOpen, setModalOpen] = useState(false);
     volunteerNotes: ""
   });
 
-  useEffect(() => {
-    setHouseholds(dummyHouseData);
-  }, []);
+  // useEffect(() => {
+  //   setHouseholds(dummyHouseData);
+  // }, []);
 
-  const handleDelete = (qrCode) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You are about to delete this household data!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setHouseholds((prev) => prev.filter((item) => item.qrCode !== qrCode));
+  
+useEffect(()=>{
+
+    getData()
+
+    },[])
+
+  const getData = async ()=>{
+    try {
+       const response = await Instance.get("/houseData")
+       if(response.status === 200){
+       setHouseholds(response.data.houseData )
+       }
+    } catch (error) {
+    Swal.fire("Error", "Failed to fetch household data", "error");    
+    }
+  }
+
+const handleDelete = async (_id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to delete this household data!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await Instance.delete(`/houseData/${_id}`);
+        setHouseholds((prev) => prev.filter((item) => item._id !== _id));
         Swal.fire("Deleted!", "Household has been removed.", "success");
+      } catch (error) {
+        Swal.fire("Error", "Failed to delete household data", "error");
       }
-    });
-  };
+    }
+  });
+};
 
-   const handleAddHousehold = () => {
-    setHouseholds((prev) => [...prev, newHouse]);
+
+   const handleAddHousehold = async () => {
+    try {
+    const res = await Instance.post("/houseData",newHouse)
+    if(res.status === 200){
+         
     setModalOpen(false);
     setNewHouse({
+      _id:"",
       qrCode: "",
-      locationCode: "",
-      phoneNumber: "",
+      location: "",
       booth: "",
       mandal: "",
+      phoneNo:"",
       headOfFamily: "",
       caste: "",
       noOfMembers: "",
-      ageGenderList: "",
+      ageGenderList: [],
       votedLastTime: "",
       preferredParty: "",
       schemesReceived: "",
       migrationInfo: "",
       complaints: "",
       isWhatsappActive: false,
-      volunteerNotes: ""
+      volunteerNote: ""
     });
+  }
+
+      
+    } catch (error) {
+      Swal.fire("Error", "Failed to Add household data", "error"); 
+
+      
+    }
+    
   };
 
-  const searchedData = households.filter((item) =>
-    Object.values(item).some((val) =>
-      String(val).toLowerCase().includes(searchTerm.toLowerCase())
+const handleUpdateHousehold = async (household) => {
+  try {
+    const res = await Instance.put(`/houseData/${household._id}`, household);
+    if (res.status === 200) {
+      setHouseholds((prev) =>
+        prev.map((item) =>
+          item._id === household._id ? res.data.household : item
+        )
+      );
+      Swal.fire("Updated!", "Household has been updated.", "success");
+      setModalOpen(false);
+      setNewHouse({
+        _id: "",
+        qrCode: "",
+        location: "",
+        booth: "",
+        mandal: "",
+        phoneNo: "",
+        headOfFamily: "",
+        caste: "",
+        noOfMembers: "",
+        ageGenderList: [],
+        votedLastTime: "",
+        preferredParty: "",
+        schemesReceived: "",
+        migrationInfo: "",
+        complaints: "",
+        isWhatsappActive: false,
+        volunteerNote: ""
+      });
+    }
+  } catch (error) {
+    Swal.fire("Error", "Failed to update household data", "error");
+  }
+};
+
+
+  const searchedData = households?.filter((item) =>
+    Object.values(item)?.some((val) =>
+      String(val)?.toLowerCase()?.includes(searchTerm?.toLowerCase())
     )
   );
 
-  const totalPages = Math.ceil(searchedData.length / itemsPerPage);
-  const paginatedData = searchedData.slice(
+  const totalPages = Math.ceil(searchedData?.length / itemsPerPage);
+  const paginatedData = searchedData?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -186,12 +261,11 @@ const [modalOpen, setModalOpen] = useState(false);
           <thead>
             <tr>
               <th>S.No.</th>
-
               <th>QR Code</th>
               <th>Location</th>
-              <th>Phone Number</th>
               <th>Booth</th>
               <th>Mandal</th>
+                <th>Phone No</th>
               <th>Head of Family</th>
               <th>Caste</th>
               <th>No. of Members</th>
@@ -202,55 +276,49 @@ const [modalOpen, setModalOpen] = useState(false);
               <th>Migration Info</th>
               <th>Complaints</th>
               <th>WhatsApp Active</th>
-              <th>Volunteer Notes</th>
+              <th>Volunteer Note</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((house, index) => (
-              <tr key={house.qrCode}>
+            {paginatedData?.map((households, index) => (
+              <tr key={households._id}>
                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                <td>{house.qrCode}</td>
-                <td>{house.locationCode}</td>
-                <td>{house.phoneNumber}</td>
-                <td>{house.booth}</td>
-                <td>{house.mandal}</td>
-                <td>{house.headOfFamily}</td>
-                <td>{house.caste}</td>
-                <td>{house.noOfMembers}</td>
-                <td>{house.ageGenderList}</td>
-                <td>{house.votedLastTime}</td>
-                <td>{house.preferredParty}</td>
-                <td>{house.schemesReceived}</td>
-                <td>{house.migrationInfo}</td>
-                <td>{house.complaints}</td>
-                <td>{house.isWhatsappActive ? "Yes" : "No"}</td>
-                <td>{house.volunteerNotes}</td>
+                <td>{households.qrCode}</td>
+                <td>{households.location}</td>
+                <td>{households.booth}</td>
+                <td>{households.mandal}</td>
+                <td>{households.phoneNo}</td>
+                <td>{households.headOfFamily}</td>
+                <td>{households.caste}</td>
+                <td>{households.noOfMembers}</td>
+                <td>{households.ageGenderList}</td>
+                <td>{households.votedLastTime}</td>
+                <td>{households.preferredParty}</td>
+                <td>{households.schemesReceived}</td>
+                <td>{households.migrationInfo}</td>
+                <td>{households.complaints}</td>
+                <td>{households.isWhatsappActive ? "Yes" : "No"}</td>
+                <td>{households.volunteerNote}</td>
                 <td>
                   <div className="d-flex justify-content-center align-items-center gap-3">
                     <FaRegEye
                       size={20}
                       title="View"
                       className="cursor-pointer"
-                      onClick={() =>
-                        Swal.fire(
-                          "Household Details",
-                          `<pre>${JSON.stringify(house, null, 2)}</pre>`
-                        )
-                      }
+                      onClick={() => navigate(`/household/${households._id}`)}
                     />
                     <FaUserEdit
                       size={20}
                       className="cursor-pointer text-info"
-                      onClick={() =>
-                        Swal.fire("Edit", "Edit feature coming soon!")
-                      }
+                  
+                       onClick={() => {setNewHouse(households); setModalOpen(true); }}
                     />
                     <MdDeleteForever
                       size={20}
                       title="Delete"
                       className="cursor-pointer text-danger"
-                      onClick={() => handleDelete(house.qrCode)}
+                      onClick={() => handleDelete(households._id)}
                     />
                   </div>
                 </td>
@@ -272,6 +340,7 @@ const [modalOpen, setModalOpen] = useState(false);
   newHouse={newHouse}
   setNewHouse={setNewHouse}
   handleAddHousehold={handleAddHousehold}
+  handleUpdateHousehold={handleUpdateHousehold} 
 />
 
     </div>

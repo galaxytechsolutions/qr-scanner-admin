@@ -15,7 +15,8 @@ const AddHouseholdModal = ({
   toggle,
   newHouse,
   setNewHouse,
-  handleAddHousehold
+  handleAddHousehold,
+  handleUpdateHousehold
 }) => {
   return (
     <Modal isOpen={modalOpen} toggle={toggle}>
@@ -34,8 +35,8 @@ const AddHouseholdModal = ({
             <Label>Location Code</Label>
             <Input
               type="text"
-              value={newHouse.locationCode}
-              onChange={(e) => setNewHouse({ ...newHouse, locationCode: e.target.value })}
+              value={newHouse.location}
+              onChange={(e) => setNewHouse({ ...newHouse, location: e.target.value })}
             />
           </FormGroup>
           <FormGroup>
@@ -53,6 +54,19 @@ const AddHouseholdModal = ({
               value={newHouse.mandal}
               onChange={(e) => setNewHouse({ ...newHouse, mandal: e.target.value })}
             />
+              <FormGroup>
+            <Label>Phone NO</Label>
+            <Input
+              type="text"
+              value={newHouse.phoneNo}
+              maxLength={10} 
+              onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) { setNewHouse({ ...newHouse, phoneNo: value });}
+      
+    }}
+    />
+          </FormGroup>
           </FormGroup>
           <FormGroup>
             <Label>Head of Family</Label>
@@ -138,16 +152,25 @@ const AddHouseholdModal = ({
             <Label>Volunteer Notes</Label>
             <Input
               type="textarea"
-              value={newHouse.volunteerNotes}
-              onChange={(e) => setNewHouse({ ...newHouse, volunteerNotes: e.target.value })}
+              value={newHouse.volunteerNote}
+              onChange={(e) => setNewHouse({ ...newHouse, volunteerNote: e.target.value })}
             />
           </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={handleAddHousehold}>
-          Save
-        </Button>{" "}
+       <Button
+  color="primary"
+  onClick={() => {
+    if (newHouse._id) {
+      handleUpdateHousehold(newHouse);   
+    } else {
+      handleAddHousehold();              // ✅ add mode
+    }
+  }}
+>
+  {newHouse._id ? "Update Household" : "Add Household"}
+</Button>{" "}
         <Button color="secondary" onClick={toggle}>
           Cancel
         </Button>

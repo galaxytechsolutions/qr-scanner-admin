@@ -1,7 +1,7 @@
 // src/Instance.js
 import axios from 'axios';
 
-const BaseUrl = 'http://localhost:5000'; // Your base URL
+const BaseUrl = 'http://localhost:5000/api'; // Your base URL
 
 // Create an instance of axios with default configurations
 const Instance = axios.create({
