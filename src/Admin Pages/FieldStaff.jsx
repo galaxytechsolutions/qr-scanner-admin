@@ -27,7 +27,7 @@ const FieldStaff = () => {
     const fetchStaff = async () => {
       try {
         setLoading(true);
-        const res = await Instance.get("api/staff");
+        const res = await Instance.get("staff");
         console.log("API Response:", res.data.staff);
 
         const staffArray = Array.isArray(res.data.staff) ? res.data.staff : [];
@@ -46,14 +46,14 @@ const FieldStaff = () => {
   const handleSaveStaff = async (staffData) => {
     try {
       if (editMode && selectedStaff) {
-        const res = await Instance.put(`api/staff/${selectedStaff._id}`, staffData);
+        const res = await Instance.put(`staff/${selectedStaff._id}`, staffData);
         const updated = res.data.staff || res.data;
         setStaffList((prev) =>
           prev.map((item) => (item._id === selectedStaff._id ? updated : item))
         );
         Swal.fire("Success", "Staff member updated successfully", "success");
       } else {
-        const res = await Instance.post("api/staff", staffData);
+        const res = await Instance.post("staff", staffData);
         const added = res.data.staff || res.data;
         setStaffList((prev) => [...prev, added]);
         Swal.fire("Success", "Staff member added successfully", "success");
@@ -82,7 +82,7 @@ const FieldStaff = () => {
       if (result.isConfirmed) {
         try {
           // API call with correct ID
-          await Instance.delete(`api/staff/${staffId}`);
+          await Instance.delete(`staff/${staffId}`);
 
           // Update UI
           setStaffList((prev) => prev.filter((item) => item._id !== staffId));
