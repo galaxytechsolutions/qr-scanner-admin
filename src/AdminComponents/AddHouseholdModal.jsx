@@ -20,7 +20,9 @@ const AddHouseholdModal = ({
 }) => {
   return (
     <Modal isOpen={modalOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Add Household</ModalHeader>
+      <ModalHeader toggle={toggle}>
+        {newHouse._id ? "Update Household" : "Add Household"}
+      </ModalHeader>
       <ModalBody className="custom-scroll" style={{ maxHeight: "400px", overflowY: "auto" }}>
         <Form>
           <FormGroup>
@@ -54,19 +56,20 @@ const AddHouseholdModal = ({
               value={newHouse.mandal}
               onChange={(e) => setNewHouse({ ...newHouse, mandal: e.target.value })}
             />
-              <FormGroup>
+          </FormGroup>
+          <FormGroup>
             <Label>Phone NO</Label>
             <Input
               type="text"
               value={newHouse.phoneNo}
-              maxLength={10} 
+              maxLength={10}
               onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) { setNewHouse({ ...newHouse, phoneNo: value });}
-      
-    }}
-    />
-          </FormGroup>
+                const value = e.target.value;
+                if (/^\d*$/.test(value)) {
+                  setNewHouse({ ...newHouse, phoneNo: value });
+                }
+              }}
+            />
           </FormGroup>
           <FormGroup>
             <Label>Head of Family</Label>
@@ -140,14 +143,20 @@ const AddHouseholdModal = ({
               onChange={(e) => setNewHouse({ ...newHouse, complaints: e.target.value })}
             />
           </FormGroup>
-          <FormGroup>
-            <Label>WhatsApp Active</Label>
-            <Input
-              type="checkbox"
-              checked={newHouse.isWhatsappActive}
-              onChange={(e) => setNewHouse({ ...newHouse, isWhatsappActive: e.target.checked })}
-            />
+
+          <FormGroup check>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={!!newHouse.isWhatsappActive}
+                onChange={(e) =>
+                  setNewHouse({ ...newHouse, isWhatsappActive: e.target.checked })
+                }
+              />{" "}
+              WhatsApp Active
+            </Label>
           </FormGroup>
+
           <FormGroup>
             <Label>Volunteer Notes</Label>
             <Input
@@ -159,18 +168,18 @@ const AddHouseholdModal = ({
         </Form>
       </ModalBody>
       <ModalFooter>
-       <Button
-  color="primary"
-  onClick={() => {
-    if (newHouse._id) {
-      handleUpdateHousehold(newHouse);   
-    } else {
-      handleAddHousehold();              // ✅ add mode
-    }
-  }}
->
-  {newHouse._id ? "Update Household" : "Add Household"}
-</Button>{" "}
+        <Button
+          color="primary"
+          onClick={() => {
+            if (newHouse._id) {
+              handleUpdateHousehold(newHouse);
+            } else {
+              handleAddHousehold();
+            }
+          }}
+        >
+          {newHouse._id ? "Update Household" : "Add Household"}
+        </Button>{" "}
         <Button color="secondary" onClick={toggle}>
           Cancel
         </Button>
