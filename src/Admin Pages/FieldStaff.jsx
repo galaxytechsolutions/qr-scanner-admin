@@ -6,103 +6,71 @@ import Swal from "sweetalert2";
 import CustomPagination from "../AdminComponents/CustomPagination";
 import FieldStaffModal from "../AdminComponents/FieldStaffModal";
 import Breadcrumbs from "../components/Common/Breadcrumb";
-
-const dummyStaffData = [
-  {
-    staffId: "FS001",
-    name: "Ravi Kumar",
-    locationCode: "HYD-NML-001",
-    assignedRegion: "Hyderabad - Nampally",
-    phoneNumber: "9876543210",
-    whatsappActive: true,
-    totalHousesCovered: 120,
-    notes: "Very active in community engagement."
-  },
-  {
-    staffId: "FS002",
-    name: "Srilatha Reddy",
-    locationCode: "HYD-CHN-002",
-    assignedRegion: "Hyderabad - Charminar",
-    phoneNumber: "9876501234",
-    whatsappActive: true,
-    totalHousesCovered: 95,
-    notes: "Special focus on women's welfare schemes."
-  },
-  {
-    staffId: "FS003",
-    name: "Venkatesh Goud",
-    locationCode: "WGL-HNK-003",
-    assignedRegion: "Warangal - Hanamkonda",
-    phoneNumber: "9876123456",
-    whatsappActive: false,
-    totalHousesCovered: 105,
-    notes: "Needs more training on data collection app."
-  },
-  {
-    staffId: "FS004",
-    name: "Fatima Begum",
-    locationCode: "KNR-KRM-004",
-    assignedRegion: "Karimnagar - Kothapalli",
-    phoneNumber: "9876345120",
-    whatsappActive: true,
-    totalHousesCovered: 87,
-    notes: "Well connected in local community."
-  },
-  {
-    staffId: "FS005",
-    name: "Mahesh Babu",
-    locationCode: "NLG-MIR-005",
-    assignedRegion: "Nalgonda - Miryalaguda",
-    phoneNumber: "9876987451",
-    whatsappActive: false,
-    totalHousesCovered: 110,
-    notes: "Focuses on agricultural welfare schemes."
-  }
-];
+import { Instance } from "../Instence/Instence";
 
 const FieldStaff = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [staffList, setStaffList] = useState([]);
+  const [staffList, setStaffList] = useState([]); // always array
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const itemsPerPage = 10;
 
- const [modalOpen, setModalOpen] = useState(false);
-  const [newStaff, setNewStaff] = useState({
-    staffId: "",
-    name: "",
-    locationCode: "",
-    assignedRegion: "",
-    phoneNumber: "",
-    whatsappActive: false,
-    totalHousesCovered: "",
-    notes: ""
-  });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
 
+
+  // Fetch staff on mount
   useEffect(() => {
-    setStaffList(dummyStaffData);
+    const fetchStaff = async () => {
+      try {
+        setLoading(true);
+        const res = await Instance.get("api/staff");
+        console.log("API Response:", res.data.staff);
+
+        const staffArray = Array.isArray(res.data.staff) ? res.data.staff : [];
+        setStaffList(staffArray);
+      } catch (err) {
+        console.error("Error fetching staff:", err);
+        setError("Failed to load staff data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStaff();
   }, []);
 
-    const handleAddStaff = () => {
-    if (!newStaff.staffId || !newStaff.name) {
-      Swal.fire("Error", "Please fill at least Staff ID and Name", "error");
-      return;
+  // Add staff
+  const handleSaveStaff = async (staffData) => {
+    try {
+      if (editMode && selectedStaff) {
+        const res = await Instance.put(`api/staff/${selectedStaff._id}`, staffData);
+        const updated = res.data.staff || res.data;
+        setStaffList((prev) =>
+          prev.map((item) => (item._id === selectedStaff._id ? updated : item))
+        );
+        Swal.fire("Success", "Staff member updated successfully", "success");
+      } else {
+        const res = await Instance.post("api/staff", staffData);
+        const added = res.data.staff || res.data;
+        setStaffList((prev) => [...prev, added]);
+        Swal.fire("Success", "Staff member added successfully", "success");
+      }
+      setModalOpen(false);
+      setEditMode(false);
+      setSelectedStaff(null);
+    } catch (error) {
+      console.error("Error saving staff:", error.response?.data || error);
+      Swal.fire("Error", error.response?.data?.error || "Failed to save staff member", "error");
     }
-    setStaffList((prev) => [...prev, newStaff]);
-    setModalOpen(false);
-    setNewStaff({
-      staffId: "",
-      name: "",
-      locationCode: "",
-      assignedRegion: "",
-      phoneNumber: "",
-      whatsappActive: false,
-      totalHousesCovered: "",
-      notes: ""
-    });
-    Swal.fire("Success", "Staff member added successfully", "success");
   };
 
 
+
+
+  // Delete staff
   const handleDelete = (staffId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -110,21 +78,35 @@ const FieldStaff = () => {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setStaffList((prev) => prev.filter((item) => item.staffId !== staffId));
-        Swal.fire("Deleted!", "Staff member has been removed.", "success");
+        try {
+          // API call with correct ID
+          await Instance.delete(`api/staff/${staffId}`);
+
+          // Update UI
+          setStaffList((prev) => prev.filter((item) => item._id !== staffId));
+
+          Swal.fire("Deleted!", "Staff member has been removed.", "success");
+        } catch (error) {
+          console.error("Error deleting staff:", error);
+          Swal.fire("Error", "Failed to delete staff member", "error");
+        }
       }
     });
   };
 
-  const searchedData = staffList.filter((item) =>
-    Object.values(item).some((val) =>
-      String(val).toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
 
+
+  const searchedData = Array.isArray(staffList)
+    ? staffList.filter((item) =>
+      Object.values(item).some((val) =>
+        String(val).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+    : [];
+
+  // Pagination
   const totalPages = Math.ceil(searchedData.length / itemsPerPage);
   const paginatedData = searchedData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -133,94 +115,121 @@ const FieldStaff = () => {
 
   return (
     <div className="page-content">
-        <Container fluid={true}>
+      <Container fluid={true}>
         <Breadcrumbs title="QR INTI ID" breadcrumbItem="Field Staff Data" />
-         <div className="d-flex justify-content-between align-items-center mb-3">
-                <div className="col-md-6 border-1px-gray">
-          <input
-            className="form-control cursor-pointer border border-primary"
-            type="search"
-            placeholder="Search here..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+
+        {/* Search + Add */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="col-md-6 border-1px-gray">
+            <input
+              className="form-control cursor-pointer border border-primary"
+              type="search"
+              placeholder="Search here..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button color="primary" onClick={() => setModalOpen(true)}>
+            + Add Staff
+          </Button>
         </div>
-        <Button color="primary" onClick={() => setModalOpen(true)}>+ Add Staff</Button>
-      </div>
-      <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>S.No.</th>
-              <th>Staff ID</th>
-              <th>Name</th>
-              <th>Location Code</th>
-              <th>Assigned Region</th>
-              <th>Phone Number</th>
-              <th>WhatsApp Active</th>
-              <th>Total Houses Covered</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((staff, index) => (
-              <tr key={staff.staffId}>
-                <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                <td>{staff.staffId}</td>
-                <td>{staff.name}</td>
-                <td>{staff.locationCode}</td>
-                <td>{staff.assignedRegion}</td>
-                <td>{staff.phoneNumber}</td>
-                <td>{staff.whatsappActive ? "Yes" : "No"}</td>
-                <td>{staff.totalHousesCovered}</td>
-                <td>{staff.notes}</td>
-                <td>
-                  <div className="d-flex justify-content-center align-items-center gap-3">
-                    <FaRegEye
-                      size={20}
-                      title="View"
-                      className="cursor-pointer"
-                      onClick={() =>
-                        Swal.fire(
-                          "Staff Details",
-                          `<pre>${JSON.stringify(staff, null, 2)}</pre>`
-                        )
-                      }
-                    />
-                    <FaUserEdit
-                      size={20}
-                      className="cursor-pointer text-info"
-                      onClick={() =>
-                        Swal.fire("Edit", "Edit feature coming soon!")
-                      }
-                    />
-                    <MdDeleteForever
-                      size={20}
-                      title="Delete"
-                      className="cursor-pointer text-danger"
-                      onClick={() => handleDelete(staff.staffId)}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-      <CustomPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
-    </Container>
-     <FieldStaffModal
+
+        {/* Loader / Error */}
+        {loading && <p>Loading staff data...</p>}
+        {error && <p className="text-danger">{error}</p>}
+
+        {/* Table */}
+        {!loading && !error && (
+          <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
+            <Table striped bordered hover responsive >
+              <thead className="text-center">
+                <tr>
+                  <th>S.No.</th>
+                  <th>Name</th>
+                  <th>Location Code</th>
+                  <th>Assigned Region</th>
+                  <th>Phone Number</th>
+                  <th>Email</th>
+                  <th>WhatsApp Active</th>
+                  <th>Total Houses Assigned</th>
+                  <th>Total Houses Covered</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.map((staff, index) => (
+                  <tr key={staff.staffId || index}>
+                    <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                    <td>{staff.name}</td>
+                    <td>{staff.locationCode}</td>
+                    <td>{staff.assignedRegion}</td>
+                    <td>{staff.phoneNo}</td>
+                    <td>{staff.email}</td>
+                    <td>{staff.whatsappActive ? "Yes" : "No"}</td>
+                    <td>{staff.assignedHouses?.length || 0}</td>
+                    <td>{staff.totalHousesCovered}</td>
+                    <td>{staff.notes}</td>
+                    <td>
+                      <div className="d-flex justify-content-center align-items-center gap-3">
+                        <FaRegEye
+                          size={20}
+                          title="View"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            Swal.fire(
+                              "Staff Details",
+                              `<pre>${JSON.stringify(staff, null, 2)}</pre>`
+                            )
+                          }
+                        />
+                        <FaUserEdit
+                          size={20}
+                          className="cursor-pointer text-info"
+                          onClick={() => {
+                            setSelectedStaff(staff);
+                            setEditMode(true);
+                            setModalOpen(true);
+                          }}
+                        />
+
+                        <MdDeleteForever
+                          size={20}
+                          title="Delete"
+                          className="cursor-pointer text-danger"
+                          onClick={() => handleDelete(staff._id)}
+                        />
+
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        )}
+
+        <CustomPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </Container>
+
+      <FieldStaffModal
         modalOpen={modalOpen}
-        setModalOpen={setModalOpen}
-        newFieldStaff={newStaff}
-        setNewFieldStaff={setNewStaff}
-        handleSave={handleAddStaff}
+        setModalOpen={(val) => {
+          setModalOpen(val);
+          if (!val) {
+            setEditMode(false);
+            setSelectedStaff(null);
+          }
+        }}
+        handleSave={handleSaveStaff}
+        editMode={editMode}
+        existingData={selectedStaff}
       />
+
 
     </div>
   );

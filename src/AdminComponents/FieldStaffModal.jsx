@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalHeader,
@@ -11,180 +11,159 @@ import {
   Button,
 } from "reactstrap";
 
-const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave }) => {
+const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existingData }) => {
   const [newField, setNewField] = useState({
-    qrCode: "",
+    name: "",
+    role: "staff",
     locationCode: "",
-    booth: "",
-    mandal: "",
-    headOfFamily: "",
-    caste: "",
-    noOfMembers: "",
-    ageGenderList: "",
-    votedLastTime: "",
-    preferredParty: "",
-    schemesReceived: "",
-    migrationInfo: "",
-    complaints: "",
-    isWhatsappActive: false,
-    volunteerNotes: "",
+    assignedRegion: "",
+    phoneNo: "",
+    email: "",
+    whatsappActive: false,
+    totalHousesAssigned: "",
+    totalHousesCovered: "",
+    notes: "",
   });
+
+
+  useEffect(() => {
+  if (editMode && existingData) {
+    setNewField(existingData);
+  } else if (!editMode && modalOpen) {
+    setNewField({
+      name: "",
+      role: "staff",
+      locationCode: "",
+      assignedRegion: "",
+      phoneNo: "",
+      email: "",
+      whatsappActive: false,
+      totalHousesAssigned: "",
+      totalHousesCovered: "",
+      notes: "",
+    });
+  }
+}, [editMode, existingData, modalOpen]);
 
   const handleChange = (field, value) => {
     setNewField({ ...newField, [field]: value });
   };
 
+
+
   return (
-    <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}  >
+    <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
       <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
-        Add Field Staff
+        {editMode? "Edit Field Staff" : "Add Field Staff"}
       </ModalHeader>
-      <ModalBody style={{height:"65vh", overflowY:"auto"}}>
+      <ModalBody style={{ height: "65vh", overflowY: "auto" }}>
         <Form>
           <FormGroup>
-            <Label>QR Code</Label>
+            <Label for="name">Name</Label>
             <Input
               type="text"
-              value={newField.qrCode}
-              onChange={(e) => handleChange("qrCode", e.target.value)}
+              id="name"
+              value={newField.name}
+              onChange={(e) => handleChange("name", e.target.value)}
             />
           </FormGroup>
-
           <FormGroup>
-            <Label>Location Code</Label>
+            <Label for="role">Role</Label>
             <Input
               type="text"
+              id="role"
+              value={newField.role}
+              onChange={(e) => handleChange("role", e.target.value)}
+              readOnly
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="locationCode">Location Code</Label>
+            <Input
+              type="text"
+              id="locationCode"
               value={newField.locationCode}
               onChange={(e) => handleChange("locationCode", e.target.value)}
             />
           </FormGroup>
-
           <FormGroup>
-            <Label>Booth</Label>
+            <Label for="assignedRegion">Assigned Region</Label>
             <Input
               type="text"
-              value={newField.booth}
-              onChange={(e) => handleChange("booth", e.target.value)}
+              id="assignedRegion"
+              value={newField.assignedRegion}
+              onChange={(e) => handleChange("assignedRegion", e.target.value)}
             />
           </FormGroup>
-
           <FormGroup>
-            <Label>Mandal</Label>
+            <Label for="phoneNo">Phone Number</Label>
             <Input
               type="text"
-              value={newField.mandal}
-              onChange={(e) => handleChange("mandal", e.target.value)}
+              name="phoneNo"
+              id="phoneNo"
+              value={newField.phoneNo}
+              onChange={(e) => handleChange("phoneNo", e.target.value)}
             />
           </FormGroup>
-
           <FormGroup>
-            <Label>Head of Family</Label>
+            <Label for="email">Email</Label>
             <Input
-              type="text"
-              value={newField.headOfFamily}
-              onChange={(e) => handleChange("headOfFamily", e.target.value)}
+              type="email"
+              id="email"
+              value={newField.email}
+              onChange={(e) => handleChange("email", e.target.value)}
             />
           </FormGroup>
-
-          <FormGroup>
-            <Label>Caste</Label>
-            <Input
-              type="text"
-              value={newField.caste}
-              onChange={(e) => handleChange("caste", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>No. of Members</Label>
-            <Input
-              type="number"
-              value={newField.noOfMembers}
-              onChange={(e) => handleChange("noOfMembers", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Age / Gender List</Label>
-            <Input
-              type="text"
-              value={newField.ageGenderList}
-              onChange={(e) => handleChange("ageGenderList", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Voted Last Time</Label>
-            <Input
-              type="text"
-              value={newField.votedLastTime}
-              onChange={(e) => handleChange("votedLastTime", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Preferred Party</Label>
-            <Input
-              type="text"
-              value={newField.preferredParty}
-              onChange={(e) => handleChange("preferredParty", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Schemes Received</Label>
-            <Input
-              type="text"
-              value={newField.schemesReceived}
-              onChange={(e) => handleChange("schemesReceived", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Migration Info</Label>
-            <Input
-              type="text"
-              value={newField.migrationInfo}
-              onChange={(e) => handleChange("migrationInfo", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Complaints</Label>
-            <Input
-              type="text"
-              value={newField.complaints}
-              onChange={(e) => handleChange("complaints", e.target.value)}
-            />
-          </FormGroup>
-
           <FormGroup check>
             <Label check>
               <Input
                 type="checkbox"
-                checked={newField.isWhatsappActive}
-                onChange={(e) =>
-                  handleChange("isWhatsappActive", e.target.checked)
-                }
-              />{" "}
-              WhatsApp Active
+                id="whatsappActive"
+                name="whatsappActive"
+                checked={newField.whatsappActive}
+                onChange={(e) => handleChange("whatsappActive", e.target.checked)}
+              />
+              Is Whatsapp Active
             </Label>
           </FormGroup>
-
           <FormGroup>
-            <Label>Volunteer Notes</Label>
+            <Label for="totalHousesAssigned">Total Houses Assigned</Label>
+            <Input
+              type="number"
+              id="totalHousesAssigned"
+              value={newField.totalHousesAssigned}
+              onChange={(e) =>
+                handleChange("totalHousesAssigned", e.target.value)
+              }
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="totalHousesCovered">Total Houses Covered</Label>
+            <Input
+              type="number"
+              id="totalHousesCovered"
+              value={newField.totalHousesCovered}
+              onChange={(e) =>
+                handleChange("totalHousesCovered", e.target.value)
+              }
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="notes">Notes</Label>
             <Input
               type="textarea"
-              value={newField.volunteerNotes}
-              onChange={(e) => handleChange("volunteerNotes", e.target.value)}
+              id="notes"
+              value={newField.notes}
+              onChange={(e) => handleChange("notes", e.target.value)}
             />
           </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>
         <Button color="primary" onClick={() => handleSave(newField)}>
-          Save
+          {editMode ? "Update" : "Save"}
         </Button>
+
         <Button color="secondary" onClick={() => setModalOpen(false)}>
           Cancel
         </Button>
