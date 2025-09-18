@@ -14,6 +14,7 @@ import { MdOutlineLocationOn } from "react-icons/md";
 import { Instance } from "../../Instence/Instence";
 import { useParams } from "react-router-dom";
 import { ImgBaseUrl } from "../../Instence/ImgInstence";
+import PropertyLocation from "./PropertyLocation";
 
 // const house = {
 //   _id: "68c90c918b261e85734a4cfe",
@@ -108,6 +109,9 @@ const HouseDataDetails = () => {
           </div>
         </div>
       </Card>
+      
+
+      
     );
   };
 
@@ -259,6 +263,12 @@ const HouseDataDetails = () => {
           </Card>
         </Col>
         <Col md={4}></Col>
+      </Row>
+
+        <Row className="">
+        <Col md={8}>
+          <PropertyLocation property={house} /> 
+        </Col>
       </Row>
     </Container>
   );

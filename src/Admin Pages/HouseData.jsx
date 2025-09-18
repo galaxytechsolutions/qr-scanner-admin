@@ -13,6 +13,8 @@ const emptyHouse = {
   _id: "",
   qrCode: "",
   location: "",
+  state:"",
+  city:"",
   booth: "",
   mandal: "",
   phoneNo: "",
@@ -148,6 +150,8 @@ const HouseData = () => {
                 <th>S.No.</th>
                 <th>QR Code</th>
                 <th>Location</th>
+                <th>State</th>
+                <th>City</th>
                 <th>Booth</th>
                 <th>Mandal</th>
                 <th>Phone No</th>
@@ -171,6 +175,8 @@ const HouseData = () => {
                   <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td>{household.qrCode}</td>
                   <td>{household.location}</td>
+                  <td>{household.state}</td>
+                   <td>{household.city}</td>
                   <td>{household.booth}</td>
                   <td>{household.mandal}</td>
                   <td>{household.phoneNo}</td>
