@@ -96,7 +96,8 @@ import HouseData from "../Admin Pages/HouseData.jsx";
 
 import FieldStaff from "../Admin Pages/FieldStaff.jsx";
 import { components } from "react-select";
-import PropertyDetails from "../AdminComponents/SinglePageComponents/PropertyDetails.jsx";
+import HouseDataDetails from "../AdminComponents/SinglePageComponents/HouseDataDetails.jsx";
+import PropertyOverview from "../AdminComponents/SinglePageComponents/PropertyOverview.jsx";
 
 
 
@@ -106,9 +107,10 @@ const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
   { path: "/house-data", component: <HouseData/> },
-  { path:"/household/:id", component: < PropertyDetails/>},
+  { path:"/household/:id", component: < HouseDataDetails/>},
 
    { path: "/field-staff", component: <FieldStaff/> },
+   { path:"/field-staff/:id", component: <PropertyOverview/>},
 
 
   // Calender

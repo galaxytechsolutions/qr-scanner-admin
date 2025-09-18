@@ -7,6 +7,7 @@ import CustomPagination from "../AdminComponents/CustomPagination";
 import FieldStaffModal from "../AdminComponents/FieldStaffModal";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
+import { useNavigate } from "react-router-dom";
 
 const FieldStaff = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,6 +15,7 @@ const FieldStaff = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const itemsPerPage = 10;
 
@@ -176,13 +178,9 @@ const FieldStaff = () => {
                           size={20}
                           title="View"
                           className="cursor-pointer"
-                          onClick={() =>
-                            Swal.fire(
-                              "Staff Details",
-                              `<pre>${JSON.stringify(staff, null, 2)}</pre>`
-                            )
-                          }
+                          onClick={() => navigate(`/field-staff/${staff._id}`)}
                         />
+
                         <FaUserEdit
                           size={20}
                           className="cursor-pointer text-info"

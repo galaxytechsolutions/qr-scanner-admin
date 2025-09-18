@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Modal,
   ModalHeader,
@@ -9,6 +10,7 @@ import {
   Input,
   Button
 } from "reactstrap";
+import { CSCInstance } from "../Instence/ImgInstence";
 
 const AddHouseholdModal = ({
   modalOpen,
@@ -18,6 +20,39 @@ const AddHouseholdModal = ({
   handleAddHousehold,
   handleUpdateHousehold
 }) => {
+  const [cities, setCities] = useState("");
+  const [state, setState] = useState("");
+
+  useEffect(()=>{
+    const fetchState = async() =>{
+      try{
+        const res = await CSCInstance.get("countries/IN/states")
+
+        const Telangana = res.data.filter((st) => st.name === "Telangana");
+        setState(Telangana);
+      }catch(err){
+        console.error("Error fetching states:", err);
+      }
+    }
+    fetchState();
+  }, [])
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (!newHouse.stateIso) return;
+      try {
+        const res = await CSCInstance.get(
+          `/countries/IN/states/${newHouse.stateIso}/cities`
+        );
+        setCities(res.data);
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      } finally {
+      }
+    };
+    fetchCities();
+  }, [newHouse.stateIso]);
+
   return (
     <Modal isOpen={modalOpen} toggle={toggle}>
       <ModalHeader toggle={toggle}>
@@ -33,12 +68,55 @@ const AddHouseholdModal = ({
               onChange={(e) => setNewHouse({ ...newHouse, qrCode: e.target.value })}
             />
           </FormGroup>
+
           <FormGroup>
-            <Label>Location Code</Label>
+            <Label>State</Label>
+            <Input
+              type="select"
+              value={newHouse.stateIso || ""}
+              onChange={(e) =>
+                setNewHouse({ ...newHouse, stateIso: e.target.value, city: "" })
+              }
+            >
+              <option value="">-- Select State --</option>
+              {state ? (
+                state.map((st) => (
+                  <option key={st.iso2} value={st.iso2}>
+                    {st.name}
+                  </option>
+                ))
+              ) : (
+                <option>Loading...</option>
+              )}
+            </Input>
+          </FormGroup>
+          <FormGroup>
+            <Label>City</Label>
+            <Input
+              type="select"
+              value={newHouse.city || ""}
+              onChange={(e) => setNewHouse({ ...newHouse, city: e.target.value })}
+            >
+              <option value="">-- Select City --</option>
+              {cities ? (
+                cities.map((ct) => (
+                  <option key={ct.name} value={ct.name}>
+                    {ct.name}
+                  </option>
+                ))
+              ) : (
+                <option>Loading...</option>
+              )}
+            </Input>
+          </FormGroup>
+          
+          
+          <FormGroup>
+            <Label>Mandal</Label>
             <Input
               type="text"
-              value={newHouse.location}
-              onChange={(e) => setNewHouse({ ...newHouse, location: e.target.value })}
+              value={newHouse.mandal}
+              onChange={(e) => setNewHouse({ ...newHouse, mandal: e.target.value })}
             />
           </FormGroup>
           <FormGroup>
@@ -50,15 +128,15 @@ const AddHouseholdModal = ({
             />
           </FormGroup>
           <FormGroup>
-            <Label>Mandal</Label>
+            <Label>Location</Label>
             <Input
               type="text"
-              value={newHouse.mandal}
-              onChange={(e) => setNewHouse({ ...newHouse, mandal: e.target.value })}
+              value={newHouse.location}
+              onChange={(e) => setNewHouse({ ...newHouse, location: e.target.value })}
             />
           </FormGroup>
           <FormGroup>
-            <Label>Phone NO</Label>
+            <Label>Phone No</Label>
             <Input
               type="text"
               value={newHouse.phoneNo}
