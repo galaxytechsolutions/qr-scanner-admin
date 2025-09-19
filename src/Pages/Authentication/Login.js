@@ -27,9 +27,8 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 
 import { loginUser, socialLogin } from "../../store/actions";
-
-
 import { createSelector } from "reselect";
+import { Instance } from "../../Instence/Instence";
 
 const Login = (props) => {
   document.title = "Login | QR INTI ID";
@@ -37,9 +36,7 @@ const Login = (props) => {
   const dispatch = useDispatch();
 
   const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
-
     initialValues: {
       email: "",
       password: "",
@@ -59,55 +56,53 @@ const Login = (props) => {
       error: state.error,
     })
   );
-  // Inside your component
+
   const { error } = useSelector(loginpage);
 
-  
   const signIn = (type) => {
     dispatch(socialLogin(type, props.router.navigate));
   };
 
+  // ✅ Updated login logic
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-const handleLogin = (e) => {
-  e.preventDefault();
-  if (
-    validation.values.email === "admin@gmail.com" &&
-    validation.values.password === "12345678"
-  ) {
-    validation.handleSubmit();
-    localStorage.setItem("authUser", JSON.stringify({ email: validation.values.email }));
-    console.log("Redirecting to Dashboard")
-    setRedirect(true);
+    try {
+      const res = await Instance.post("/auth/admin/login", {
+        email: validation.values.email,
+        password: validation.values.password,
+      });
 
-  } else {
-    validation.setErrors({
-      email:
-        validation.values.email !== "admin@gmail.com"
-          ? "Invalid Email"
-          : undefined,
-      password:
-        validation.values.password !== "12345678"
-          ? "Invalid Password"
-          : undefined,
-    });
-  }
-  return false;
+      if (res.data && res.data.token) {
+        // Save token & user in localStorage
+        localStorage.setItem("authUser", JSON.stringify(res.data));
+        console.log("Redirecting to Dashboard");
+        setRedirect(true);
+      } else {
+        validation.setErrors({
+          email: "Invalid Email or Password",
+          password: "Invalid Email or Password",
+        });
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      validation.setErrors({
+        email: "Something went wrong. Try again later.",
+      });
+    }
 
-}
-
+    return false;
+  };
 
 
   useEffect(() => {
     document.body.className = "bg-pattern";
-    // remove classname when component will unmount
     return function cleanup() {
       document.body.className = "";
     };
   });
 
-
-   // If redirect is true, navigate to /dashboard without pushing login to history
-   if (redirect) {
+  if (redirect) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -144,10 +139,7 @@ const handleLogin = (e) => {
                     <p className="mb-5 text-center">
                       Sign in to continue to QR INTI ID.
                     </p>
-                    <Form
-                      className="form-horizontal"
-                      onSubmit={handleLogin}
-                    >
+                    <Form className="form-horizontal" onSubmit={handleLogin}>
                       {error ? (
                         <Alert color="danger">
                           <div>{error}</div>
@@ -167,13 +159,13 @@ const handleLogin = (e) => {
                               value={validation.values.email || ""}
                               invalid={
                                 validation.touched.email &&
-                                validation.errors.email
+                                  validation.errors.email
                                   ? true
                                   : false
                               }
                             />
                             {validation.touched.email &&
-                            validation.errors.email ? (
+                              validation.errors.email ? (
                               <FormFeedback type="invalid">
                                 <div>{validation.errors.email}</div>
                               </FormFeedback>
@@ -190,47 +182,19 @@ const handleLogin = (e) => {
                               onBlur={validation.handleBlur}
                               invalid={
                                 validation.touched.password &&
-                                validation.errors.password
+                                  validation.errors.password
                                   ? true
                                   : false
                               }
                             />
                             {validation.touched.password &&
-                            validation.errors.password ? (
+                              validation.errors.password ? (
                               <FormFeedback type="invalid">
                                 <div> {validation.errors.password} </div>
                               </FormFeedback>
                             ) : null}
                           </div>
 
-                          {/* <Row>
-                            <Col>
-                              <div className="form-check">
-                                <input
-                                  type="checkbox"
-                                  className="form-check-input"
-                                  id="customControlInline"
-                                />
-                                <label
-                                  className="form-label form-check-label"
-                                  htmlFor="customControlInline"
-                                >
-                                  Remember me
-                                </label>
-                              </div>
-                            </Col>
-                            <Col className="col-7">
-                              <div className="text-md-end mt-3 mt-md-0">
-                                <Link
-                                  to="/auth-recoverpw"
-                                  className="text-muted"
-                                >
-                                  <i className="mdi mdi-lock"></i> Forgot your
-                                  password?
-                                </Link>
-                              </div>
-                            </Col>
-                          </Row> */}
                           <div className="d-grid mt-4">
                             <button
                               className="btn btn-primary waves-effect waves-light"
@@ -239,26 +203,12 @@ const handleLogin = (e) => {
                               Log In
                             </button>
                           </div>
-               
                         </Col>
                       </Row>
                     </Form>
                   </div>
                 </CardBody>
               </Card>
-              {/* <div className="mt-5 text-center">
-                <p className="text-white-50">
-                  Don't have an account ?{" "}
-                  <Link to="/register" className="fw-medium text-primary">
-                    {" "}
-                    Register{" "}
-                  </Link>{" "}
-                </p>
-                <p className="text-white-50">
-                  © {new Date().getFullYear()} Upzet. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger"></i> by Galaxy Tech Solutions
-                </p>
-              </div> */}
             </Col>
           </Row>
         </Container>

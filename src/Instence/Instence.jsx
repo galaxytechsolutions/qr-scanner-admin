@@ -12,4 +12,20 @@ const Instance = axios.create({
   },
 });
 
+Instance.interceptors.request.use((config) => {
+  const authUser = JSON.parse(localStorage.getItem("authUser"));
+  if (authUser?.token) {
+    config.headers.Authorization = `Bearer ${authUser.token}`;
+  }
+  return config;
+});
+
 export  {Instance, BaseUrl};
+
+const authInstance = axios.create({
+  baseURL: "http://localhost:5000/api/auth",
+  headers: { "Content-Type": "application/json" },
+});
+
+
+export default authInstance;

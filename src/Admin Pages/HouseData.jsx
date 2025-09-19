@@ -13,8 +13,6 @@ const emptyHouse = {
   _id: "",
   qrCode: "",
   location: "",
-  state:"",
-  city:"",
   booth: "",
   mandal: "",
   phoneNo: "",
@@ -76,32 +74,101 @@ const HouseData = () => {
   };
 
   const handleAddHousehold = async () => {
-    try {
-      const res = await Instance.post("/houseData", newHouse);
-      if (res.status === 200 || res.status === 201) {
-        Swal.fire("Added!", "Household has been Added.", "success");
-        setModalOpen(false);
-        setNewHouse(emptyHouse);
-        getData();
-      }
-    } catch (error) {
-      Swal.fire("Error", "Failed to Add household data", "error");
+  try {
+    const formData = new FormData();
+
+    // Append all fields
+    formData.append("qrCode", newHouse.qrCode);
+    formData.append("location", newHouse.location);
+    formData.append("booth", newHouse.booth);
+    formData.append("mandal", newHouse.mandal);
+    formData.append("state", newHouse.state);
+    formData.append("city", newHouse.city);
+    formData.append("phoneNo", newHouse.phoneNo);
+    formData.append("headOfFamily", newHouse.headOfFamily);
+    formData.append("caste", newHouse.caste);
+    formData.append("noOfMembers", newHouse.noOfMembers);
+    formData.append("ageGenderList", Array.isArray(newHouse.ageGenderList) ? newHouse.ageGenderList.join(",") : newHouse.ageGenderList);
+    formData.append("votedLastTime", newHouse.votedLastTime);
+    formData.append("preferredParty", newHouse.preferredParty);
+    formData.append("schemesReceived", newHouse.schemesReceived);
+    formData.append("migrationInfo", newHouse.migrationInfo);
+    formData.append("complaints", newHouse.complaints);
+    formData.append("whatsappActive", newHouse.isWhatsappActive);
+    formData.append("volunteerNote", newHouse.volunteerNote);
+
+    // Append profilePic if selected
+    if (newHouse.profilePicFile) {
+      formData.append("profilePic", newHouse.profilePicFile);
     }
-  };
+
+    const res = await Instance.post("/houseData", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    if (res.status === 200 || res.status === 201) {
+      Swal.fire("Added!", "Household has been Added.", "success");
+      setModalOpen(false);
+      setNewHouse(emptyHouse);
+      getData();
+    }
+  } catch (error) {
+    console.error("Add household error:", error.response?.data || error.message);
+    Swal.fire("Error", "Failed to Add household data", "error");
+  }
+};
+
 
   const handleUpdateHousehold = async (household) => {
-    try {
-      const res = await Instance.put(`/houseData/${household._id}`, household);
-      if (res.status === 200) {
-        Swal.fire("Updated!", "Household has been updated.", "success");
-        setModalOpen(false);
-        setNewHouse(emptyHouse);
-        getData();
-      }
-    } catch (error) {
-      Swal.fire("Error", "Failed to update household data", "error");
+  try {
+    const formData = new FormData();
+
+    // Append all fields
+    formData.append("qrCode", household.qrCode || "");
+    formData.append("location", household.location || "");
+    formData.append("booth", household.booth || "");
+    formData.append("mandal", household.mandal || "");
+    formData.append("state", household.state || "");
+    formData.append("city", household.city || "");
+    formData.append("phoneNo", household.phoneNo || "");
+    formData.append("headOfFamily", household.headOfFamily || "");
+    formData.append("caste", household.caste || "");
+    formData.append("noOfMembers", household.noOfMembers || "");
+    formData.append(
+      "ageGenderList",
+      Array.isArray(household.ageGenderList)
+        ? household.ageGenderList.join(",")
+        : household.ageGenderList
+    );
+    formData.append("votedLastTime", household.votedLastTime || "");
+    formData.append("preferredParty", household.preferredParty || "");
+    formData.append("schemesReceived", household.schemesReceived || "");
+    formData.append("migrationInfo", household.migrationInfo || "");
+    formData.append("complaints", household.complaints || "");
+    formData.append("whatsappActive", household.isWhatsappActive);
+    formData.append("volunteerNote", household.volunteerNote || "");
+
+    // Append profilePic if selected
+    if (household.profilePicFile) {
+      formData.append("profilePic", household.profilePicFile);
     }
-  };
+
+    const res = await Instance.put(`/houseData/${household._id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (res.status === 200) {
+      Swal.fire("Updated!", "Household has been updated.", "success");
+      setModalOpen(false);
+      setNewHouse(emptyHouse);
+      getData();
+    }
+  } catch (error) {
+    console.error("Update household error:", error.response?.data || error.message);
+    Swal.fire("Error", "Failed to update household data", "error");
+  }
+};
+
 
   const searchedData = (households || []).filter((h) => {
     if (!h) return false;
@@ -150,8 +217,6 @@ const HouseData = () => {
                 <th>S.No.</th>
                 <th>QR Code</th>
                 <th>Location</th>
-                <th>State</th>
-                <th>City</th>
                 <th>Booth</th>
                 <th>Mandal</th>
                 <th>Phone No</th>
@@ -175,8 +240,6 @@ const HouseData = () => {
                   <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td>{household.qrCode}</td>
                   <td>{household.location}</td>
-                  <td>{household.state}</td>
-                   <td>{household.city}</td>
                   <td>{household.booth}</td>
                   <td>{household.mandal}</td>
                   <td>{household.phoneNo}</td>
