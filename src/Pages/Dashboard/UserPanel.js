@@ -4,11 +4,40 @@ import { Card, CardBody, Col, Row } from "reactstrap";
 import RadialChart1 from "./userpanelChart1";
 import RadialChart2 from "./userpanelChart2";
 import RadialChart3 from "./userpanelChart3";
-import {Instance} from "../../Instence/Instence";
 import { FaUserTie, FaTools, FaPenFancy, FaMusic, FaVideo, FaMapMarkerAlt, FaRegBuilding } from "react-icons/fa"; // Importing icons
 import { MdRealEstateAgent } from "react-icons/md";
+import { Instance } from "../../Instence/Instence";
 
 const UserPanel = () => {
+
+  const [totalHouses, setTotalHouses] = useState(0);
+  const [totalFieldStaff, setTotalFieldStaff] = useState(0);
+
+  useEffect(()=>{
+    const fetchData = async()=>{
+      try{
+        const response = await Instance.get('/houseData')
+        setTotalHouses(response.data.houseData.length);
+      }catch(error){
+        console.error('Error fetching house count:', error);
+      }
+    };
+    fetchData();
+
+  }, [])
+
+  useEffect(()=>{
+    const fetchfield = async()=>{
+      try{
+        const response = await Instance.get('/staff')
+        setTotalFieldStaff(response.data.staff.length);
+      }catch(error){
+        console.error('Error fetching field staff count:', error);
+      }
+    }
+    fetchfield();
+
+  }, [])
 
 
 
@@ -140,7 +169,7 @@ const UserPanel = () => {
                  <FaRegBuilding className="icon text-success me-3" size={30} />
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Total Houses</p>
-                  <h5 className="mb-3">{30}</h5>
+                  <h5 className="mb-3">{totalHouses}</h5>
                 </div>
               </div>
             </CardBody>
@@ -156,7 +185,7 @@ const UserPanel = () => {
                  <FaUserTie className="icon text-primary me-3" size={30} />
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Total Field Staff</p>
-                  <h5 className="mb-3">{3}</h5>
+                  <h5 className="mb-3">{totalFieldStaff}</h5>
                 </div>
               </div>
             </CardBody>

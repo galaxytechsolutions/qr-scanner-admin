@@ -63,7 +63,6 @@ const Login = (props) => {
     dispatch(socialLogin(type, props.router.navigate));
   };
 
-  // ✅ Updated login logic
   const handleLogin = async (e) => {
     e.preventDefault();
 

@@ -11,6 +11,7 @@ import {
   Button,
 } from "reactstrap";
 import { CSCInstance, ImgBaseUrl } from "../Instence/ImgInstence";
+import ReactSwitch from "react-switch";
 
 const AddHouseholdModal = ({
   modalOpen,
@@ -170,10 +171,9 @@ const AddHouseholdModal = ({
           </FormGroup>
 
           {/* Profile Pic */}
-          <FormGroup>
+          {/* <FormGroup>
             <Label>Profile Pic</Label>
 
-            {/* Show existing image from backend OR newly selected file preview */}
             {(newHouse.profilePic || newHouse.profilePicFile) && (
               <div
                 className="position-relative d-inline-block mb-2"
@@ -182,8 +182,8 @@ const AddHouseholdModal = ({
                 <img
                   src={
                     newHouse.profilePicFile
-                      ? URL.createObjectURL(newHouse.profilePicFile) // preview if new file selected
-                      : `${ImgBaseUrl}${newHouse.profilePic}`        // existing image from backend
+                      ? URL.createObjectURL(newHouse.profilePicFile) 
+                      : `${ImgBaseUrl}${newHouse.profilePic}`        
                   }
                   alt="Profile"
                   style={{
@@ -193,7 +193,6 @@ const AddHouseholdModal = ({
                     borderRadius: "5px",
                   }}
                 />
-                {/* X Icon to remove image */}
                 <button
                   type="button"
                   onClick={() =>
@@ -229,7 +228,7 @@ const AddHouseholdModal = ({
                 }
               }}
             />
-          </FormGroup>
+          </FormGroup> */}
 
 
           {/* Phone No */}
@@ -356,22 +355,29 @@ const AddHouseholdModal = ({
             />
           </FormGroup>
 
-          {/* WhatsApp Active */}
-          <FormGroup check>
-            <Label check>
-              <Input
-                type="checkbox"
-                checked={!!newHouse.isWhatsappActive}
-                onChange={(e) =>
-                  setNewHouse({
-                    ...newHouse,
-                    isWhatsappActive: e.target.checked,
-                  })
-                }
-              />{" "}
-              WhatsApp Active
-            </Label>
+          <FormGroup className="d-flex align-items-center">
+            <Label className="me-3 mb-0">WhatsApp Active</Label>
+            <ReactSwitch
+              checked={!!newHouse.isWhatsappActive}
+              onChange={(checked) =>
+                setNewHouse({
+                  ...newHouse,
+                  isWhatsappActive: checked,
+                })
+              }
+              onColor="#0d6efd"
+              offColor="#ccc"
+              handleDiameter={12}
+              height={20}
+              width={40}
+              uncheckedIcon={false}
+              checkedIcon={false}
+            />
+            <span className="ms-2 fw-bold">
+              {newHouse.isWhatsappActive ? "Yes" : "No"}
+            </span>
           </FormGroup>
+
 
           {/* Volunteer Notes */}
           <FormGroup>

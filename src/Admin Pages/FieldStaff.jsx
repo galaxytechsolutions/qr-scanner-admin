@@ -153,8 +153,8 @@ const FieldStaff = () => {
                   <th>Phone Number</th>
                   <th>Email</th>
                   <th>WhatsApp Active</th>
-                  <th>Total Houses Assigned</th>
                   <th>Total Houses Covered</th>
+                  <th>Total Houses Assigned</th>
                   <th>Notes</th>
                   <th>Actions</th>
                 </tr>
