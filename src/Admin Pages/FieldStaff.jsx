@@ -45,32 +45,49 @@ const FieldStaff = () => {
   }, []);
 
   // Add staff
+  // Add staff
   const handleSaveStaff = async (staffData) => {
     try {
+      const formData = new FormData();
+
+      // Append all keys
+      Object.keys(staffData).forEach((key) => {
+        if (staffData[key] !== undefined && staffData[key] !== null) {
+          formData.append(key, staffData[key]);
+        }
+      });
+
+      let res;
       if (editMode && selectedStaff) {
-        const res = await Instance.put(`staff/${selectedStaff._id}`, staffData);
+        res = await Instance.put(`staff/${selectedStaff._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         const updated = res.data.staff || res.data;
         setStaffList((prev) =>
           prev.map((item) => (item._id === selectedStaff._id ? updated : item))
         );
         Swal.fire("Success", "Staff member updated successfully", "success");
       } else {
-        const res = await Instance.post("staff", staffData);
+        res = await Instance.post("staff", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         const added = res.data.staff || res.data;
         setStaffList((prev) => [...prev, added]);
         Swal.fire("Success", "Staff member added successfully", "success");
       }
+
       setModalOpen(false);
       setEditMode(false);
       setSelectedStaff(null);
     } catch (error) {
       console.error("Error saving staff:", error.response?.data || error);
-      Swal.fire("Error", error.response?.data?.error || "Failed to save staff member", "error");
+      Swal.fire(
+        "Error",
+        error.response?.data?.error || "Failed to save staff member",
+        "error"
+      );
     }
   };
-
-
-
 
   // Delete staff
   const handleDelete = (staffId) => {

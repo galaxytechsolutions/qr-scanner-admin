@@ -39,6 +39,7 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
         role: "staff",
         locationCode: "",
         assignedRegion: "",
+        profilePic: "",
         phoneNo: "",
         email: "",
         whatsappActive: false,
@@ -76,22 +77,11 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
           </FormGroup>
 
           <FormGroup>
-            <Label for="locationCode">Location Code</Label>
+            <Label for="profilePic">Profile Picture</Label>
             <Input
-              type="text"
-              id="locationCode"
-              value={newField.locationCode}
-              onChange={(e) => handleChange("locationCode", e.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label for="assignedRegion">Assigned Region</Label>
-            <Input
-              type="text"
-              id="assignedRegion"
-              value={newField.assignedRegion}
-              onChange={(e) => handleChange("assignedRegion", e.target.value)}
+              type="file"
+              id="profilePic"
+              onChange={(e) => handleChange("profilePic", e.target.files[0])}
             />
           </FormGroup>
 
@@ -112,6 +102,26 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
               id="email"
               value={newField.email}
               onChange={(e) => handleChange("email", e.target.value)}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label for="locationCode">Location Code</Label>
+            <Input
+              type="text"
+              id="locationCode"
+              value={newField.locationCode}
+              onChange={(e) => handleChange("locationCode", e.target.value)}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label for="assignedRegion">Assigned Region</Label>
+            <Input
+              type="text"
+              id="assignedRegion"
+              value={newField.assignedRegion}
+              onChange={(e) => handleChange("assignedRegion", e.target.value)}
             />
           </FormGroup>
 
