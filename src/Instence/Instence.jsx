@@ -1,7 +1,7 @@
 // src/Instance.js
 import axios from 'axios';
 
-const BaseUrl = 'http://localhost:5000/api'; // Your base URL
+const BaseUrl = 'http://localhost:8080/api'; // Your base URL
 
 // Create an instance of axios with default configurations
 const Instance = axios.create({
@@ -23,7 +23,7 @@ Instance.interceptors.request.use((config) => {
 export  {Instance, BaseUrl};
 
 const authInstance = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
+  baseURL: "http://localhost:8080/api/auth",
   headers: { "Content-Type": "application/json" },
 });
 

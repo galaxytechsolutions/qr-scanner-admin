@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const ImgBaseUrl = "http://localhost:5000";
+export const ImgBaseUrl = "http://localhost:8080";
 
 // Country-State-City API Instance
 
