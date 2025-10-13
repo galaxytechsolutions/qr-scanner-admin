@@ -8,6 +8,7 @@ import FieldStaffModal from "../AdminComponents/FieldStaffModal";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
 import { useNavigate } from "react-router-dom";
+import ConstituencyDropdown from "../components/ContituenciesDropdown";
 
 const FieldStaff = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,29 +23,66 @@ const FieldStaff = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
+  const [role, setRole] = useState("");
+  const [constituencies, setConstituencies] = useState([]);
+  const [selectedConstituency, setSelectedConstituency] = useState("");
 
 
   // Fetch staff on mount
   useEffect(() => {
-    const fetchStaff = async () => {
+    const fetchStaff = async (constituency) => {
+      if (!constituency) return;
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        const res = await Instance.get("staff");
-        console.log("API Response:", res.data.staff);
-
+        const res = await Instance.get(`/staff/constituency/${constituency}`);
         const staffArray = Array.isArray(res.data.staff) ? res.data.staff : [];
         setStaffList(staffArray);
+        console.log("Fetched staff:", staffArray);
       } catch (err) {
         console.error("Error fetching staff:", err);
         setError("Failed to load staff data");
+        setStaffList([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchStaff();
+
+
+    const auth = JSON.parse(localStorage.getItem("authUser"));
+    const userRole = auth?.user?.role || auth?.role;
+    setRole(userRole);
+
+    if (userRole === "Admin") {
+      const constituency = auth?.user?.constituency;
+      setSelectedConstituency(constituency);
+      fetchStaff(constituency);
+    } else if (userRole === "SuperAdmin") {
+      setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
+    }
   }, []);
 
-  // Add staff
+  const handleConstituencyChange = (e) => {
+    const value = e.target.value;
+    setSelectedConstituency(value);
+    setLoading(true);
+    setError(null);
+    Instance.get(`/staff/constituency/${value}`)
+      .then((res) => {
+        setStaffList(Array.isArray(res.data.staff) ? res.data.staff : []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to load staff data");
+        setStaffList([]);
+      })
+      .finally(() => setLoading(false));
+  };
+
+
+
+
+
   // Add staff
   const handleSaveStaff = async (staffData) => {
     try {
@@ -140,89 +178,105 @@ const FieldStaff = () => {
         {/* Search + Add */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-6 border-1px-gray">
-            <input
-              className="form-control cursor-pointer border border-primary"
-              type="search"
-              placeholder="Search here..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            {role === "SuperAdmin" && (
+              <div className="col-md-4 mt-2 mb-2">
+                <ConstituencyDropdown
+                  value={selectedConstituency}
+                  onChange={(value) => {
+                    setSelectedConstituency(value);
+                    handleConstituencyChange({ target: { value } }); // reuse your existing logic
+                  }}
+                  placeholder="Select Constituency"
+                />
+              </div>
+            )}
+
+            {(role !== "SuperAdmin" || selectedConstituency) && (
+                <input
+                  className="form-control cursor-pointer border border-primary"
+                  type="search"
+                  placeholder="Search here..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              )
+            }
           </div>
+
           <Button color="primary" onClick={() => setModalOpen(true)}>
             + Add Staff
           </Button>
         </div>
 
-        {/* Loader / Error */}
-        {loading && <p>Loading staff data...</p>}
-        {error && <p className="text-danger">{error}</p>}
 
         {/* Table */}
-        {!loading && !error && (
-          <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
-            <Table striped bordered hover responsive >
-              <thead className="text-center">
-                <tr>
-                  <th>S.No.</th>
-                  <th>Name</th>
-                  <th>Location Code</th>
-                  <th>Assigned Region</th>
-                  <th>Phone Number</th>
-                  <th>Email</th>
-                  <th>WhatsApp Active</th>
-                  <th>Total Houses Covered</th>
-                  <th>Total Houses Assigned</th>
-                  <th>Notes</th>
-                  <th>Actions</th>
+        <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
+          <Table striped bordered hover responsive >
+            <thead className="text-center">
+              <tr>
+                <th>S.No.</th>
+                <th>Name</th>
+                <th>Location Code</th>
+                <th>Constituency</th>
+                <th>Assigned Region</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>WhatsApp Active</th>
+                <th>Total Houses Covered</th>
+                <th>Total Houses Assigned</th>
+                <th>Notes</th>
+                <th>Admin name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedData.map((staff, index) => (
+                <tr key={staff.staffId || index}>
+                  <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td>{staff.name}</td>
+                  <td>{staff.locationCode}</td>
+                  <td>{staff.constituency}</td>
+                  <td>{staff.assignedRegion}</td>
+                  <td>{staff.phoneNo}</td>
+                  <td>{staff.email}</td>
+                  <td>{staff.whatsappActive ? "Yes" : "No"}</td>
+                  <td>{staff.assignedHouses?.length || 0}</td>
+                  <td>{staff.totalHousesCovered}</td>
+                  <td>{staff.notes}</td>
+                  <td>{staff.addedBy.name}</td>
+                  <td>
+                    <div className="d-flex justify-content-center align-items-center gap-3">
+                      <FaRegEye
+                        size={20}
+                        title="View"
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/field-staff/${staff._id}`)}
+                      />
+
+                      <FaUserEdit
+                        size={20}
+                        className="cursor-pointer text-info"
+                        onClick={() => {
+                          setSelectedStaff(staff);
+                          setEditMode(true);
+                          setModalOpen(true);
+                        }}
+                      />
+
+                      <MdDeleteForever
+                        size={20}
+                        title="Delete"
+                        className="cursor-pointer text-danger"
+                        onClick={() => handleDelete(staff._id)}
+                      />
+
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {paginatedData.map((staff, index) => (
-                  <tr key={staff.staffId || index}>
-                    <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                    <td>{staff.name}</td>
-                    <td>{staff.locationCode}</td>
-                    <td>{staff.assignedRegion}</td>
-                    <td>{staff.phoneNo}</td>
-                    <td>{staff.email}</td>
-                    <td>{staff.whatsappActive ? "Yes" : "No"}</td>
-                    <td>{staff.assignedHouses?.length || 0}</td>
-                    <td>{staff.totalHousesCovered}</td>
-                    <td>{staff.notes}</td>
-                    <td>
-                      <div className="d-flex justify-content-center align-items-center gap-3">
-                        <FaRegEye
-                          size={20}
-                          title="View"
-                          className="cursor-pointer"
-                          onClick={() => navigate(`/field-staff/${staff._id}`)}
-                        />
-
-                        <FaUserEdit
-                          size={20}
-                          className="cursor-pointer text-info"
-                          onClick={() => {
-                            setSelectedStaff(staff);
-                            setEditMode(true);
-                            setModalOpen(true);
-                          }}
-                        />
-
-                        <MdDeleteForever
-                          size={20}
-                          title="Delete"
-                          className="cursor-pointer text-danger"
-                          onClick={() => handleDelete(staff._id)}
-                        />
-
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        )}
+              ))}
+            </tbody>
+          </Table>
+        </div>
 
         <CustomPagination
           currentPage={currentPage}

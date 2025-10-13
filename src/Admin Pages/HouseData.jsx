@@ -8,6 +8,7 @@ import AddHouseholdModal from "../AdminComponents/AddHouseholdModal";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
 import { useNavigate } from "react-router-dom";
+import ConstituencyDropdown from "../components/ContituenciesDropdown";
 
 const emptyHouse = {
   _id: "",
@@ -42,23 +43,72 @@ const HouseData = () => {
   const [households, setHouseholds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   const [modalOpen, setModalOpen] = useState(false);
   const [newHouse, setNewHouse] = useState(emptyHouse);
+  const [role, setRole] = useState("");
+  const [constituencies, setConstituencies] = useState([]);
+  const [selectedConstituency, setSelectedConstituency] = useState("");
+
+
+  const getErrorMessage = (error) => {
+    if (error.response) {
+      if (error.response.data) {
+        if (typeof error.response.data === "string") return error.response.data;
+        if (error.response.data.error) return error.response.data.error;
+        return JSON.stringify(error.response.data);
+      }
+      return error.response.statusText;
+    }
+    return error.message || "Something went wrong";
+  };
+
 
   useEffect(() => {
-    getData();
+    if (selectedConstituency) getData(selectedConstituency);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConstituency]);
+
+  useEffect(() => {
+    const auth = JSON.parse(localStorage.getItem("authUser"));
+    const role = auth?.user?.role || auth?.role; // adjust based on stored object
+    setRole(role);
+
+    if (role === "Admin") {
+      const constituency = auth?.user?.constituency;
+      setSelectedConstituency(constituency);
+      getData(constituency);
+    } else if (role === "SuperAdmin") {
+      setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
+    }
   }, []);
 
-  const getData = async () => {
+
+  const getData = async (constituency) => {
+    if (!constituency) return;
+
     try {
-      const response = await Instance.get("/houseData");
-      console.log("rws", response.data);
-      if (response.status === 200) setHouseholds(response.data.houseData);
+      const response = await Instance.get(`/houseData/constituency/${constituency}`);
+      // Ensure we store an array
+      const housesArray = Array.isArray(response.data)
+        ? response.data
+        : response.data.houses || [];
+      setHouseholds(housesArray);
+      console.log("Fetched households:", housesArray);
     } catch (error) {
-      Swal.fire("Error", "Failed to fetch household data", "error");
+      Swal.fire("Error", getErrorMessage(error), "error");
+      setHouseholds([]);
     }
   };
+
+
+  const handleConstituencyChange = (e) => {
+    const value = e.target.value;
+    setSelectedConstituency(value);
+    getData(value);
+  };
+
+
+
 
   const handleDelete = async (_id) => {
     Swal.fire({
@@ -75,7 +125,7 @@ const HouseData = () => {
           setHouseholds((prev) => prev.filter((item) => item._id !== _id));
           Swal.fire("Deleted!", "Household has been removed.", "success");
         } catch (error) {
-          Swal.fire("Error", "Failed to delete household data", "error");
+          Swal.fire("Error", getErrorMessage(error), "error");
         }
       }
     });
@@ -122,7 +172,7 @@ const HouseData = () => {
       }
     } catch (error) {
       console.error("Add household error:", error.response?.data || error.message);
-      Swal.fire("Error", "Failed to Add household data", "error");
+      Swal.fire("Error", getErrorMessage(error), "error");
     }
   };
 
@@ -173,7 +223,7 @@ const HouseData = () => {
       }
     } catch (error) {
       console.error("Update household error:", error.response?.data || error.message);
-      Swal.fire("Error", "Failed to update household data", "error");
+      Swal.fire("Error", getErrorMessage(error), "error");
     }
   };
 
@@ -199,22 +249,33 @@ const HouseData = () => {
         <Breadcrumbs title="QR INTI ID" breadcrumbItem="Household Data" />
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-6 border-1px-gray">
-            <input
-              className="form-control cursor-pointer border border-primary"
-              type="search"
-              placeholder="Search here..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            {role === "SuperAdmin" && (
+              <div className="col-md-4 mt-2 mb-2">
+                <ConstituencyDropdown
+                  value={selectedConstituency}
+                  onChange={(value) => {
+                    setSelectedConstituency(value);
+                    handleConstituencyChange({ target: { value } }); // reuse your existing logic
+                  }}
+                  placeholder="Select Constituency"
+                />
+              </div>
+            )}
+
+            {(role !== "SuperAdmin" || selectedConstituency) && (
+              <input
+                className="form-control cursor-pointer border border-primary"
+                type="search"
+                placeholder="Search here..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            )
+            }
           </div>
-          <Button
-            color="success"
-            onClick={() => {
-              setNewHouse(emptyHouse); // reset for add
-              setModalOpen(true);
-            }}
-          >
-            + Add Household
+
+          <Button color="primary" onClick={() => setModalOpen(true)}>
+            + Add Staff
           </Button>
         </div>
 
@@ -226,6 +287,7 @@ const HouseData = () => {
                 <th>QR Code</th>
                 <th>State</th>
                 <th>City</th>
+                <th>Constituency</th>
                 <th>Mandal</th>
                 <th>Location</th>
                 <th>Booth</th>
@@ -241,6 +303,8 @@ const HouseData = () => {
                 <th>Complaints</th>
                 <th>WhatsApp Active</th>
                 <th>Volunteer Note</th>
+                <th>Agent Name</th>
+                <th>Admin Name</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -252,6 +316,7 @@ const HouseData = () => {
                   <td>{stateOptions[household.state]}</td>
                   <td>{household.city}</td>
                   <td>{household.mandal}</td>
+                  <td>{household.constituency}</td>
                   <td>{household.location}</td>
                   <td>{household.booth}</td>
                   <td>{household.phoneNo}</td>
@@ -266,6 +331,8 @@ const HouseData = () => {
                   <td>{household.complaints}</td>
                   <td>{household.whatsappActive ? "Yes" : "No"}</td>
                   <td>{household.volunteerNote}</td>
+                  <td>{household.assignedStaff?.name}</td>
+                  <td>{household.adminId?.name}</td>
                   <td>
                     <div className="d-flex justify-content-center align-items-center gap-3">
                       <FaRegEye
@@ -305,7 +372,7 @@ const HouseData = () => {
           totalPages={totalPages}
           onPageChange={setCurrentPage}
         />
-      </Container>
+      </Container >
 
       <AddHouseholdModal
         modalOpen={modalOpen}
@@ -315,7 +382,7 @@ const HouseData = () => {
         handleAddHousehold={handleAddHousehold}
         handleUpdateHousehold={handleUpdateHousehold}
       />
-    </div>
+    </div >
   );
 };
 

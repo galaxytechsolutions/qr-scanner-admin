@@ -73,7 +73,6 @@ const Login = (props) => {
       });
 
       if (res.data && res.data.token) {
-        // Save token & user in localStorage
         localStorage.setItem("authUser", JSON.stringify(res.data));
         console.log("Redirecting to Dashboard");
         setRedirect(true);

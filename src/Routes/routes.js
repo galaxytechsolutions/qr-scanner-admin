@@ -98,6 +98,7 @@ import FieldStaff from "../Admin Pages/FieldStaff.jsx";
 import { components } from "react-select";
 import HouseDataDetails from "../AdminComponents/SinglePageComponents/HouseDataDetails.jsx";
 import PropertyOverview from "../AdminComponents/SinglePageComponents/PropertyOverview.jsx";
+import ReferralProgram from "../Admin Pages/ReferralProgram.jsx";
 
 
 
@@ -106,11 +107,12 @@ const authUser = JSON.parse(localStorage.getItem('authUser'));
 const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
-  { path: "/house-data", component: <HouseData/> },
-  { path:"/household/:id", component: < HouseDataDetails/>},
+  { path: "/house-data", component: <HouseData /> },
+  { path: "/household/:id", component: < HouseDataDetails /> },
 
-   { path: "/field-staff", component: <FieldStaff/> },
-   { path:"/field-staff/:id", component: <PropertyOverview/>},
+  { path: "/field-staff", component: <FieldStaff /> },
+  { path: "/field-staff/:id", component: <PropertyOverview /> },
+  { path: "/referral", component: <ReferralProgram /> },
 
 
   // Calender
@@ -191,7 +193,7 @@ const authProtectedRoutes = [
   {
     path: "/",
     exact: true,
-    component:  authUser ? <Navigate to="/dashboard" /> : <Navigate to="/login" />,
+    component: authUser ? <Navigate to="/dashboard" /> : <Navigate to="/login" />,
   },
 ];
 

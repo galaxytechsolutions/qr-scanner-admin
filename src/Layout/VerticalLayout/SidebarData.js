@@ -26,13 +26,13 @@ const SidebarData = [
         isHasArrow: true,
         url: "/field-staff",
     },
-    // {
-    //     label: "Users",
-    //     icon: "mdi mdi-account-multiple-outline",
-    //     url: "/users",
-    //     isHasArrow: true,
+    {
+        label: "Referrals",
+        icon: "mdi mdi-account-multiple-outline",
+        url: "/referral",
+        isHasArrow: true,
 
-    // },
+    },
     
     // {
     //     label: "Franchise",
