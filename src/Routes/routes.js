@@ -99,6 +99,7 @@ import { components } from "react-select";
 import HouseDataDetails from "../AdminComponents/SinglePageComponents/HouseDataDetails.jsx";
 import PropertyOverview from "../AdminComponents/SinglePageComponents/PropertyOverview.jsx";
 import ReferralProgram from "../Admin Pages/ReferralProgram.jsx";
+import ReferralForm from "../Pages/Authentication/ReferralForm.jsx";
 
 
 
@@ -204,6 +205,7 @@ const publicRoutes = [
   { path: "/login", component: <Login /> },
   { path: "/forgot-password", component: <ForgetPasswordPage /> },
   { path: "/register", component: <Register /> },
+  { path: "/refer/:referralId", component: <ReferralForm /> },
 
   // Authentication Inner Pages
   { path: "/auth-login", component: <Login1 /> },

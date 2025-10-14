@@ -192,14 +192,14 @@ const FieldStaff = () => {
             )}
 
             {(role !== "SuperAdmin" || selectedConstituency) && (
-                <input
-                  className="form-control cursor-pointer border border-primary"
-                  type="search"
-                  placeholder="Search here..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              )
+              <input
+                className="form-control cursor-pointer border border-primary"
+                type="search"
+                placeholder="Search here..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            )
             }
           </div>
 
@@ -216,7 +216,7 @@ const FieldStaff = () => {
               <tr>
                 <th>S.No.</th>
                 <th>Name</th>
-                <th>Location Code</th>
+                <th>Location</th>
                 <th>Constituency</th>
                 <th>Assigned Region</th>
                 <th>Phone Number</th>
@@ -233,17 +233,17 @@ const FieldStaff = () => {
               {paginatedData.map((staff, index) => (
                 <tr key={staff.staffId || index}>
                   <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td>{staff.name}</td>
-                  <td>{staff.locationCode}</td>
-                  <td>{staff.constituency}</td>
-                  <td>{staff.assignedRegion}</td>
-                  <td>{staff.phoneNo}</td>
-                  <td>{staff.email}</td>
+                  <td>{staff.name || "-"}</td>
+                  <td>{staff.locationCode || "-"}</td>
+                  <td>{staff.constituency || "-"}</td>
+                  <td>{staff.assignedRegion || "-"}</td>
+                  <td>{staff.phoneNo || "-"}</td>
+                  <td>{staff.email || "-"}</td>
                   <td>{staff.whatsappActive ? "Yes" : "No"}</td>
                   <td>{staff.assignedHouses?.length || 0}</td>
-                  <td>{staff.totalHousesCovered}</td>
-                  <td>{staff.notes}</td>
-                  <td>{staff.addedBy.name}</td>
+                  <td>{staff.totalHousesCovered || 0}</td>
+                  <td>{staff.notes || "-"}</td>
+                  <td>{staff.addedBy?.name || "-"}</td>
                   <td>
                     <div className="d-flex justify-content-center align-items-center gap-3">
                       <FaRegEye

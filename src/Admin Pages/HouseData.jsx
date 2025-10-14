@@ -255,7 +255,7 @@ const HouseData = () => {
                   value={selectedConstituency}
                   onChange={(value) => {
                     setSelectedConstituency(value);
-                    handleConstituencyChange({ target: { value } }); // reuse your existing logic
+                    handleConstituencyChange({ target: { value } });
                   }}
                   placeholder="Select Constituency"
                 />

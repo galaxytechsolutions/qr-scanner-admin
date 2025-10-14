@@ -106,7 +106,7 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
           </FormGroup>
 
           <FormGroup>
-            <Label for="locationCode">Location Code</Label>
+            <Label for="locationCode">Location</Label>
             <Input
               type="text"
               id="locationCode"
@@ -114,6 +114,15 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
               onChange={(e) => handleChange("locationCode", e.target.value)}
             />
           </FormGroup>
+          {/* <FormGroup>
+            <Label for="totalHousesAssigned">Contituency</Label>
+            <Input
+              type="text"
+              id="totalHousesAssigned"
+              value={newField.totalHousesAssigned}
+              onChange={(e) => handleChange("totalHousesAssigned", e.target.value)}
+            />
+          </FormGroup> */}
 
           <FormGroup>
             <Label for="assignedRegion">Assigned Region</Label>
@@ -141,15 +150,6 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
             <span className="ms-2 fw-bold">
               {newField.whatsappActive ? "Yes" : "No"}
             </span>
-          </FormGroup>
-          <FormGroup>
-            <Label for="totalHousesAssigned">Total Houses Covered</Label>
-            <Input
-              type="number"
-              id="totalHousesAssigned"
-              value={newField.totalHousesAssigned}
-              onChange={(e) => handleChange("totalHousesAssigned", e.target.value)}
-            />
           </FormGroup>
 
           <FormGroup>
