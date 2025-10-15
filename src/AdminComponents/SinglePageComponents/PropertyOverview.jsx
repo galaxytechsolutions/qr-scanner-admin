@@ -77,7 +77,7 @@ const PropertyOverview = () => {
                   </div>
 
                   <div className="d-grid" style={{ gridTemplateColumns: "160px auto" }}>
-                    <span className="fw-semibold text-muted">Location Code</span>
+                    <span className="fw-semibold text-muted">Location</span>
                     <span className="text-dark">
                       : <Badge bg="danger" pill>{staff.locationCode}</Badge>
                     </span>

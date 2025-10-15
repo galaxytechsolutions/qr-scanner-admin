@@ -3,18 +3,25 @@ import { Table, Container } from "reactstrap";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import CustomPagination from "../AdminComponents/CustomPagination";
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaCheckCircle, FaRegEye, FaTimesCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const mockReferrals = [
-  { _id: '1', name: 'John Doe', phoneNo: '123-456-7890', email: 'john.doe@example.com',whatsappActive:true, refferredBy: 'Jane Smith', status: 'pending' },
-  { _id: '2', name: 'Jane Smith', phoneNo: '098-765-4321', email: 'jane.smith@example.com',whatsappActive:true, 
-    refferredBy: 'John Vir', status: 'accepted' },
-  { _id: '3', name: 'Peter Jones', phoneNo: '555-555-5555', email: 'peter.jones@example.com',whatsappActive:false,
-    refferredBy: 'Mary Raja', status: 'rejected' },
-  { _id: '4', name: 'Mary Johnson', phoneNo: '111-222-3333', email: 'mary.j@example.com',whatsappActive:true, refferredBy: 'Malika',status: 'pending' },
-  { _id: '5', name: 'David Williams', phoneNo: '444-555-6666', email: 'david.w@example.com',whatsappActive:true, 
-    refferredBy: 'John Paul', status: 'pending' },
-  { _id: '6', name: 'Susan Brown', phoneNo: '777-888-9999', email: 'susan.b@example.com',whatsappActive:false, refferredBy: 'William', status: 'accepted' },
+  { _id: '1', name: 'John Doe', phoneNo: '123-456-7890', email: 'john.doe@example.com', whatsappActive: true, refferredBy: 'Jane Smith', status: 'pending' },
+  {
+    _id: '2', name: 'Jane Smith', phoneNo: '098-765-4321', email: 'jane.smith@example.com', whatsappActive: true,
+    refferredBy: 'John Vir', status: 'accepted'
+  },
+  {
+    _id: '3', name: 'Peter Jones', phoneNo: '555-555-5555', email: 'peter.jones@example.com', whatsappActive: false,
+    refferredBy: 'Mary Raja', status: 'rejected'
+  },
+  { _id: '4', name: 'Mary Johnson', phoneNo: '111-222-3333', email: 'mary.j@example.com', whatsappActive: true, refferredBy: 'Malika', status: 'pending' },
+  {
+    _id: '5', name: 'David Williams', phoneNo: '444-555-6666', email: 'david.w@example.com', whatsappActive: true,
+    refferredBy: 'John Paul', status: 'pending'
+  },
+  { _id: '6', name: 'Susan Brown', phoneNo: '777-888-9999', email: 'susan.b@example.com', whatsappActive: false, refferredBy: 'William', status: 'accepted' },
 ];
 
 const ReferralProgram = () => {
@@ -22,6 +29,7 @@ const ReferralProgram = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
+  const navigate = useNavigate();
 
   const handleStatusUpdate = async (id, status) => {
     const action = status === "accepted" ? "Accept" : "Reject";
@@ -112,24 +120,32 @@ const ReferralProgram = () => {
                     <td className="text-center">{getStatusBadge(referral.status)}</td>
                     <td>{referral.refferredBy}</td>
                     <td>
-                      {referral.status === "pending" && (
-                        <div className="d-flex justify-content-center gap-3">
-                          <FaCheckCircle
-                            size={22}
-                            className="cursor-pointer text-success"
-                            title="Accept Referral"
-                            onClick={() => handleStatusUpdate(referral._id, "accepted")}
-                          />
-                          <FaTimesCircle
-                            size={22}
-                            className="cursor-pointer text-danger"
-                            title="Reject Referral"
-                            onClick={() =>
-                              handleStatusUpdate(referral._id, "rejected")
-                            }
-                          />
-                        </div>
-                      )}
+                      <div className="d-flex justify-content-center gap-3">
+                        {referral.status === "pending" && (
+                          <>
+                            <FaCheckCircle
+                              size={22}
+                              className="cursor-pointer text-success"
+                              title="Accept Referral"
+                              onClick={() => handleStatusUpdate(referral._id, "accepted")}
+                            />
+                            <FaTimesCircle
+                              size={22}
+                              className="cursor-pointer text-danger"
+                              title="Reject Referral"
+                              onClick={() =>
+                                handleStatusUpdate(referral._id, "rejected")
+                              }
+                            />
+                          </>
+                        )}
+                        <FaRegEye
+                          size={20}
+                          title="View"
+                          className="cursor-pointer"
+                          onClick={() => navigate(`/referral/${referral._id}`)}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))

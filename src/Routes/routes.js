@@ -100,6 +100,7 @@ import HouseDataDetails from "../AdminComponents/SinglePageComponents/HouseDataD
 import PropertyOverview from "../AdminComponents/SinglePageComponents/PropertyOverview.jsx";
 import ReferralProgram from "../Admin Pages/ReferralProgram.jsx";
 import ReferralForm from "../Pages/Authentication/ReferralForm.jsx";
+import ReferralOverView from "../AdminComponents/SinglePageComponents/ReferralOverView.jsx";
 
 
 
@@ -114,6 +115,8 @@ const authProtectedRoutes = [
   { path: "/field-staff", component: <FieldStaff /> },
   { path: "/field-staff/:id", component: <PropertyOverview /> },
   { path: "/referral", component: <ReferralProgram /> },
+  { path: "/referral/:id", component: <ReferralOverView /> },
+
 
 
   // Calender
