@@ -70,11 +70,11 @@ const HouseData = () => {
 
   useEffect(() => {
     const auth = JSON.parse(localStorage.getItem("authUser"));
-    const role = auth?.user?.role || auth?.role; // adjust based on stored object
+    const role = auth?.user?.role || auth?.role || ""; // adjust based on stored object
     setRole(role);
 
-    if (role === "Admin") {
-      const constituency = auth?.user?.constituency;
+    if (role === "Admin" || role === "admin") {
+      const constituency = auth?.user?.constituency || auth?.constituency;
       setSelectedConstituency(constituency);
       getData(constituency);
     } else if (role === "SuperAdmin") {
@@ -275,7 +275,7 @@ const HouseData = () => {
           </div>
 
           <Button color="primary" onClick={() => setModalOpen(true)}>
-            + Add Staff
+            + Add House
           </Button>
         </div>
 

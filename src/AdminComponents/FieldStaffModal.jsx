@@ -12,12 +12,20 @@ import {
   Button,
 } from "reactstrap";
 
-const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existingData }) => {
+const FieldStaffModal = ({
+  modalOpen,
+  setModalOpen,
+  handleSave,
+  editMode,
+  existingData,
+  constituency,
+}) => {
   const [newField, setNewField] = useState({
     name: "",
     role: "staff",
     locationCode: "",
     assignedRegion: "",
+    constituency: "",
     phoneNo: "",
     email: "",
     whatsappActive: false,
@@ -38,6 +46,7 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
         name: "",
         role: "staff",
         locationCode: "",
+        constituency: constituency || "",
         assignedRegion: "",
         profilePic: "",
         phoneNo: "",
@@ -48,7 +57,7 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
         notes: "",
       });
     }
-  }, [editMode, existingData, modalOpen]);
+  }, [editMode, existingData, modalOpen, constituency]);
 
   const handleChange = (field, value) => {
     setNewField({ ...newField, [field]: value });
@@ -74,6 +83,17 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
           <FormGroup>
             <Label for="role">Role</Label>
             <Input type="text" id="role" value={newField.role} readOnly />
+          </FormGroup>
+
+          <FormGroup>
+            <Label for="constituency">Constituency</Label>
+            <Input
+              type="text"
+              id="constituency"
+              value={newField.constituency}
+              onChange={(e) => handleChange("constituency", e.target.value)}
+              readOnly={!editMode} // Or based on user role
+            />
           </FormGroup>
 
           <FormGroup>
@@ -114,15 +134,9 @@ const FieldStaffModal = ({ modalOpen, setModalOpen, handleSave, editMode, existi
               onChange={(e) => handleChange("locationCode", e.target.value)}
             />
           </FormGroup>
-          {/* <FormGroup>
-            <Label for="totalHousesAssigned">Contituency</Label>
-            <Input
-              type="text"
-              id="totalHousesAssigned"
-              value={newField.totalHousesAssigned}
-              onChange={(e) => handleChange("totalHousesAssigned", e.target.value)}
-            />
-          </FormGroup> */}
+          
+
+          
 
           <FormGroup>
             <Label for="assignedRegion">Assigned Region</Label>

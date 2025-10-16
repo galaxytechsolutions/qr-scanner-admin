@@ -44,23 +44,11 @@ const getStatusBadge = (status) => {
 
 const ReferralOverView = () => {
   const [referral, setReferral] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { id } = useParams();
-  // In real implementation, fetch referral by ID from API
+
   useEffect(() => {
-    // Simulate API call delay
-    setTimeout(() => {
-      setReferral(mockReferral); // Replace with fetched data
-      setLoading(false);  // Set loading to false when data is fetched
-    }, 1000);
+    setReferral(mockReferral); // Replace with actual API call if needed
   }, []);
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner animation="border" variant="primary" />
-      </div>
-    );
-  }
 
   if (!referral) {
     return (

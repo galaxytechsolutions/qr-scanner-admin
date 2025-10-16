@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -16,9 +16,9 @@ import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import ReactSwitch from "react-switch";
-
-const ReferralForm = () => {
-  document.title = "Referral Signup | QR INTI ID";
+import { Instance } from "../../Instence/Instence";
+const ReferralForm = () => { 
+  document.title = "Referral Form | QR INTI ID";
   const { referralId } = useParams();
   const navigate = useNavigate();
 
@@ -58,9 +58,9 @@ const ReferralForm = () => {
         }
 
         // ✅ Example API call (uncomment & adjust your Instance URL)
-        // await Instance.post(`/referral/submit/${referralId}`, formData, {
-        //   headers: { "Content-Type": "multipart/form-data" },
-        // });
+        await Instance.post(`/referral/submit/${referralId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
         Swal.fire({
           title: "Success!",

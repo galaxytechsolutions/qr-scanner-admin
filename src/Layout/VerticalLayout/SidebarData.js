@@ -14,9 +14,9 @@ const SidebarData = [
         // bgcolor: "bg-primary",
         // badgeValue: "3"
     },
-        {
+    {
         label: "House Data",
-          icon: "ri-building-line",
+        icon: "ri-building-line",
         isHasArrow: true,
         url: "/house-data",
     },
@@ -29,41 +29,49 @@ const SidebarData = [
     {
         label: "Referrals",
         icon: "mdi mdi-account-multiple-outline",
-        url: "/referral",
+        url: "/referrals",
         isHasArrow: true,
-
+        visibleFor: ["Admin"],
     },
+    {
+        label: "Admin Data",
+        icon: "ri-shield-user-line",
+        isHasArrow: true,
+        url: "/admin-data",
+        visibleFor: ["SuperAdmin"]
     
+    },
+
     // {
     //     label: "Franchise",
     //     icon: "ri-tools-line",
     //     isHasArrow: true,
     //     url: "/franchises",
     // },
-    
-    
-    
+
+
+
     // {
-        //     label: "Blogs",
-        //     icon: "ri-quill-pen-line",
-        //     isHasArrow: true,
-        //     url: "/blogs",
-        // },
-        
-        // {
-        //     "label": "Locations",
-        //     "icon": "ri-map-pin-line",
-        //     "isHasArrow": true,
-        //     "url": "/locations"
-        // },
-        
-        // {
-        //     label: "Testimonial",
-        //     icon: "ri-chat-quote-line",
-        //     isHasArrow: true,
-        //     url: "/testimonial",
-        // },
-    
+    //     label: "Blogs",
+    //     icon: "ri-quill-pen-line",
+    //     isHasArrow: true,
+    //     url: "/blogs",
+    // },
+
+    // {
+    //     "label": "Locations",
+    //     "icon": "ri-map-pin-line",
+    //     "isHasArrow": true,
+    //     "url": "/locations"
+    // },
+
+    // {
+    //     label: "Testimonial",
+    //     icon: "ri-chat-quote-line",
+    //     isHasArrow: true,
+    //     url: "/testimonial",
+    // },
+
     // {
     //     label: "Music",
     //     icon: "ri-music-line",
@@ -78,7 +86,7 @@ const SidebarData = [
     // },
 
 
-    
+
 
     // {
     //     label: "Calendar",
@@ -210,6 +218,6 @@ const SidebarData = [
     //         { sublabel: "Vector Maps", link: "/maps-vector" },
     //     ],
     // },
-   
+
 ]
 export default SidebarData;

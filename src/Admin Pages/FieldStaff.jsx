@@ -50,11 +50,11 @@ const FieldStaff = () => {
 
 
     const auth = JSON.parse(localStorage.getItem("authUser"));
-    const userRole = auth?.user?.role || auth?.role;
+    const userRole = auth?.user?.role || auth?.role || "";
     setRole(userRole);
 
-    if (userRole === "Admin") {
-      const constituency = auth?.user?.constituency;
+    if (userRole === "Admin" || userRole === "admin") {
+      const constituency = auth?.user?.constituency || auth?.constituency;
       setSelectedConstituency(constituency);
       fetchStaff(constituency);
     } else if (userRole === "SuperAdmin") {
@@ -297,6 +297,7 @@ const FieldStaff = () => {
         handleSave={handleSaveStaff}
         editMode={editMode}
         existingData={selectedStaff}
+        constituency={selectedConstituency}
       />
 
 

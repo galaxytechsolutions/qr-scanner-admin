@@ -1,35 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Container } from "reactstrap";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../components/Common/Breadcrumb";
-import CustomPagination from "../AdminComponents/CustomPagination";
-import { FaCheckCircle, FaRegEye, FaTimesCircle } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-
-const mockReferrals = [
-  { _id: '1', name: 'John Doe', phoneNo: '123-456-7890', email: 'john.doe@example.com', whatsappActive: true, refferredBy: 'Jane Smith', status: 'pending' },
-  {
-    _id: '2', name: 'Jane Smith', phoneNo: '098-765-4321', email: 'jane.smith@example.com', whatsappActive: true,
-    refferredBy: 'John Vir', status: 'accepted'
-  },
-  {
-    _id: '3', name: 'Peter Jones', phoneNo: '555-555-5555', email: 'peter.jones@example.com', whatsappActive: false,
-    refferredBy: 'Mary Raja', status: 'rejected'
-  },
-  { _id: '4', name: 'Mary Johnson', phoneNo: '111-222-3333', email: 'mary.j@example.com', whatsappActive: true, refferredBy: 'Malika', status: 'pending' },
-  {
-    _id: '5', name: 'David Williams', phoneNo: '444-555-6666', email: 'david.w@example.com', whatsappActive: true,
-    refferredBy: 'John Paul', status: 'pending'
-  },
-  { _id: '6', name: 'Susan Brown', phoneNo: '777-888-9999', email: 'susan.b@example.com', whatsappActive: false, refferredBy: 'William', status: 'accepted' },
-];
+import CustomPagination from "../AdminComponents/CustomPagination"; 
+import { FaCheckCircle, FaRegEye, FaTimesCircle, FaTrashAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom"; 
+import { Instance } from "../Instence/Instence";
 
 const ReferralProgram = () => {
-  const [referrals, setReferrals] = useState(mockReferrals);
+  const [referrals, setReferrals] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const itemsPerPage = 10;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchReferrals = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await Instance.get("/referral/admin");
+        // Ensure we always have an array, even if the API response is unexpected
+        const referralsArray = Array.isArray(response.data?.referrals) ? response.data.referrals : [];
+        setReferrals(referralsArray);
+        console.log("Fetched referrals:", referralsArray);
+      } catch (err) {
+        console.error("Error fetching referrals:", err);
+        setError("Failed to load referral data.");
+        Swal.fire("Error", "Failed to load referral data.", "error");
+        setReferrals([]); // Fallback to empty array on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReferrals();
+  }, []);
+
+  const handleDeleteReferral = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure you want to delete this referral?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await Instance.delete(`/referral/admin/${id}`);
+        setReferrals((prev) => prev.filter((ref) => ref._id !== id));
+        Swal.fire("Deleted!", "Referral has been deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting referral:", error);
+        Swal.fire("Error", "Failed to delete referral.", "error");
+      }
+    }
+  };
 
   const handleStatusUpdate = async (id, status) => {
     const action = status === "accepted" ? "Accept" : "Reject";
@@ -37,15 +66,21 @@ const ReferralProgram = () => {
       title: `Are you sure you want to ${action.toLowerCase()} this referral?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${action.toLowerCase()} it!`,
+      confirmButtonText: `Yes, ${action} it!`,
       cancelButtonText: "Cancel",
     });
 
     if (result.isConfirmed) {
-      setReferrals((prev) =>
-        prev.map((ref) => (ref._id === id ? { ...ref, status } : ref))
-      );
-      Swal.fire("Success!", `Referral has been ${status}.`, "success");
+      try {
+        await Instance.put(`/referral/admin/${id}`, { status });
+        setReferrals((prev) =>
+          prev.map((ref) => (ref._id === id ? { ...ref, status } : ref))
+        );
+        Swal.fire("Success!", `Referral has been ${status}.`, "success");
+      } catch (error) {
+        console.error(`Error updating referral status:`, error);
+        Swal.fire("Error", `Failed to ${action.toLowerCase()} referral.`, "error");
+      }
     }
   };
 
@@ -65,9 +100,10 @@ const ReferralProgram = () => {
 
   const searchedData = Array.isArray(referrals)
     ? referrals.filter((item) =>
-      Object.values(item).some((val) =>
-        String(val).toLowerCase().includes(searchTerm.toLowerCase())
-      )
+        // Add a check to ensure item is not null or undefined
+        item && Object.values(item).some((val) =>
+          String(val).toLowerCase().includes(searchTerm.toLowerCase())
+        )
     )
     : [];
 
@@ -109,16 +145,26 @@ const ReferralProgram = () => {
               </tr>
             </thead>
             <tbody className="text-center">
-              {paginatedData.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="8">Loading...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="8" className="text-danger">
+                    {error}
+                  </td>
+                </tr>
+              ) : paginatedData.length > 0 ? (
                 paginatedData.map((referral, index) => (
                   <tr key={referral._id}>
                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                    <td>{referral.name}</td>
-                    <td>{referral.phoneNo}</td>
-                    <td>{referral.email}</td>
+                    <td>{referral.friendName || "-"}</td>
+                    <td>{referral.friendPhone || "-"}</td>
+                    <td>{referral.friendEmail || "-"}</td>
                     <td>{referral.whatsappActive ? 'Yes' : 'No'}</td>
-                    <td className="text-center">{getStatusBadge(referral.status)}</td>
-                    <td>{referral.refferredBy}</td>
+                    <td>{getStatusBadge(referral.status)}</td>
+                    <td>{referral.referrerStaff?.name || "-"}</td>
                     <td>
                       <div className="d-flex justify-content-center gap-3">
                         {referral.status === "pending" && (
@@ -143,7 +189,13 @@ const ReferralProgram = () => {
                           size={20}
                           title="View"
                           className="cursor-pointer"
-                          onClick={() => navigate(`/referral/${referral._id}`)}
+                          onClick={() => navigate(`/referrals/${referral._id}`)}
+                        />
+                        <FaTrashAlt
+                          size={18}
+                          title="Delete"
+                          className="cursor-pointer text-danger"
+                          onClick={() => handleDeleteReferral(referral._id)}
                         />
                       </div>
                     </td>
@@ -151,7 +203,7 @@ const ReferralProgram = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6">No referrals found.</td>
+                  <td colSpan="8">No referrals found.</td>
                 </tr>
               )}
             </tbody>

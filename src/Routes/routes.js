@@ -101,6 +101,7 @@ import PropertyOverview from "../AdminComponents/SinglePageComponents/PropertyOv
 import ReferralProgram from "../Admin Pages/ReferralProgram.jsx";
 import ReferralForm from "../Pages/Authentication/ReferralForm.jsx";
 import ReferralOverView from "../AdminComponents/SinglePageComponents/ReferralOverView.jsx";
+import AdminData from "../Admin Pages/AdminData.jsx";
 
 
 
@@ -114,8 +115,9 @@ const authProtectedRoutes = [
 
   { path: "/field-staff", component: <FieldStaff /> },
   { path: "/field-staff/:id", component: <PropertyOverview /> },
-  { path: "/referral", component: <ReferralProgram /> },
-  { path: "/referral/:id", component: <ReferralOverView /> },
+  { path: "/referrals", component: <ReferralProgram /> },
+  { path: "/referrals/:id", component: <ReferralOverView /> },
+  { path: "/admin-data", component: <AdminData /> },
 
 
 
@@ -208,7 +210,7 @@ const publicRoutes = [
   { path: "/login", component: <Login /> },
   { path: "/forgot-password", component: <ForgetPasswordPage /> },
   { path: "/register", component: <Register /> },
-  { path: "/refer/:referralId", component: <ReferralForm /> },
+  { path: "/referral/:referralId", component: <ReferralForm /> },
 
   // Authentication Inner Pages
   { path: "/auth-login", component: <Login1 /> },

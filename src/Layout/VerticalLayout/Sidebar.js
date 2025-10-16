@@ -120,13 +120,22 @@ const Sidebar = (props) => {
       }
     }
   }
+  const authUser = JSON.parse(localStorage.getItem("authUser"));
+  const role = authUser?.user?.role; 
+
+  const filteredSidebar = sidebarData.filter(item => {
+    if (!item.visibleFor) return true; 
+    return item.visibleFor.includes(role);
+  });
+
+
   return (
     <React.Fragment>
       <div className="vertical-menu">
         <SimpleBar className="h-100" ref={ref}>
           <div id="sidebar-menu">
             <ul className="metismenu list-unstyled" id="side-menu-item">
-              {(sidebarData || []).map((item, key) => (
+              {filteredSidebar.map((item, key) => (
                 <React.Fragment key={key}>
                   {item.isMainMenu ? (
                     <li className="menu-title">{props.t(item.label)}</li>
