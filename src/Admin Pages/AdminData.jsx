@@ -1,64 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Table, Button } from "reactstrap";
 import { FaRegEye, FaUserEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import CustomPagination from "../AdminComponents/CustomPagination";
-
-const mockAdmins = [
-  {
-    _id: "admin-001",
-    name: "Rohit Sharma",
-    email: "rohit@gmail.com",
-    phoneNo: "9000000001",
-    constituency: "Serilingampally",
-  },
-  {
-    _id: "admin-002",
-    name: "Virat Kohli",
-    email: "virat@example.com",
-    phoneNo: "9000000002",
-    constituency: "Kukatpally",
-  },
-  {
-    _id: "admin-003",
-    name: "Suresh Varma",
-    email: "suresh.varma@example.com",
-    phoneNo: "9000000003",
-    constituency: "Adilabad",
-  },
-  {
-    _id: "admin-004",
-    name: "Anjali Devi",
-    email: "anjali.d@example.com",
-    phoneNo: "9000000004",
-    constituency: "Warangal",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { Instance } from "../Instence/Instence";
+import AddAdminModal from "../AdminComponents/AddAdminModal";
 
 const AdminData = () => {
-  const [admins, setAdmins] = useState(mockAdmins);
+  const [admins, setAdmins] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const navigate = useNavigate();
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "You are about to delete this admin!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setAdmins((prev) => prev.filter((admin) => admin._id !== id));
-        Swal.fire("Deleted!", "The admin has been deleted.", "success");
+        try {
+          await Instance.delete(`/admin/${id}`);
+          setAdmins((prev) => prev.filter((admin) => admin._id !== id));
+          Swal.fire("Deleted!", "The admin has been removed.", "success");
+        } catch (error) {
+          console.error("Error deleting admin:", error);
+          Swal.fire("Error", "Failed to delete the admin.", "error");
+        }
       }
     });
   };
 
-  const searchedData = admins.filter((item) =>
+  const handleEdit = (admin) => {
+    setEditingAdmin(admin); 
+    setModalOpen(true);     
+  };
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const res = await Instance.get("/admin");
+        setAdmins(Array.isArray(res.data.Admins) ? res.data.Admins : []);
+        console.log("Fetched admins:", res.data?.Admins);
+      } catch (err) {
+        console.error("Error fetching admins:", err);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
+
+  const searchedData = (admins || []).filter((item) =>
     Object.values(item).some((val) =>
       String(val).toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -72,8 +73,10 @@ const AdminData = () => {
 
   return (
     <div className="page-content">
-      <Container fluid={true}>
+      <Container fluid>
         <Breadcrumbs title="QR INTI ID" breadcrumbItem="Admin Data" />
+
+        {/* Search and Add */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-4">
             <input
@@ -84,9 +87,15 @@ const AdminData = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button color="primary" onClick={() => { /* Logic to add admin */ }}>+ Add Admin</Button>
+          <Button
+            color="primary"
+            onClick={() => { setEditingAdmin(null); setModalOpen(true); }}
+          >
+            + Add Admin
+          </Button>
         </div>
 
+        {/* Admin Table */}
         <div className="table-responsive">
           <Table striped bordered hover className="text-center">
             <thead>
@@ -100,27 +109,78 @@ const AdminData = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedData.map((admin, index) => (
-                <tr key={admin._id}>
-                  <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td>{admin.name}</td>
-                  <td>{admin.email}</td>
-                  <td>{admin.phoneNo}</td>
-                  <td>{admin.constituency}</td>
-                  <td>
-                    <div className="d-flex justify-content-center gap-3">
-                      <FaRegEye size={20} className="cursor-pointer text-primary" title="View" />
-                      <FaUserEdit size={20} className="cursor-pointer text-info" title="Edit" />
-                      <MdDeleteForever size={22} className="cursor-pointer text-danger" title="Delete" onClick={() => handleDelete(admin._id)} />
-                    </div>
+              {paginatedData.length > 0 ? (
+                paginatedData.map((admin, index) => (
+                  <tr key={admin._id}>
+                    <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                    <td>{admin.name}</td>
+                    <td>{admin.email}</td>
+                    <td>{admin.phoneNo}</td>
+                    <td>{admin.constituency || "—"}</td>
+                    <td>
+                      <div className="d-flex justify-content-center gap-3">
+                        <FaRegEye
+                          size={20}
+                          title="View"
+                          className="cursor-pointer"
+                          onClick={() => navigate(`/adminData/${admin._id}`)}
+                        />
+                        <FaUserEdit
+                          size={20}
+                          className="cursor-pointer text-info"
+                          title="Edit"
+                          onClick={() => handleEdit(admin)}
+                        />
+                        <MdDeleteForever
+                          size={22}
+                          className="cursor-pointer text-danger"
+                          title="Delete"
+                          onClick={() => handleDelete(admin._id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center text-muted py-3">
+                    No admins found.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
+
           </Table>
         </div>
-        <CustomPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+        <CustomPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </Container>
+      {/* Add Admin Modal */}
+      <AddAdminModal
+        isOpen={modalOpen}
+        toggle={() => {
+          setModalOpen(!modalOpen);
+          setEditingAdmin(null); // reset after closing
+        }}
+        onAdminAdded={(adminData) => {
+          if (editingAdmin) {
+            // Editing: update the existing admin in state
+            setAdmins(prev =>
+              prev.map((adm) => (adm._id === adminData._id ? adminData : adm))
+            );
+            setEditingAdmin(null);
+          } else {
+            // Adding new admin
+            setAdmins([...admins, adminData]);
+          }
+        }}
+        adminData={editingAdmin} // pass admin to modal
+      />
+
     </div>
   );
 };

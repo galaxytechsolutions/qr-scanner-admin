@@ -9,24 +9,8 @@ import {
   FaMapPin,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-
-// Mock data for a single referral
-const mockReferral = {
-  _id: "ref-001",
-  name: "Aarav Sharma",
-  phoneNo: "9876543210",
-  email: "aarav.sharma@example.com",
-  whatsappActive: true,
-  constituency: "Adilabad",
-  status: "pending",
-  profilePic: "https://randomuser.me/api/portraits/men/1.jpg",
-  refferredBy: {
-    _id: "staff-101",
-    name: "Riya Patel",
-    role: "Field Staff",
-  },
-  createdAt: "2023-10-27T10:00:00Z",
-};
+import { Instance } from "../../Instence/Instence";
+import { ImgBaseUrl } from "../../Instence/ImgInstence";
 
 const getStatusBadge = (status) => {
   const styles = {
@@ -44,16 +28,41 @@ const getStatusBadge = (status) => {
 
 const ReferralOverView = () => {
   const [referral, setReferral] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { id } = useParams();
 
   useEffect(() => {
-    setReferral(mockReferral); // Replace with actual API call if needed
-  }, []);
+    const fetchReferral = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await Instance.get(`referral/${id}`);
+        setReferral(res.data.referral);
+        console.log("Fetched referral:", res.data?.referral);
+      } catch (err) {
+        setError("Failed to fetch referral data.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!referral) {
+    fetchReferral();
+  }, [id]);
+
+  if (loading) {
     return (
-      <div className="text-center mt-5">
-        <h5 className="text-danger">No referral data found</h5>
+      <div className="page-content text-center mt-5">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
+  }
+
+  if (error || !referral) {
+    return (
+      <div className="page-content text-center mt-5">
+        <h5 className="text-danger">{error || "No referral data found."}</h5>
       </div>
     );
   }
@@ -66,13 +75,13 @@ const ReferralOverView = () => {
             <Card.Body className="p-4 p-md-5">
               <div className="d-flex align-items-center mb-4">
                 <Image
-                  src={referral.profilePic || "/avatars/default-avatar.png"}
-                  alt="Referral"
+                  src={`${ImgBaseUrl}${referral.friendProfilePic}`}
+                  alt={referral.friendName}
                   roundedCircle
                   style={{ width: "80px", height: "80px", objectFit: "cover" }}
                 />
                 <div className="ms-3">
-                  <h3 className="fw-bold mb-1">{referral.name}</h3>
+                  <h3 className="fw-bold mb-1">{referral.friendName}</h3>
                   {getStatusBadge(referral.status)}
                 </div>
               </div>
@@ -81,8 +90,8 @@ const ReferralOverView = () => {
 
               {/* Details */}
               <Stack gap={3}>
-                <InfoItem icon={<FaPhoneAlt />} label="Phone" value={referral.phoneNo} />
-                <InfoItem icon={<FaEnvelope />} label="Email" value={referral.email} />
+                <InfoItem icon={<FaPhoneAlt />} label="Phone" value={referral.friendPhone} />
+                <InfoItem icon={<FaEnvelope />} label="Email" value={referral.friendEmail} />
                 <InfoItem
                   icon={<FaWhatsapp />}
                   label="WhatsApp"
@@ -94,13 +103,13 @@ const ReferralOverView = () => {
                     )
                   }
                 />
-                <InfoItem icon={<FaMapPin />} label="Constituency" value={referral.constituency} />
+                <InfoItem icon={<FaMapPin />} label="Constituency" value={referral.constituency || "N/A"} />
               </Stack>
 
               <hr className="my-4" />
 
               <Stack gap={3}>
-                <InfoItem icon={<FaUserTie />} label="Referred By" value={referral.refferredBy.name} />
+                <InfoItem icon={<FaUserTie />} label="Referred By" value={referral.referrerStaff?.name || "N/A"} />
                 <InfoItem icon={<FaCalendarAlt />} label="Referred On" value={new Date(referral.createdAt).toLocaleDateString()} />
               </Stack>
             </Card.Body>

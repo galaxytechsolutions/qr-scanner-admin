@@ -61,6 +61,15 @@ const AddHouseholdModal = ({
     if (modalOpen && newHouse.state) {
       fetchCities(newHouse.state);
     }
+
+    // Set default constituency for new entries
+    if (modalOpen && !newHouse._id) {
+      const authUser = JSON.parse(localStorage.getItem("authUser"));
+      const userConstituency = authUser?.user?.constituency || authUser?.constituency || "";
+      if (userConstituency) {
+        setNewHouse(prev => ({ ...prev, constituency: userConstituency }));
+      }
+    }
   }, [modalOpen, newHouse.state]);
 
   return (
@@ -167,6 +176,17 @@ const AddHouseholdModal = ({
               onChange={(e) =>
                 setNewHouse({ ...newHouse, location: e.target.value })
               }
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label for="constituency">Constituency</Label>
+            <Input
+              type="text"
+              id="constituency"
+              value={newHouse.constituency}
+              onChange={(e) => setNewHouse({ ...newHouse, constituency: e.target.value })}
+              readOnly // Make it read-only as it's auto-filled
             />
           </FormGroup>
 

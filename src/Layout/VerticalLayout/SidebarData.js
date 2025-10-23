@@ -24,7 +24,7 @@ const SidebarData = [
         label: "Field Staff",
         icon: "ri-file-list-line	",
         isHasArrow: true,
-        url: "/field-staff",
+        url: "/fieldStaff",
     },
     {
         label: "Referrals",
@@ -37,7 +37,7 @@ const SidebarData = [
         label: "Admin Data",
         icon: "ri-shield-user-line",
         isHasArrow: true,
-        url: "/admin-data",
+        url: "/adminData",
         visibleFor: ["SuperAdmin"]
     
     },

@@ -102,6 +102,7 @@ import ReferralProgram from "../Admin Pages/ReferralProgram.jsx";
 import ReferralForm from "../Pages/Authentication/ReferralForm.jsx";
 import ReferralOverView from "../AdminComponents/SinglePageComponents/ReferralOverView.jsx";
 import AdminData from "../Admin Pages/AdminData.jsx";
+import AdminOverview from "../AdminComponents/SinglePageComponents/AdminOverview.jsx";
 
 
 
@@ -113,11 +114,12 @@ const authProtectedRoutes = [
   { path: "/house-data", component: <HouseData /> },
   { path: "/household/:id", component: < HouseDataDetails /> },
 
-  { path: "/field-staff", component: <FieldStaff /> },
-  { path: "/field-staff/:id", component: <PropertyOverview /> },
+  { path: "/fieldStaff", component: <FieldStaff /> },
+  { path: "/fieldStaff/:id", component: <PropertyOverview /> },
   { path: "/referrals", component: <ReferralProgram /> },
   { path: "/referrals/:id", component: <ReferralOverView /> },
-  { path: "/admin-data", component: <AdminData /> },
+  { path: "/adminData", component: <AdminData /> },
+  { path: "/adminData/:id", component: <AdminOverview /> },
 
 
 

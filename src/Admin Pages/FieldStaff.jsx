@@ -250,7 +250,7 @@ const FieldStaff = () => {
                         size={20}
                         title="View"
                         className="cursor-pointer"
-                        onClick={() => navigate(`/field-staff/${staff._id}`)}
+                        onClick={() => navigate(`/fieldStaff/${staff._id}`)}
                       />
 
                       <FaUserEdit
