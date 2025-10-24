@@ -103,6 +103,7 @@ import ReferralForm from "../Pages/Authentication/ReferralForm.jsx";
 import ReferralOverView from "../AdminComponents/SinglePageComponents/ReferralOverView.jsx";
 import AdminData from "../Admin Pages/AdminData.jsx";
 import AdminOverview from "../AdminComponents/SinglePageComponents/AdminOverview.jsx";
+import ReferralExpired from "../Pages/Authentication/ReferralExpired.jsx";
 
 
 
@@ -213,6 +214,7 @@ const publicRoutes = [
   { path: "/forgot-password", component: <ForgetPasswordPage /> },
   { path: "/register", component: <Register /> },
   { path: "/referral/:referralId", component: <ReferralForm /> },
+  { path: "/referral-expired", component: <ReferralExpired /> },
 
   // Authentication Inner Pages
   { path: "/auth-login", component: <Login1 /> },

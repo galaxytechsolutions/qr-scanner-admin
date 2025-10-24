@@ -1,4 +1,4 @@
-import React, { useEffect} from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -17,7 +17,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import ReactSwitch from "react-switch";
 import { Instance } from "../../Instence/Instence";
-const ReferralForm = () => { 
+const ReferralForm = () => {
   document.title = "Referral Form | QR INTI ID";
   const { referralId } = useParams();
   const navigate = useNavigate();
@@ -53,11 +53,8 @@ const ReferralForm = () => {
         formData.append("email", values.email);
         formData.append("phoneNo", values.phoneNo);
         formData.append("whatsappActive", values.whatsappActive);
-        if (values.profilePic) {
-          formData.append("file", values.profilePic);
-        }
+        if (values.profilePic) formData.append("file", values.profilePic);
 
-        // ✅ Example API call (uncomment & adjust your Instance URL)
         await Instance.post(`/referral/submit/${referralId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -70,7 +67,16 @@ const ReferralForm = () => {
         }).then(() => navigate("/login"));
       } catch (err) {
         console.error(err);
-        Swal.fire("Error", "Something went wrong. Please try again.", "error");
+
+        if (err.response?.status === 410) {
+          Swal.fire({
+            icon: "warning",
+            title: "Link Expired",
+            text: "This referral link is no longer valid.",
+          }).then(() => navigate("/referral-expired"));
+        } else {
+          Swal.fire("Error", err.response?.data?.error || "Something went wrong.", "error");
+        }
       }
     },
   });
@@ -80,6 +86,7 @@ const ReferralForm = () => {
     const file = e.target.files[0];
     validation.setFieldValue("profilePic", file);
   };
+
 
 
   return (
