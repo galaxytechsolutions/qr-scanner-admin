@@ -52,9 +52,11 @@ const ReferralForm = () => {
         formData.append("name", values.name);
         formData.append("email", values.email);
         formData.append("phoneNo", values.phoneNo);
-        formData.append("whatsappActive", values.whatsappActive);
-        if (values.profilePic) formData.append("file", values.profilePic);
-
+        // Explicitly convert boolean to string "true" or "false" for FormData
+        formData.append("whatsappActive", String(values.whatsappActive));
+        if (values.profilePic) {
+          formData.append("file", values.profilePic);
+        }
         await Instance.post(`/referral/submit/${referralId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
