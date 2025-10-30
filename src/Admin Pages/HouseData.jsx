@@ -244,10 +244,15 @@ const HouseData = () => {
     <div className="page-content">
       <Container fluid={true}>
         <Breadcrumbs title="QR INTI ID" breadcrumbItem="Household Data" />
+        {(role === "Admin" || role === "admin") && (
+          <div className="card-title mb-4 font-size-15">
+            Constituency: {selectedConstituency}
+          </div>
+        )}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-6 border-1px-gray">
             {role === "SuperAdmin" && (
-              <div className="col-md-4 mt-2 mb-2">
+              <div className="col-md-7 mt-2 mb-2">
                 <ConstituencyDropdown
                   value={selectedConstituency}
                   onChange={(value) => {

@@ -86,7 +86,7 @@ const UserPanel = () => {
       {/* Constituency Dropdown */}
       <Row>
         {role === "SuperAdmin" && (
-          <Col md={3} className="mb-3">
+          <Col md={4} className="mb-3">
             <ConstituencyDropdown
               value={selectedConstituency}
               onChange={(value) => setSelectedConstituency(value)}
@@ -96,6 +96,12 @@ const UserPanel = () => {
           </Col>
         )}
       </Row>
+
+      {(role === "Admin" || role === "admin") && (
+          <div className="card-title mb-4 font-size-15">
+            Constituency: {selectedConstituency}
+          </div>
+        )}
 
       {/* Dashboard Cards */}
       <Row>

@@ -12,6 +12,8 @@ const ReferralProgram = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState("");
+  const [selectedConstituency, setSelectedConstituency] = useState("");
   const [error, setError] = useState(null);
   const itemsPerPage = 10;
   const navigate = useNavigate();
@@ -37,6 +39,16 @@ const ReferralProgram = () => {
     };
 
     fetchReferrals();
+
+    const auth = JSON.parse(localStorage.getItem("authUser"));
+    const userRole = auth?.user?.role || auth?.role || "";
+    setRole(userRole);
+
+    if (userRole === "Admin" || userRole === "admin") {
+      const constituency = auth?.user?.constituency || auth?.constituency;
+      setSelectedConstituency(constituency);
+    }
+
   }, []);
 
   const handleDeleteReferral = async (id) => {
@@ -117,11 +129,16 @@ const ReferralProgram = () => {
     <div className="page-content">
       <Container fluid={true}>
         <Breadcrumbs title="QR INTI ID" breadcrumbItem="Referral Program" />
+        {(role === "Admin" || role === "admin") && (
+          <div className="card-title mb-4 font-size-15">
+            Constituency: {selectedConstituency}
+          </div>
+        )}
 
-        <div className="d-flex justify-content-end mb-3">
-          <div className="col-md-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="col-md-6">
             <input
-              className="form-control"
+              className="form-control cursor-pointer border border-primary"
               type="search"
               placeholder="Search referrals..."
               value={searchTerm}
