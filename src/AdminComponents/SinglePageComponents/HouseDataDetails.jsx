@@ -30,7 +30,6 @@ import PropertyLocation from "./PropertyLocation";
 //   caste: "Hai",
 //   noOfMembers: 1,
 //   ageGenderList: ["35-M"],
-//   votedLastTime: "BRS",
 //   preferredParty: "Congress",
 //   schemesReceived: ["Talk"],
 //   migrationInfo: "Dal",
@@ -223,9 +222,6 @@ const HouseDataDetails = () => {
               Voting Information
             </h5>
             <Row>
-              <Col md={6}>
-                <InfoRow label="Voted Last Time" value={house.votedLastTime} />
-              </Col>
               <Col md={6}>
                 <InfoRow
                   label="Preferred Party 2024"

@@ -10,7 +10,7 @@ import {
   Input,
   Button,
 } from "reactstrap";
-import { CSCInstance, ImgBaseUrl } from "../Instence/ImgInstence";
+import { CSCInstance} from "../Instence/ImgInstence";
 import ReactSwitch from "react-switch";
 
 const AddHouseholdModal = ({
@@ -315,17 +315,7 @@ const AddHouseholdModal = ({
             />
           </FormGroup>
 
-          {/* Voted Last Time */}
-          <FormGroup>
-            <Label>Voted Last Time</Label>
-            <Input
-              type="text"
-              value={newHouse.votedLastTime || ""}
-              onChange={(e) =>
-                setNewHouse({ ...newHouse, votedLastTime: e.target.value })
-              }
-            />
-          </FormGroup>
+          
 
           {/* Preferred Party */}
           <FormGroup>

@@ -11,6 +11,7 @@ import {
   Input,
   Button,
 } from "reactstrap";
+import { ImgBaseUrl } from "../Instence/ImgInstence";
 
 const FieldStaffModal = ({
   modalOpen,
@@ -33,6 +34,7 @@ const FieldStaffModal = ({
     totalHousesCovered: "",
     notes: "",
   });
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (editMode && existingData) {
@@ -40,6 +42,7 @@ const FieldStaffModal = ({
         ...existingData,
         // Map array length → number
         totalHousesAssigned: existingData.assignedHouses?.length || 0,
+        profilePic: existingData.profilePic || null, // Ensure profilePic is not undefined
       });
     } else if (!editMode && modalOpen) {
       setNewField({
@@ -57,10 +60,32 @@ const FieldStaffModal = ({
         notes: "",
       });
     }
+
+    // Handle image preview
+    if (editMode && existingData?.profilePic) {
+      setImagePreview(`${ImgBaseUrl}${existingData.profilePic}`);
+    } else {
+      setImagePreview(null);
+    }
+
+    // Cleanup on modal close
+    if (!modalOpen) {
+      setImagePreview(null);
+    }
   }, [editMode, existingData, modalOpen, constituency]);
 
   const handleChange = (field, value) => {
-    setNewField({ ...newField, [field]: value });
+    if (field === "profilePic") {
+      const file = value;
+      setNewField({ ...newField, profilePic: file });
+      if (file) {
+        setImagePreview(URL.createObjectURL(file));
+      } else {
+        setImagePreview(null);
+      }
+    } else {
+      setNewField({ ...newField, [field]: value });
+    }
   };
 
   return (
@@ -103,6 +128,19 @@ const FieldStaffModal = ({
               id="profilePic"
               onChange={(e) => handleChange("profilePic", e.target.files[0])}
             />
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Profile Preview"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+            )}
           </FormGroup>
 
           <FormGroup>

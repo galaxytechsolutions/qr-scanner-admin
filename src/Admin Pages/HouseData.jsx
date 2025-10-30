@@ -23,7 +23,6 @@ const emptyHouse = {
   caste: "",
   noOfMembers: "",
   ageGenderList: [],
-  votedLastTime: "",
   preferredParty: "",
   schemesReceived: "",
   migrationInfo: "",
@@ -147,7 +146,6 @@ const HouseData = () => {
       formData.append("caste", newHouse.caste);
       formData.append("noOfMembers", newHouse.noOfMembers);
       formData.append("ageGenderList", Array.isArray(newHouse.ageGenderList) ? newHouse.ageGenderList.join(",") : newHouse.ageGenderList);
-      formData.append("votedLastTime", newHouse.votedLastTime);
       formData.append("preferredParty", newHouse.preferredParty);
       formData.append("schemesReceived", newHouse.schemesReceived);
       formData.append("migrationInfo", newHouse.migrationInfo);
@@ -198,7 +196,6 @@ const HouseData = () => {
           ? household.ageGenderList.join(",")
           : household.ageGenderList
       );
-      formData.append("votedLastTime", household.votedLastTime || "");
       formData.append("preferredParty", household.preferredParty || "");
       formData.append("schemesReceived", household.schemesReceived || "");
       formData.append("migrationInfo", household.migrationInfo || "");
@@ -324,7 +321,6 @@ const HouseData = () => {
                   <td>{household.caste}</td>
                   <td>{household.noOfMembers}</td>
                   <td>{household.ageGenderList}</td>
-                  <td>{household.votedLastTime}</td>
                   <td>{household.preferredParty}</td>
                   <td>{household.schemesReceived}</td>
                   <td>{household.migrationInfo}</td>
