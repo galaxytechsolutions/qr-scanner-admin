@@ -293,7 +293,6 @@ const HouseData = () => {
                 <th>Caste</th>
                 <th>No. of Members</th>
                 <th>Age/Gender List</th>
-                <th>Voted Last Time</th>
                 <th>Preferred Party</th>
                 <th>Schemes Received</th>
                 <th>Migration Info</th>
