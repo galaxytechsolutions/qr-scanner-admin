@@ -104,6 +104,9 @@ import ReferralOverView from "../AdminComponents/SinglePageComponents/ReferralOv
 import AdminData from "../Admin Pages/AdminData.jsx";
 import AdminOverview from "../AdminComponents/SinglePageComponents/AdminOverview.jsx";
 import ReferralExpired from "../Pages/Authentication/ReferralExpired.jsx";
+import Applications from "../Admin Pages/Applications.jsx";
+import Schemes from "../Admin Pages/Schemes.jsx";
+import ApplicationOverview from "../AdminComponents/SinglePageComponents/ApplicationOverview.jsx";
 
 
 
@@ -121,6 +124,9 @@ const authProtectedRoutes = [
   { path: "/referrals/:id", component: <ReferralOverView /> },
   { path: "/adminData", component: <AdminData /> },
   { path: "/adminData/:id", component: <AdminOverview /> },
+  { path: "/applications", component: <Applications /> },
+  { path: "/applications/:id", component: <ApplicationOverview /> },
+  { path: "/schemes", component: <Schemes /> },
 
 
 

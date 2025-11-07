@@ -83,7 +83,6 @@ const UserPanel = () => {
 
   return (
     <React.Fragment>
-      {/* Constituency Dropdown */}
       <Row>
         {role === "SuperAdmin" && (
           <Col md={4} className="mb-3">

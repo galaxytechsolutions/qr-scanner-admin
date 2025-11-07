@@ -39,9 +39,20 @@ const SidebarData = [
         isHasArrow: true,
         url: "/adminData",
         visibleFor: ["SuperAdmin"]
-    
-    },
 
+    },
+    {
+        label: "Schemes",
+        icon: "ri-government-line",
+        isHasArrow: true,
+        url: "/schemes",
+    },
+    {
+        label: "Applications",
+        icon: "ri-task-line",
+        isHasArrow: true,
+        url: "/applications",
+    }
     // {
     //     label: "Franchise",
     //     icon: "ri-tools-line",
