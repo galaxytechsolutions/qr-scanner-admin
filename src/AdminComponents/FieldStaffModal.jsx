@@ -40,7 +40,6 @@ const FieldStaffModal = ({
     if (editMode && existingData) {
       setNewField({
         ...existingData,
-        // Map array length → number
         totalHousesAssigned: existingData.assignedHouses?.length || 0,
         profilePic: existingData.profilePic || null, // Ensure profilePic is not undefined
       });
