@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Badge, Image } from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, Image, Button, Spinner } from "react-bootstrap";
 import {
   FaMapMarkerAlt,
   FaUsers,
@@ -16,40 +16,12 @@ import { useParams } from "react-router-dom";
 import { ImgBaseUrl } from "../../Instence/ImgInstence";
 import PropertyLocation from "./PropertyLocation";
 
-// const house = {
-//   _id: "68c90c918b261e85734a4cfe",
-//   role: "user",
-//   phoneNo: "8000073256",
-//   qrCode: "KOD-HYD-0001",
-//   qrCodeImage:
-//     "https://api.qrserver.com/v1/create-qr-code/?data=HelloWorld&size=150x150",
-//   location: "Ntg",
-//   booth: "Ntg5",
-//   mandal: "Hai",
-//   headOfFamily: "Ramu",
-//   caste: "Hai",
-//   noOfMembers: 1,
-//   ageGenderList: ["35-M"],
-//   preferredParty: "Congress",
-//   schemesReceived: ["Talk"],
-//   migrationInfo: "Dal",
-//   complaints: "Hai",
-//   whatsappActive: true,
-//   volunteerNote: "Green",
-//   assignedStaff: {
-//     _id: "68c133f20308e7be42907524",
-//     name: "King",
-//     assignedRegion: "hyd east",
-//     phoneNo: "8367340734",
-//   },
-//   profilePic: "https://randomuser.me/api/portraits/lego/1.jpg",
-//   createdAt: "2025-09-16T07:06:57.494Z",
-//   updatedAt: "2025-09-16T07:06:57.494Z",
-// };
 
 const HouseDataDetails = () => {
   const { id } = useParams();
   const [house, setHouse] = useState(null);
+const [address, setAddress] = useState("");
+const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     const fetchHouseData = async () => {
@@ -64,6 +36,53 @@ const HouseDataDetails = () => {
 
     fetchHouseData();
   }, [id]);
+
+
+
+useEffect(() => {
+  const fetchAddress = async () => {
+    try {
+      if (house?.paymentDetails?.gps?.lat && house?.paymentDetails?.gps?.lng) {
+        const { lat, lng } = house.paymentDetails.gps;
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+        const data = await response.json();
+        setAddress(data.display_name || "Address not available");
+      }
+    } catch (error) {
+      console.error("Error fetching address:", error);
+      setAddress("Address not found");
+    }
+  };
+
+  fetchAddress();
+}, [house]);
+
+
+const handleVerifyPayment = async (status) => {
+  try {
+    setVerifying(true);
+    const res = await Instance.put(`/houseData/${house._id}/verify-payment`, {
+      status, // "verified" or "rejected"
+    });
+
+    // ✅ Update UI instantly
+    setHouse((prev) => ({
+      ...prev,
+      paymentDetails: {
+        ...prev.paymentDetails,
+        verificationStatus: res.data.paymentDetails.verificationStatus,
+      },
+    }));
+
+    setVerifying(false);
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    setVerifying(false);
+  }
+};
+
 
   if (!house) {
     return (
@@ -257,6 +276,132 @@ const HouseDataDetails = () => {
             </h5>
             <p className="text-dark">{house.volunteerNote}</p>
           </Card>
+
+
+{/* 💰 Payment Details Card */}
+{house.paymentDetails && (
+  <Card className="p-4 mb-4 shadow-sm rounded-4">
+    <h5 className="fw-bold mb-3 text-primary">
+      💰 Payment Details
+    </h5>
+
+    <Row>
+      <Col md={4}>
+        <InfoRow
+          label="Payment Method"
+          value={house.paymentDetails.paymentMethod}
+        />
+      </Col>
+      <Col md={4}>
+        <InfoRow label="Amount (₹)" value={house.paymentDetails.amount} />
+      </Col>
+      <Col md={4}>
+        <InfoRow
+          label="Verification Status"
+          value={
+            <Badge
+              bg={
+                house.paymentDetails.verificationStatus === "verified"
+                  ? "success"
+                  : house.paymentDetails.verificationStatus === "rejected"
+                  ? "danger"
+                  : "warning"
+              }
+              pill
+            >
+              {house.paymentDetails.verificationStatus}
+            </Badge>
+          }
+        />
+      </Col>
+    </Row>
+
+    <Row className="mt-3">
+      {house.paymentDetails.cashReceiptNumber && (
+        <Col md={6}>
+          <InfoRow
+            label="Cash Receipt Number"
+            value={house.paymentDetails.cashReceiptNumber}
+          />
+        </Col>
+      )}
+      <Col md={6}>
+        <InfoRow
+          label="Timestamp"
+          // value={new Date(house.paymentDetails.timestamp).toLocaleString()}
+          value={new Date(house.paymentDetails.timestamp).toLocaleString("en-IN", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: true,
+})}
+
+        />
+      </Col>
+    </Row>
+
+    <Row className="mt-3">
+  <Col md={6}>
+    <InfoRow
+      label="GPS Coordinates"
+      value={`Lat: ${house.paymentDetails.gps?.lat}, Lng: ${house.paymentDetails.gps?.lng}`}
+    />
+    <InfoRow
+      label="Address"
+      value={address || "Fetching address..."}
+    />
+  </Col>
+      <Col md={6} className="text-center">
+        {house.paymentDetails.paymentProofImage && (
+          <div>
+            <p className="text-muted small mb-2">Payment Proof</p>
+            <Image
+              src={`${ImgBaseUrl}${house.paymentDetails.paymentProofImage}`}
+              alt="Payment Proof"
+              fluid
+              rounded
+              style={{
+                width: "100%",
+                maxWidth: "280px",
+                height: "auto",
+                objectFit: "cover",
+                border: "1px solid #eee",
+                borderRadius: "10px",
+              }}
+            />
+          </div>
+        )}
+      </Col>
+    </Row>
+    {/* ✅ Verification Button */}
+{house.paymentDetails.verificationStatus === "pending" && (
+  <div className="text-end mt-4">
+    <Button
+      variant="success"
+      className="me-2"
+      disabled={verifying}
+      onClick={() => handleVerifyPayment("verified")}
+    >
+      {verifying ? <Spinner size="sm" animation="border" /> : "Mark as Verified"}
+    </Button>
+
+    <Button
+      variant="danger"
+      disabled={verifying}
+      onClick={() => handleVerifyPayment("rejected")}
+    >
+      {verifying ? <Spinner size="sm" animation="border" /> : "Reject"}
+    </Button>
+  </div>
+)}
+
+  </Card>
+)}
+
+
+
         </Col>
         <Col md={4}></Col>
       </Row>
