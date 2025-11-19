@@ -278,7 +278,7 @@ const handleVerifyPayment = async (status) => {
           </Card>
 
 
-{/* 💰 Payment Details Card */}
+
 {house.paymentDetails && (
   <Card className="p-4 mb-4 shadow-sm rounded-4">
     <h5 className="fw-bold mb-3 text-primary">
@@ -375,7 +375,7 @@ const handleVerifyPayment = async (status) => {
         )}
       </Col>
     </Row>
-    {/* ✅ Verification Button */}
+
 {house.paymentDetails.verificationStatus === "pending" && (
   <div className="text-end mt-4">
     <Button
