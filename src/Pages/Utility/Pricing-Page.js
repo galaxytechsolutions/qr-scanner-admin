@@ -58,7 +58,7 @@ const PricingData = [
 ];
 
 const Pricing = () => {
-  document.title = "Pricing  | QR INTI ID";
+  document.title = "Pricing  | Home QR";
   return (
     <React.Fragment>
       <div className="page-content">

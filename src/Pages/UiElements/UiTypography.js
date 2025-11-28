@@ -6,7 +6,7 @@ import { Card, CardBody, CardTitle, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiTypography = () => {
-    document.title = "Typography | QR INTI ID";
+    document.title = "Typography | Home QR";
 
     return (
         <React.Fragment>

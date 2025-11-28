@@ -6,7 +6,7 @@ import { Container, Row, Col, Card, CardBody } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const FAQs = () => {
-    document.title = "FAQs  | QR INTI ID";
+    document.title = "FAQs  | Home QR";
 
     return (
         <React.Fragment>

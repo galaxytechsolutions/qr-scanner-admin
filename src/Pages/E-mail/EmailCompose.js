@@ -22,7 +22,7 @@ import {
 //Import Breadcrumb
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 const EmailCompose = () => {
-    document.title = "Email Compose  | QR INTI ID";
+    document.title = "Email Compose  | Home QR";
 
     const [folderbtn, setfolderbtn] = useState(false);
     const [tagbtn, settagbtn] = useState(false);

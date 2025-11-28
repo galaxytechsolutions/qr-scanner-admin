@@ -7,7 +7,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 
 const StarterPage = () => {
-    document.title = "Starter  | QR INTI ID";
+    document.title = "Starter  | Home QR";
 
     return (
         <React.Fragment>

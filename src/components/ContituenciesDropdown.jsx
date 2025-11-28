@@ -54,9 +54,16 @@ const ConstituencyDropdown = ({
 
     return (
         <div ref={dropdownRef} className={className} style={{ position: "relative" }}>
-            <Dropdown show={isOpen} onToggle={() => setIsOpen(!isOpen)}>
+            <Dropdown
+             show={isOpen} onToggle={() => setIsOpen(!isOpen)}
+
+             >
                 <Dropdown.Toggle
-                    onClick={() => setIsOpen((open) => !open)}
+                    // onClick={() => setIsOpen((open) => !open)}
+                     onClick={(e) => {
+                        e.preventDefault();   
+                        setIsOpen((open) => !open);
+                    }}
                     variant="light"
                     className="border border-primary rounded-1"
                     style={{ width: "100%" }}

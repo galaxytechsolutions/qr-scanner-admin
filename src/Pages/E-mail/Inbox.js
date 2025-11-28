@@ -25,7 +25,7 @@ import InboxSidebar from "./Sidebar";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const Inbox = () => {
-  document.title = "Inbox  | QR INTI ID";
+  document.title = "Inbox  | Home QR";
 
   const [customActiveTab, setcustomActiveTab] = useState("1");
 

@@ -26,7 +26,7 @@ const FieldStaff = () => {
   const [role, setRole] = useState("");
   const [constituencies, setConstituencies] = useState([]);
   const [selectedConstituency, setSelectedConstituency] = useState("");
-
+const [admin, setAdmin] = useState(null);
 
   // Fetch staff on mount
   useEffect(() => {
@@ -52,7 +52,8 @@ const FieldStaff = () => {
     const auth = JSON.parse(localStorage.getItem("authUser"));
     const userRole = auth?.user?.role || auth?.role || "";
     setRole(userRole);
-
+    setAdmin(auth.user);
+console.log("Admin Name", auth.user )
     if (userRole === "Admin" || userRole === "admin") {
       const constituency = auth?.user?.constituency || auth?.constituency;
       setSelectedConstituency(constituency);
@@ -173,11 +174,17 @@ const FieldStaff = () => {
   return (
     <div className="page-content">
       <Container fluid={true}>
-        <Breadcrumbs title="QR INTI ID" breadcrumbItem="Field Staff Data" />
-        {(role === "Admin" || role === "admin") && (
-          <div className="card-title mb-4 font-size-15">
-            Constituency: {selectedConstituency}
+        <Breadcrumbs title="Home QR" breadcrumbItem="Field Staff Data" />
+             {(role === "Admin" || role === "admin") && (
+        <div className="card-title mb-4 font-size-15">
+          <div className="mb-2">
+            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
           </div>
+          <div>
+            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+          </div>
+        </div>
+
         )}
 
         {/* Search + Add */}
@@ -227,8 +234,8 @@ const FieldStaff = () => {
                 <th>Phone Number</th>
                 <th>Email</th>
                 <th>WhatsApp Active</th>
-                <th>Total Houses Covered</th>
-                <th>Total Houses Assigned</th>
+                <th>Overall Houses Covered</th>
+                <th>Today Houses Covered</th>
                 <th>Notes</th>
                 <th>Admin name</th>
                 <th>Actions</th>
@@ -245,8 +252,8 @@ const FieldStaff = () => {
                   <td>{staff.phoneNo || "-"}</td>
                   <td>{staff.email || "-"}</td>
                   <td>{staff.whatsappActive ? "Yes" : "No"}</td>
-                  <td>{staff.assignedHouses?.length || 0}</td>
                   <td>{staff.totalHousesCovered || 0}</td>
+                  <td>{staff.assignedHouses?.length || 0}</td>
                   <td>{staff.notes || "-"}</td>
                   <td>{staff.addedBy?.name || "-"}</td>
                   <td>

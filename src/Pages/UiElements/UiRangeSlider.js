@@ -8,7 +8,7 @@ import "rc-slider/assets/index.css";
 
 
 const UiRangeSlider = () => {
-    document.title = "Range Slider | QR INTI ID";
+    document.title = "Range Slider | Home QR";
 
     const [value, setValue] = useState(50);
 

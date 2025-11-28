@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
@@ -25,7 +25,7 @@ import AppsDropdown from "../../components/Common/TopbarDropdown/AppsDropdown";
 
 const Header = (props) => {
   const [search, setsearch] = useState(false);
-
+  const [role, setRole] = useState(null);
   function toggleFullscreen() {
     if (
       !document.fullscreenElement &&
@@ -63,6 +63,15 @@ const Header = (props) => {
     }
   }
 
+  useEffect(() => {
+    const auth = JSON.parse(localStorage.getItem("authUser"));
+    const role = auth?.user?.role || auth?.role || ""; // adjust based on stored object
+    setRole(role);
+   
+  }, []);
+
+
+
   return (
     <React.Fragment>
       <header id="page-topbar">
@@ -84,7 +93,7 @@ const Header = (props) => {
                 </span>
                 {/* <span className="logo-lg"> */}
                   {/* <img src={logoLight} alt="logo-light" height="24" /> */}
-                  <p className="font-size-18 font-bold text-white py-4 ">QR INTI ID</p>
+                  <p className="font-size-18 font-bold text-white py-4 ">Home QR</p>
                 {/* </span> */}
                 
               {/* </Link> */}
@@ -112,9 +121,16 @@ const Header = (props) => {
               </div>
             </form> */}
           </div>
+{/* Admin panel / Super admin panel based on role */}
+{/* Admin panel / Super admin panel based on role */}
+<div className="d-flex align-items-center ms-3">
+  <h5 className="text-dark mb-0">
+    {role === "SuperAdmin" ? "Super Admin Panel" : "Admin Panel"}
+  </h5>
+</div>
 
           <div className="d-flex">
-            <div className="dropdown d-inline-block d-lg-none ms-2">
+            {/* <div className="dropdown d-inline-block d-lg-none ms-2">
               <button
                 onClick={() => {
                   setsearch(!search);
@@ -151,7 +167,7 @@ const Header = (props) => {
                   </div>
                 </form>
               </div>
-            </div>
+            </div> */}
 {/* 
             <LanguageDropdown />
             <AppsDropdown /> */}

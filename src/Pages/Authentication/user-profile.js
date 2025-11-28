@@ -24,7 +24,7 @@ import { editProfile, resetProfileFlag } from "../../store/actions";
 import { createSelector } from "reselect";
 
 const UserProfile = () => {
-  document.title = "Profile | QR INTI ID";
+  document.title = "Profile | Home QR";
 
   const dispatch = useDispatch();
   const [email, setemail] = useState("");
@@ -94,7 +94,7 @@ const UserProfile = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="QR INTI ID Admin" breadcrumbItem="Profile" />
+          <Breadcrumb title="Home QR Admin" breadcrumbItem="Profile" />
 
           <Row>
             <Col lg="12">

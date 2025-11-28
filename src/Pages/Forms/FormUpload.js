@@ -17,7 +17,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb"
 import { Link } from "react-router-dom"
 
 const FormUpload = () => {
-  document.title = "Form File Upload | QR INTI ID";
+  document.title = "Form File Upload | Home QR";
   const [selectedFiles, setselectedFiles] = useState([])
 
   function handleAcceptedFiles(files) {

@@ -270,7 +270,7 @@ const Calender = (props) => {
     }
   };
 
-  document.title = "Calendar | QR INTI ID";
+  document.title = "Calendar | Home QR";
   return (
     <React.Fragment>
       <DeleteModal

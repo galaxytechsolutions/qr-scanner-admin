@@ -15,7 +15,7 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const FormElements = () => {
-  document.title = "Form Elements | QR INTI ID";
+  document.title = "Form Elements | Home QR";
   const [toggleSwitch, settoggleSwitch] = useState(true);
 
   return (

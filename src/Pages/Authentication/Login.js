@@ -31,7 +31,7 @@ import { createSelector } from "reselect";
 import { Instance } from "../../Instence/Instence";
 
 const Login = (props) => {
-  document.title = "Login | QR INTI ID";
+  document.title = "Login | Home QR";
   const [redirect, setRedirect] = useState(false);
   const dispatch = useDispatch();
 
@@ -129,13 +129,13 @@ const Login = (props) => {
                           className="auth-logo logo-light mx-auto"
                         />
                       </Link> */}
-                      <p className="font-size-18 font-bold mb-1 ">QR INTI ID</p>
+                      <p className="font-size-18 font-bold mb-1 ">Home QR</p>
                     </div>
                     <h4 className="font-size-18 text-muted  text-center">
                       Welcome Back !
                     </h4>
                     <p className="mb-5 text-center">
-                      Sign in to continue to QR INTI ID.
+                      Sign in to continue to Home QR.
                     </p>
                     <Form className="form-horizontal" onSubmit={handleLogin}>
                       {error ? (

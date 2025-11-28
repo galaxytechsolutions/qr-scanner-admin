@@ -20,7 +20,7 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiOffcanvas = () => {
-    document.title = "Offcanvas | QR INTI ID";
+    document.title = "Offcanvas | Home QR";
 
     const [open, setOpen] = useState(false);
     const [isTop, setIsTop] = useState(false);

@@ -4,7 +4,7 @@ import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const BasicTable = () => {
-  document.title = "Basic Tables | QR INTI ID";
+  document.title = "Basic Tables | Home QR";
 
   return (
     <React.Fragment>

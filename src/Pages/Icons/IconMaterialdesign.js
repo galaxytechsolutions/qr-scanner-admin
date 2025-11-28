@@ -6,7 +6,7 @@ import { Card, CardBody, CardTitle, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const IconMaterialdesign = () => {
-  document.title = "Material Design Icon | QR INTI ID";
+  document.title = "Material Design Icon | Home QR";
   useEffect(() => {
     const isNew = (icon) => {
       return icon.version === "5.0.45";

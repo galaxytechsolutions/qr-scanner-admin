@@ -9,7 +9,7 @@ import Countdown from "react-countdown";
 import { Link } from "react-router-dom";
 
 const ComingSoon = () => {
-  document.title = "Cooming Soon  | QR INTI ID";
+  document.title = "Cooming Soon  | Home QR";
   // const renderer = ({ days, hours, minutes, seconds, completed }) => {
   //   if (completed) {
   //     // Render a completed state

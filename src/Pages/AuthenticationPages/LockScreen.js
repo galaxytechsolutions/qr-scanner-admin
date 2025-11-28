@@ -7,7 +7,7 @@ import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import { Link, useNavigate  } from 'react-router-dom';
 
 const LockScreen = () => {
-    document.title = "Lock Screen | QR INTI ID";
+    document.title = "Lock Screen | Home QR";
 
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -40,7 +40,7 @@ const LockScreen = () => {
                                     <CardBody className="p-4">
                                         <div className="">
                                             <div className="text-center">
-                                                <h2 className='font-size-18 text-muted'>QR INTI ID</h2>
+                                                <h2 className='font-size-18 text-muted'>Home QR</h2>
                                             </div>
                                             <h4 className="font-size-18 text-muted mt-2 text-center">Locked Screen</h4>
                                             <p className="mb-5 text-center">Enter your password to unlock the screen!</p>

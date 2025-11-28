@@ -40,7 +40,7 @@ const UiCards = () => {
     700: 2,
     500: 1
   };
-  document.title = "Cards | QR INTI ID";
+  document.title = "Cards | Home QR";
 
   return (
     <React.Fragment>

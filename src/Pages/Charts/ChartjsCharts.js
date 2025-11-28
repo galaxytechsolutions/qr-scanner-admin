@@ -15,7 +15,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 
 const ChartJs = () => {
-    document.title = "Chartjs | QR INTI ID";
+    document.title = "Chartjs | Home QR";
     return (
         <React.Fragment>
 

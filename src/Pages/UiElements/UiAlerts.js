@@ -6,7 +6,7 @@ import { Container, Col, Row, Card, CardBody, CardTitle, CardSubtitle, Uncontrol
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiAlerts = () => {
-  document.title = "Alerts | QR INTI ID";
+  document.title = "Alerts | Home QR";
 
   const alertPlaceholderRef = useRef(null);
 

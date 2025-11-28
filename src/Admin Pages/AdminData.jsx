@@ -74,7 +74,7 @@ const AdminData = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <Breadcrumbs title="QR INTI ID" breadcrumbItem="Admin Data" />
+        <Breadcrumbs title="Home QR" breadcrumbItem="Admin Data" />
 
         {/* Search and Add */}
         <div className="d-flex justify-content-between align-items-center mb-3">

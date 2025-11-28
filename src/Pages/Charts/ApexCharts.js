@@ -18,7 +18,7 @@ import { Card, CardBody, CardTitle, Col, Row, Container } from "reactstrap"
 import Breadcrumbs from "../../components/Common/Breadcrumb"
 
 const ApexCharts = () => {
-    document.title = "Apex Charts | QR INTI ID";
+    document.title = "Apex Charts | Home QR";
     return (
         <React.Fragment>
                 <div className="page-content">

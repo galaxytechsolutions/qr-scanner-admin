@@ -20,7 +20,7 @@ import logolight from '../../assets/images/logo-light.png';
 import logodark from '../../assets/images/logo-dark.png';
 
 const Register = props => {
-    document.title = "Register | QR INTI ID";
+    document.title = "Register | Home QR";
 
   const dispatch = useDispatch();
 

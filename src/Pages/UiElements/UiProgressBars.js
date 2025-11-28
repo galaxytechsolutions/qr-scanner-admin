@@ -13,7 +13,7 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiProgressbar = () => {
-  document.title = "Progress Bars | QR INTI ID";
+  document.title = "Progress Bars | Home QR";
 
   return (
     <React.Fragment>

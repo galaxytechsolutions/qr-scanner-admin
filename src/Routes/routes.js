@@ -107,6 +107,7 @@ import ReferralExpired from "../Pages/Authentication/ReferralExpired.jsx";
 import Applications from "../Admin Pages/Applications.jsx";
 import Schemes from "../Admin Pages/Schemes.jsx";
 import ApplicationOverview from "../AdminComponents/SinglePageComponents/ApplicationOverview.jsx";
+import SchemeDetails from "../Admin Pages/SchemeDetails.jsx";
 
 
 
@@ -127,6 +128,7 @@ const authProtectedRoutes = [
   { path: "/applications", component: <Applications /> },
   { path: "/applications/:id", component: <ApplicationOverview /> },
   { path: "/schemes", component: <Schemes /> },
+{ path:"/scheme/:id", component:<SchemeDetails />}, 
 
 
 

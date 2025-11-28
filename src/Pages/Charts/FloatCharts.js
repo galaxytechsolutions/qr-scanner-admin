@@ -14,7 +14,7 @@ import SimpleRadialBarChart from '../AllCharts/rechart/SimpleRadialBarChart';
 import CustomActiveShapePieChart from '../AllCharts/rechart/CustomActiveShapePieChart';
 
 const FloatChart = () => {
-    document.title = "Re Charts | QR INTI ID";
+    document.title = "Re Charts | Home QR";
     return (
         <React.Fragment>
             <div className="page-content">

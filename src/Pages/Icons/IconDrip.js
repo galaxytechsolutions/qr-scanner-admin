@@ -6,7 +6,7 @@ import { Card, CardBody, CardTitle, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const IconDripicons = () => {
-  document.title = "Drip Icons | QR INTI ID";
+  document.title = "Drip Icons | Home QR";
   return (
     <React.Fragment>
       <div className="page-content">

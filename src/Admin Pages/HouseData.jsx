@@ -18,17 +18,31 @@ const emptyHouse = {
   mandal: "",
   location: "",
   booth: "",
+  constituency: "",
   phoneNo: "",
   headOfFamily: "",
-  caste: "",
+  houseNo: "",
   noOfMembers: "",
-  ageGenderList: [],
-  preferredParty: "",
-  schemesReceived: "",
-  migrationInfo: "",
-  complaints: "",
-  isWhatsappActive: "",
-  volunteerNote: ""
+  members: [],
+  membersOutside: 0,
+  votedLocation: "",
+  votedHereNumber: 0,
+  votedMembers: [],
+  rationCardActive: "DontKnow",
+  healthCardActive: "DontKnow",
+  familyPension: "DontKnow",
+  farmerIncomeSupport: "NotApplicable",
+  farmerInsurance: "NotApplicable",
+  lpgConnection: "DontKnow",
+  housingBenefit: "DontKnow",
+  electricitySubsidy: "DontKnow",
+  studentScholarship: "NotApplicable",
+  houseType: "",
+  caste: "",
+  subCaste: "",
+  remarks: "",
+  profilePic: "",
+  paymentDetails: null
 };
 
 const stateOptions = {
@@ -47,7 +61,7 @@ const HouseData = () => {
   const [role, setRole] = useState("");
   const [constituencies, setConstituencies] = useState([]);
   const [selectedConstituency, setSelectedConstituency] = useState("");
-
+  const [admin, setAdmin] = useState(null);
 
   const getErrorMessage = (error) => {
     if (error.response) {
@@ -71,7 +85,7 @@ const HouseData = () => {
     const auth = JSON.parse(localStorage.getItem("authUser"));
     const role = auth?.user?.role || auth?.role || ""; // adjust based on stored object
     setRole(role);
-
+    setAdmin(auth?.user);
     if (role === "Admin" || role === "admin") {
       const constituency = auth?.user?.constituency || auth?.constituency;
       setSelectedConstituency(constituency);
@@ -132,32 +146,74 @@ const HouseData = () => {
 
   const handleAddHousehold = async () => {
     try {
+
+ const formatTo91 = (raw) => {
+      if (!raw && raw !== 0) return "";
+      let s = String(raw).replace(/\D/g, ""); // keep digits only
+      // if starts with country code and longer than 10, drop leftmost until 10 remain
+      if (s.length > 10) {
+        // if it already contains 91 as prefix and length === 12, keep last 10
+        if (s.startsWith("91") && s.length >= 12) {
+          s = s.slice(-10);
+        } else if (s.length > 10) {
+          s = s.slice(-10);
+        }
+      }
+      // if length is exactly 10, prefix 91
+      if (s.length === 10) return "91" + s;
+      // if it's already 12 and startsWith 91, keep as-is (defensive)
+      if (s.length === 12 && s.startsWith("91")) return s;
+      // otherwise return original digits prefixed if possible (best-effort)
+      return s ? "91" + s.slice(-10) : "";
+    };
+
+
+
       const formData = new FormData();
 
-      // Append all fields
-      formData.append("qrCode", newHouse.qrCode);
-      formData.append("location", newHouse.location);
-      formData.append("booth", newHouse.booth);
-      formData.append("mandal", newHouse.mandal);
-      formData.append("state", newHouse.state);
-      formData.append("city", newHouse.city);
-      formData.append("phoneNo", newHouse.phoneNo);
-      formData.append("headOfFamily", newHouse.headOfFamily);
-      formData.append("caste", newHouse.caste);
-      formData.append("noOfMembers", newHouse.noOfMembers);
-      formData.append("ageGenderList", Array.isArray(newHouse.ageGenderList) ? newHouse.ageGenderList.join(",") : newHouse.ageGenderList);
-      formData.append("preferredParty", newHouse.preferredParty);
-      formData.append("schemesReceived", newHouse.schemesReceived);
-      formData.append("migrationInfo", newHouse.migrationInfo);
-      formData.append("complaints", newHouse.complaints);
-      formData.append("whatsappActive", newHouse.isWhatsappActive);
-      formData.append("volunteerNote", newHouse.volunteerNote);
+formData.append(
+  "data",
+  JSON.stringify({
+    qrCode: newHouse.qrCode,
+    location: newHouse.location,
+    booth: newHouse.booth,
+    mandal: newHouse.mandal,
+    state: newHouse.state,
+    city: newHouse.city,
+    constituency: newHouse.constituency,
+    // phoneNo: newHouse.phoneNo,
+    phoneNo: formatTo91(newHouse.phoneNo),
+    headOfFamily: newHouse.headOfFamily,
+    houseNo: newHouse.houseNo,
+    noOfMembers: newHouse.noOfMembers,
+    members: newHouse.members,
+    membersOutside: newHouse.membersOutside,
+    votedLocation: newHouse.votedLocation,
+    votedHereNumber: newHouse.votedHereNumber,
+    votedMembers: newHouse.votedMembers,
+    rationCardActive: newHouse.rationCardActive,
+    healthCardActive: newHouse.healthCardActive,
+    familyPension: newHouse.familyPension,
+    farmerIncomeSupport: newHouse.farmerIncomeSupport,
+    farmerInsurance: newHouse.farmerInsurance,
+    lpgConnection: newHouse.lpgConnection,
+    housingBenefit: newHouse.housingBenefit,
+    electricitySubsidy: newHouse.electricitySubsidy,
+    studentScholarship: newHouse.studentScholarship,
+    houseType: newHouse.houseType,
+    caste: newHouse.caste,
+    subCaste: newHouse.subCaste,
+    remarks: newHouse.remarks,
+  })
+);
+
+
 
       // Append profilePic if selected
       if (newHouse.profilePicFile) {
         formData.append("profilePic", newHouse.profilePicFile);
       }
-
+      console.log(formData,"formData")
       const res = await Instance.post("/houseData", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
@@ -179,29 +235,46 @@ const HouseData = () => {
     try {
       const formData = new FormData();
 
-      // Append all fields
-      formData.append("qrCode", household.qrCode || "");
-      formData.append("location", household.location || "");
-      formData.append("booth", household.booth || "");
-      formData.append("mandal", household.mandal || "");
-      formData.append("state", household.state || "");
-      formData.append("city", household.city || "");
-      formData.append("phoneNo", household.phoneNo || "");
-      formData.append("headOfFamily", household.headOfFamily || "");
-      formData.append("caste", household.caste || "");
-      formData.append("noOfMembers", household.noOfMembers || "");
-      formData.append(
-        "ageGenderList",
-        Array.isArray(household.ageGenderList)
-          ? household.ageGenderList.join(",")
-          : household.ageGenderList
-      );
-      formData.append("preferredParty", household.preferredParty || "");
-      formData.append("schemesReceived", household.schemesReceived || "");
-      formData.append("migrationInfo", household.migrationInfo || "");
-      formData.append("complaints", household.complaints || "");
-      formData.append("whatsappActive", household.isWhatsappActive);
-      formData.append("volunteerNote", household.volunteerNote || "");
+       // EXACT SAME STRUCTURE AS ADD
+    formData.append(
+      "data",
+      JSON.stringify({
+        qrCode: household.qrCode,
+        location: household.location,
+        booth: household.booth,
+        mandal: household.mandal,
+        state: household.state,
+        city: household.city,
+        constituency: household.constituency,
+        phoneNo: household.phoneNo,
+        headOfFamily: household.headOfFamily,
+        houseNo: household.houseNo,
+        noOfMembers: household.noOfMembers,
+        
+        // Arrays
+        members: household.members || [],
+        membersOutside: household.membersOutside,
+        votedLocation: household.votedLocation,
+        votedHereNumber: household.votedHereNumber,
+        votedMembers: household.votedMembers || [],
+
+        // Scheme fields
+        rationCardActive: household.rationCardActive,
+        healthCardActive: household.healthCardActive,
+        familyPension: household.familyPension,
+        farmerIncomeSupport: household.farmerIncomeSupport,
+        farmerInsurance: household.farmerInsurance,
+        lpgConnection: household.lpgConnection,
+        housingBenefit: household.housingBenefit,
+        electricitySubsidy: household.electricitySubsidy,
+        studentScholarship: household.studentScholarship,
+
+        houseType: household.houseType,
+        caste: household.caste,
+        subCaste: household.subCaste,
+        remarks: household.remarks,
+      })
+    );
 
       // Append profilePic if selected
       if (household.profilePicFile) {
@@ -243,11 +316,17 @@ const HouseData = () => {
   return (
     <div className="page-content">
       <Container fluid={true}>
-        <Breadcrumbs title="QR INTI ID" breadcrumbItem="Household Data" />
+        <Breadcrumbs title="Home QR" breadcrumbItem="Household Data" />
         {(role === "Admin" || role === "admin") && (
-          <div className="card-title mb-4 font-size-15">
-            Constituency: {selectedConstituency}
+        <div className="card-title mb-4 font-size-15">
+          <div className="mb-2">
+            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
           </div>
+          <div>
+            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+          </div>
+        </div>
+
         )}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-6 border-1px-gray">
@@ -295,15 +374,14 @@ const HouseData = () => {
                 <th>Booth</th>
                 <th>Phone No</th>
                 <th>Head of Family</th>
+                <th>House No</th>
                 <th>Caste</th>
                 <th>No. of Members</th>
-                <th>Age/Gender List</th>
-                <th>Preferred Party</th>
-                <th>Schemes Received</th>
-                <th>Migration Info</th>
-                <th>Complaints</th>
-                <th>WhatsApp Active</th>
-                <th>Volunteer Note</th>
+                <th>Members</th>
+                <th>Voted Location</th>
+                <th>House Type</th>
+                <th>Ration Card</th>
+                <th>Remarks</th>
                 <th>Agent Name</th>
                 <th>Admin Name</th>
                 <th>Actions</th>
@@ -316,21 +394,20 @@ const HouseData = () => {
                   <td>{household.qrCode}</td>
                   <td>{stateOptions[household.state]}</td>
                   <td>{household.city}</td>
-                  <td>{household.mandal}</td>
                   <td>{household.constituency}</td>
+                  <td>{household.mandal}</td>
                   <td>{household.location}</td>
                   <td>{household.booth}</td>
                   <td>{household.phoneNo}</td>
                   <td>{household.headOfFamily}</td>
+                  <td>{household.houseNo}</td>
                   <td>{household.caste}</td>
                   <td>{household.noOfMembers}</td>
-                  <td>{household.ageGenderList}</td>
-                  <td>{household.preferredParty}</td>
-                  <td>{household.schemesReceived}</td>
-                  <td>{household.migrationInfo}</td>
-                  <td>{household.complaints}</td>
-                  <td>{household.whatsappActive ? "Yes" : "No"}</td>
-                  <td>{household.volunteerNote}</td>
+                  <td>{household.members ? household.members.map(m => m.name).join(", ") : ""}</td>
+                  <td>{household.votedLocation}</td>
+                  <td>{household.houseType}</td>
+                  <td>{household.rationCardActive}</td>
+                  <td>{household.remarks}</td>
                   <td>{household.assignedStaff?.name}</td>
                   <td>{household.adminId?.name}</td>
                   <td>
@@ -347,7 +424,8 @@ const HouseData = () => {
                         onClick={() => {
                           setNewHouse({
                             ...household,
-                            isWhatsappActive: Boolean(household.whatsappActive),
+                            members: household.members || [],
+                            votedMembers: household.votedMembers || [],
                           });
                           setModalOpen(true);
                         }}

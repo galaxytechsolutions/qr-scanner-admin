@@ -31,7 +31,7 @@ const SidebarData = [
         icon: "mdi mdi-account-multiple-outline",
         url: "/referrals",
         isHasArrow: true,
-        visibleFor: ["Admin"],
+        // visibleFor: ["Admin"],
     },
     {
         label: "Admin Data",
@@ -41,18 +41,19 @@ const SidebarData = [
         visibleFor: ["SuperAdmin"]
 
     },
+        {
+        label: "Applications",
+        icon: "ri-task-line",
+        isHasArrow: true,
+        url: "/applications",
+    },
     {
         label: "Schemes",
         icon: "ri-government-line",
         isHasArrow: true,
         url: "/schemes",
     },
-    {
-        label: "Applications",
-        icon: "ri-task-line",
-        isHasArrow: true,
-        url: "/applications",
-    }
+
     // {
     //     label: "Franchise",
     //     icon: "ri-tools-line",

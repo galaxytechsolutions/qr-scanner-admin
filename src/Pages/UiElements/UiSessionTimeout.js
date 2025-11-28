@@ -22,7 +22,7 @@ useEffect(() => {
     return () => clearTimeout(redirectTimeout);
   }, []);
 
-  document.title = "Session Timeout | QR INTI ID";
+  document.title = "Session Timeout | Home QR";
 
   return (
     <React.Fragment>

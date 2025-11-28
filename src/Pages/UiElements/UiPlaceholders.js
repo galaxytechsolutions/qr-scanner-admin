@@ -9,7 +9,7 @@ import smallImage from "../../assets/images/small/img-1.jpg";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiPlaceholders = () => {
-    document.title = "Placeholders | QR INTI ID";
+    document.title = "Placeholders | Home QR";
 
     return (
         <React.Fragment>

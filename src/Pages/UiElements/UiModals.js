@@ -13,7 +13,7 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiModals = () => {
-  document.title = "Modals | QR INTI ID";
+  document.title = "Modals | Home QR";
 
   const [modal_standard, setmodal_standard] = useState(false);
   const [modal_large, setmodal_large] = useState(false);

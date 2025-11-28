@@ -16,7 +16,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 import InputMask from "react-input-mask";
 
 const FormMask = () => {
-  document.title = "Form Mask | QR INTI ID";
+  document.title = "Form Mask | Home QR";
 
 
   const DateStyle1 = (props) => (

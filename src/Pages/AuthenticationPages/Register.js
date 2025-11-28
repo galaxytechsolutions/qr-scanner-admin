@@ -7,7 +7,7 @@ import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 const Register = () => {
-    document.title = "Register | QR INTI ID";
+    document.title = "Register | Home QR";
     return (
         <React.Fragment>
 

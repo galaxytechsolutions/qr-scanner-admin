@@ -7,7 +7,7 @@ import Vector from './MapVector';
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const VectorMaps = () => {
-    document.title = "Vector Maps | QR INTI ID";
+    document.title = "Vector Maps | Home QR";
 
     return (
         <React.Fragment>

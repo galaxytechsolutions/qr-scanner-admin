@@ -3,7 +3,7 @@ import { Container, Row, Col } from "reactstrap";
 import { Link } from "react-router-dom";
 
 const Error500 = () => {
-  document.title = "500 Error  | QR INTI ID";
+  document.title = "500 Error  | Home QR";
 
   return (
     <React.Fragment>

@@ -19,7 +19,7 @@ import { Link } from "react-router-dom";
 const animatedComponents = makeAnimated();
 
 const Offsymbol = () => {
-  document.title = "Form Advanced | QR INTI ID";
+  document.title = "Form Advanced | Home QR";
   return (
     <div
       style={{

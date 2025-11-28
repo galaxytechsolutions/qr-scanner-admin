@@ -18,7 +18,7 @@ import { useFormik } from "formik";
 import ReactSwitch from "react-switch";
 import { Instance } from "../../Instence/Instence";
 const ReferralForm = () => {
-  document.title = "Referral Form | QR INTI ID";
+  document.title = "Referral Form | Home QR";
   const { referralId } = useParams();
   const navigate = useNavigate();
 
@@ -101,7 +101,7 @@ const ReferralForm = () => {
               <Card>
                 <CardBody className="p-4">
                   <div className="text-center mb-3">
-                    <p className="font-size-18 fw-bold mb-1">QR INTI ID</p>
+                    <p className="font-size-18 fw-bold mb-1">Home QR</p>
                     <h4 className="font-size-18 text-muted">
                       Join Our Referral Program
                     </h4>

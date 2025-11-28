@@ -19,7 +19,7 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const UiDropdown = () => {
-  document.title = "Dropdowns | QR INTI ID";
+  document.title = "Dropdowns | Home QR";
 
   const [singlebtn, setSinglebtn] = useState(false);
   const [singlebtn1, setSinglebtn1] = useState(false);

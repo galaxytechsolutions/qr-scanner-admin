@@ -23,7 +23,7 @@ import logo from "../../assets/images/logo-sm.png";
 
 const ForgetPasswordPage = props => {
   const dispatch = useDispatch();
-  document.title = "Forget Password | QR INTI ID";
+  document.title = "Forget Password | Home QR";
 
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed

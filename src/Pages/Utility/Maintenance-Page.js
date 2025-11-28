@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 
 
 const Maintenance = () => {
-    document.title = "Maintenance  | QR INTI ID";
+    document.title = "Maintenance  | Home QR";
 
     return (
         <React.Fragment>

@@ -8,7 +8,7 @@ import { Sparklines, SparklinesLine, SparklinesBars } from "react-sparklines";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const Sparklinechart = () => {
-  document.title = "Sparkline Charts | QR INTI ID";
+  document.title = "Sparkline Charts | Home QR";
   return (
     <React.Fragment>
       <div className="page-content">

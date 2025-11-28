@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 // import
 
 const Login = () => {
-  document.title = "Login | QR INTI ID";
+  document.title = "Login | Home QR";
     useEffect(() => {
         document.body.className = "bg-pattern";
         // remove classname when component will unmount

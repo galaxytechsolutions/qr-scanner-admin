@@ -11,10 +11,14 @@ import {
   FaVideo,
   FaMapMarkerAlt,
   FaRegBuilding,
+  FaRupeeSign,
+  FaMoneyBillWave,
+  FaFileAlt,
 } from "react-icons/fa";
-import { MdRealEstateAgent } from "react-icons/md";
+import { MdAttachMoney, MdRealEstateAgent } from "react-icons/md";
 import { Instance } from "../../Instence/Instence";
 import ConstituencyDropdown from "../../components/ContituenciesDropdown";
+import { Link } from "react-router-dom";
 
 const UserPanel = () => {
   const [role, setRole] = useState("");
@@ -22,6 +26,69 @@ const UserPanel = () => {
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [totalHouses, setTotalHouses] = useState(0);
   const [totalFieldStaff, setTotalFieldStaff] = useState(0);
+const [todayEarnings, setTodayEarnings] = useState(0);
+const [totalEarnings, setTotalEarnings] = useState(0);
+const [admin, setAdmin]= useState(null);
+// **********************************************************************************************
+const [totalAdmins, setTotalAdmins] = useState(0);
+const [totalReferrals, setTotalReferrals] = useState(0);
+const [totalApplications, setTotalApplications] = useState(0);
+const [totalSchemes, setTotalSchemes] = useState(0);
+
+
+const fetchAdmins = async () => {
+  try {
+    const response = await Instance.get(`/admin`);
+    console.log("Admins", response)
+    setTotalAdmins(response.data?.Admins?.length);
+  } catch (error) {
+    console.error("Error fetching admins:", error);
+    setTotalAdmins(0);
+  }
+};
+
+const fetchReferrals = async (constituency = "") => {
+  try {
+    const url = constituency
+      ? `/referral/constituency/${constituency}`
+      : "/referral/admin";
+
+    const { data } = await Instance.get(url);
+    const referrals = data.referrals || [];
+    setTotalReferrals(referrals.length);
+  } catch (error) {
+    console.error("Error fetching referrals:", error);
+    setTotalReferrals(0);
+  }
+};
+
+const fetchApplications = async (constituency = "") => {
+  try {
+    const url = constituency
+      ? `/application/constituency/${constituency}`
+      : "/application/admin";
+
+    const { data } = await Instance.get(url);
+    const apps = data.applications || [];
+    setTotalApplications(apps.length);
+  } catch (error) {
+    console.error("Error fetching applications:", error);
+    setTotalApplications(0);
+  }
+};
+
+const fetchSchemes = async () => {
+  try {
+    const { data } = await Instance.get("/scheme");
+    setTotalSchemes(data.schemes?.length || 0);
+  } catch (error) {
+    console.error("Error fetching schemes:", error);
+    setTotalSchemes(0);
+  }
+};
+
+
+// ************************************************************************************************
 
   // ✅ Fetch functions
   const fetchHouseData = async (constituency = "") => {
@@ -54,22 +121,62 @@ const UserPanel = () => {
     }
   };
 
-  // ✅ Initial data load based on role
+// admin earnings
+const fetchAdminTotalEarnings = async (adminId) => {
+  try {
+    const { data } = await Instance.get(`/earnings/admin/${adminId}/total`);
+
+    setTotalEarnings(data?.totalAdminEarnings || 0);
+
+    console.log("Admin Total Earnings:", data);
+  } catch (error) {
+    console.error("Error fetching admin earnings:", error);
+    setTodayEarnings(0);
+    setTotalEarnings(0);
+  }
+};
+
+const fetchAdminTodayEarnings = async (adminId) => {
+  try {
+    const { data } = await Instance.get(`/earnings/admin/${adminId}/daily`);
+
+    setTodayEarnings(data?.adminEarnings || 0);
+  
+
+    console.log("Admin Today Earnings:", data);
+  } catch (error) {
+    console.error("Error fetching admin earnings:", error);
+    setTodayEarnings(0);
+    setTotalEarnings(0);
+  }
+};
+
+
+  // Initial data load based on role
   useEffect(() => {
     const auth = JSON.parse(localStorage.getItem("authUser"));
     const userRole = auth?.user?.role || auth?.role;
     const adminConstituency = auth?.user?.constituency;
-
+const adminId = auth?.user?.id;
+console.log("Admin Id", adminId)
     setRole(userRole);
-
+    setAdmin(auth?.user);
+     fetchSchemes(); // always
     if (userRole === "SuperAdmin") {
       setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
       fetchHouseData("");
       fetchStaffData("");
+      //  fetchAdmins("");
+    fetchReferrals("");
+    fetchApplications("");
     } else if (userRole === "Admin" && adminConstituency) {
       setSelectedConstituency(adminConstituency);
       fetchHouseData(adminConstituency);
       fetchStaffData(adminConstituency);
+       fetchReferrals(adminConstituency);
+    fetchApplications(adminConstituency);
+      fetchAdminTotalEarnings(adminId);
+      fetchAdminTodayEarnings(adminId)
     }
   }, []);
 
@@ -78,6 +185,9 @@ const UserPanel = () => {
     if (role === "SuperAdmin") {
       fetchHouseData(selectedConstituency);
       fetchStaffData(selectedConstituency);
+       fetchAdmins();
+    fetchReferrals(selectedConstituency);
+    fetchApplications(selectedConstituency);
     }
   }, [role, selectedConstituency]);
 
@@ -96,230 +206,153 @@ const UserPanel = () => {
         )}
       </Row>
 
-      {(role === "Admin" || role === "admin") && (
-          <div className="card-title mb-4 font-size-15">
-            Constituency: {selectedConstituency}
+    {(role === "Admin" || role === "admin") && (
+        <div className="card-title mb-4 font-size-15">
+          <div className="mb-2">
+            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
           </div>
+          <div>
+            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+          </div>
+        </div>
         )}
 
-      {/* Dashboard Cards */}
-      <Row>
-        {/* Total Houses */}
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted align-items-center">
-                <FaRegBuilding className="icon text-success me-3" size={30} />
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Total Houses</p>
-                  <h5 className="mb-3">{totalHouses}</h5>
-                </div>
+{/* Dashboard Cards */}
+<Row>
+
+  {/* Total Houses */}
+  <Col xl={3} sm={6}>
+    <Card>
+      <CardBody tag={Link} to="/house-data" className="text-decoration-none text-dark">
+        <div className="d-flex text-muted align-items-center">
+          <FaRegBuilding className="icon text-secondary me-3" size={30} />
+          <div className="flex-grow-1 overflow-hidden">
+            <p className="mb-1">Total Houses</p>
+            <h5 className="mb-3">{totalHouses}</h5>
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  </Col>
+
+  {/* Total Field Staff */}
+  <Col xl={3} sm={6}>
+    <Card>
+      <CardBody tag={Link} to="/fieldStaff" className="text-decoration-none text-dark">
+        <div className="d-flex text-muted align-items-center">
+          <FaUserTie className="icon text-primary me-3" size={30} />
+          <div className="flex-grow-1 overflow-hidden">
+            <p className="mb-1">Total Field Staff</p>
+            <h5 className="mb-3">{totalFieldStaff}</h5>
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  </Col>
+
+  {/* -------- ADMIN ONLY CARDS -------- */}
+  {(role === "Admin" || role === "admin") && (
+    <>
+      {/* Today Earnings */}
+      <Col xl={3} sm={6}>
+        <Card>
+          <CardBody  className="text-decoration-none text-dark">
+            <div className="d-flex text-muted align-items-center">
+              <FaRupeeSign className="icon text-warning me-3" size={30} />
+              <div className="flex-grow-1 overflow-hidden">
+                <p className="mb-1">Today Earnings</p>
+                <h5 className="mb-3">₹{todayEarnings}</h5>
               </div>
-            </CardBody>
-          </Card>
-        </Col>
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
 
-        {/* Total Field Staff */}
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted align-items-center">
-                <FaUserTie className="icon text-primary me-3" size={30} />
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Total Field Staff</p>
-                  <h5 className="mb-3">{totalFieldStaff}</h5>
-                </div>
+      {/* Total Earnings */}
+      <Col xl={3} sm={6}>
+        <Card>
+          <CardBody className="text-decoration-none text-dark">
+            <div className="d-flex text-muted align-items-center">
+              <FaMoneyBillWave className="icon text-info me-3" size={30} />
+              <div className="flex-grow-1 overflow-hidden">
+                <p className="mb-1">Total Earnings</p>
+                <h5 className="mb-3">₹{totalEarnings}</h5>
               </div>
-            </CardBody>
-          </Card>
-        </Col>
-      </Row>
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
+    </>
+  )}
 
-
-      {/* (Optional) Future sections retained for reference */}
-
-      {/* Franchise Count */}
-      {/* 
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted align-items-center">
-                <MdRealEstateAgent className="icon text-warning me-3" size={30} />
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Franchise</p>
-                  <h5 className="mb-3">{11}</h5>
-                </div>
+  {/* -------- SUPER ADMIN ONLY CARDS -------- */}
+  {role === "SuperAdmin" && (
+    <>
+      {/* Total Admins */}
+      <Col xl={3} sm={6}>
+        <Card>
+          <CardBody tag={Link} to="/adminData" className="text-decoration-none text-dark">
+            <div className="d-flex text-muted align-items-center">
+              <FaUserTie className="icon text-warning me-3" size={30} />
+              <div className="flex-grow-1">
+                <p className="mb-1">Total Admins</p>
+                <h5 className="mb-3">{totalAdmins}</h5>
               </div>
-            </CardBody>
-          </Card>
-        </Col>
-        */}
-
-      {/* Locations Count */}
-      {/* 
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted align-items-center">
-                <FaMapMarkerAlt className="icon text-danger me-3" size={30} />
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Locations</p>
-                  <h5 className="mb-3">{9}</h5>
-                </div>
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
+    </>
+  )}
+      {/* Total Referrals */}
+      <Col xl={3} sm={6}>
+        <Card>
+          <CardBody tag={Link} to="/referrals" className="text-decoration-none text-dark">
+            <div className="d-flex text-muted align-items-center">
+              <FaPenFancy className="icon text-info me-3" size={30} />
+              <div className="flex-grow-1">
+                <p className="mb-1">Total Referrals</p>
+                <h5 className="mb-3">{totalReferrals} </h5>
               </div>
-            </CardBody>
-          </Card>
-        </Col>
-        */}
-      <Row>
-        {/* <React.Fragment>
-    //     <Col xl={3} sm={6}>
-    //       <Card>
-    //         <CardBody>
-    //           <div className="d-flex text-muted">
-    //             <div className="flex-shrink-0 me-3 align-self-center">
-    //               <div id="radialchart-1" className="apex-charts" dir="ltr">
-    //                 <RadialChart1 />
-    //               </div>
-    //             </div>
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
 
-    //             <div className="flex-grow-1 overflow-hidden">
-    //               <p className="mb-1">Users</p>
-    //               <h5 className="mb-3">2.2k</h5>
-    //               <p className="text-truncate mb-0">
-    //                 <span className="text-success me-2">
-    //                   {" "}
-    //                   0.02%{" "}
-    //                   <i className="ri-arrow-right-up-line align-bottom ms-1"></i>
-    //                 </span>{" "}
-    //                 From previous
-    //               </p>
-    //             </div>
-    //           </div>
-    //         </CardBody>
-    //       </Card>
-    //     </Col>
-
-    //     <Col xl={3} sm={6}>
-    //       <Card>
-    //         <CardBody>
-    //           <div className="d-flex">
-    //             <div className="flex-shrink-0 me-3 align-self-center">
-    //               <RadialChart2
-                    //                 id="radialchart-2"
-                    //                 className="apex-charts"
-                    //                 dir="ltr"
-                    //               />
-                    //             </div>
-
-                    //             <div className="flex-grow-1 overflow-hidden">
-                    //               <p className="mb-1">Views per minute</p>
-                    //               <h5 className="mb-3">50</h5>
-                    //               <p className="text-truncate mb-0">
-                    //                 <span className="text-success me-2">
-                    //                   {" "}
-                    //                   1.7%{" "}
-                    //                   <i className="ri-arrow-right-up-line align-bottom ms-1"></i>
-                    //                 </span>{" "}
-                    //                 From previous
-                    //               </p>
-                    //             </div>
-                    //           </div>
-                    //         </CardBody>
-                    //       </Card>
-                    //     </Col>
-
-                    //     <Col xl={3} sm={6}>
-                    //       <Card>
-                    //         <CardBody>
-                    //           <div className="d-flex text-muted">
-                    //             <div className="flex-shrink-0 me-3 align-self-center">
-                    //               <RadialChart3
-                    //                 id="radialchart-3"
-                    //                 className="apex-charts"
-                    //                 dir="ltr"
-                    //               />
-                    //             </div>
-
-                    //             <div className="flex-grow-1 overflow-hidden">
-                    //               <p className="mb-1">Bounce Rate</p>
-                    //               <h5 className="mb-3">24.03 %</h5>
-                    //               <p className="text-truncate mb-0">
-                    //                 <span className="text-danger me-2">
-                    //                   {" "}
-                    //                   0.01%{" "}
-                    //                   <i className="ri-arrow-right-down-line align-bottom ms-1"></i>
-                    //                 </span>{" "}
-                    //                 From previous
-                    //               </p>
-                    //             </div>
-                    //           </div>
-                    //         </CardBody>
-                    //       </Card>
-                    //     </Col>
-
-                    //     <Col xl={3} sm={6}>
-                    //       <Card>
-                    //         <CardBody>
-                    //           <div className="d-flex text-muted">
-                    //             <div className="flex-shrink-0 me-3 align-self-center">
-                    //               <div className="avatar-sm">
-                    //                 <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                    //                   <i className="ri-group-line"></i>
-                    //                 </div>
-                    //               </div>
-                    //             </div>
-                    //             <div className="flex-grow-1 overflow-hidden">
-                    //               <p className="mb-1">New Visitors</p>
-                    //               <h5 className="mb-3">435</h5>
-                    //               <p className="text-truncate mb-0">
-                    //                 <span className="text-success me-2">
-                    //                   {" "}
-                    //                   0.01%{" "}
-                    //                   <i className="ri-arrow-right-up-line align-bottom ms-1"></i>
-                    //                 </span>{" "}
-                    //                 From previous
-                    //               </p>
-                    //             </div>
-                    //           </div>
-                    //         </CardBody>
-                    //       </Card>
-                    //     </Col>
-                    //   </Row>
-                    // </React.Fragment>
-
-
-
-                    {/* Franchise Count */}
-        {/* <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted align-items-center">
-                <MdRealEstateAgent className="icon text-warning me-3" size={30} />
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Franchise</p>
-                  <h5 className="mb-3">{11}</h5>
-                </div>
+      {/* Total Applications */}
+      <Col xl={3} sm={6}>
+        <Card>
+          <CardBody tag={Link} to="/applications" className="text-decoration-none text-dark">
+            <div className="d-flex text-muted align-items-center">
+              <FaFileAlt className="icon text-dark me-3" size={30} />
+              <div className="flex-grow-1">
+                <p className="mb-1">Total Applications</p>
+                <h5 className="mb-3">{totalApplications}</h5>
               </div>
-            </CardBody>
-          </Card>
-        </Col> */}
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
 
-        {/* Locations Count */}
-        {/* <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted align-items-center">
-                <FaMapMarkerAlt className="icon text-danger me-3" size={30} />
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Locations</p>
-                  <h5 className="mb-3">{9}</h5>
-                </div>
+      {/* Total Schemes */}
+      <Col xl={3} sm={6}>
+        <Card>
+          <CardBody tag={Link} to="/schemes" className="text-decoration-none text-dark">
+            <div className="d-flex text-muted align-items-center">
+              <FaTools className="icon text-danger me-3" size={30} />
+              <div className="flex-grow-1">
+                <p className="mb-1">Total Schemes</p>
+                <h5 className="mb-3">{totalSchemes}</h5>
               </div>
-            </CardBody>
-          </Card>
-        </Col> */}
-      </Row>
+            </div>
+          </CardBody>
+        </Card>
+      </Col>
+    
+
+
+</Row>
+
     </React.Fragment>
   );
 };

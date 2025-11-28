@@ -7,67 +7,19 @@ import { MdDeleteForever } from 'react-icons/md'
 import Swal from 'sweetalert2'
 import AddSchemesModal from '../AdminComponents/AddSchemesModal'
 import { Instance } from '../Instence/Instence'
+import { useNavigate } from 'react-router-dom'
 
-const mockSchemes = [
-  // {
-  //   _id: "scheme001",
-  //   name: "PM Kisan Samman Nidhi",
-  //   description: "Financial support of ₹6000 per year to eligible small and marginal farmers.",
-  //   eligibilityCriteria: "Small and marginal farmers owning less than 2 hectares of land.",
-  //   benefits: "₹6000 annually transferred in 3 installments.",
-  //   requiredDocuments: ["Aadhaar Card", "Land Ownership Proof", "Bank Passbook", "Mobile Number"],
-  //   category: "Agriculture, Rural & Environment",
-  //   startDate: "2019-02-24",
-  //   endDate: null,
-  //   isActive: true
-  // },
-  // {
-  //   _id: "scheme002",
-  //   name: "PM Mudra Loan",
-  //   description: "Loans up to ₹10 lakh for business startups and growth.",
-  //   eligibilityCriteria: "Indian citizens aged 18+ with business ideas.",
-  //   benefits: "Loan support across Shishu, Kishor, Tarun categories.",
-  //   requiredDocuments: ["Aadhaar Card", "PAN Card", "Business Plan", "Bank Passbook"],
-  //   category: "Business & Entrepreneurship",
-  //   startDate: "2016-04-01",
-  //   endDate: null,
-  //   isActive: true
-  // },
-  // {
-  //   _id: "scheme003",
-  //   name: "PM Awas Yojana",
-  //   description: "Affordable housing support for economically weaker households.",
-  //   eligibilityCriteria: "EWS, LIG, and MIG households without existing permanent housing.",
-  //   benefits: "Interest subsidy up to 6.5% on home loans.",
-  //   requiredDocuments: ["Aadhaar Card", "Income Certificate", "Address Proof"],
-  //   category: "Housing & Shelter / Welfare",
-  //   startDate: "2015-06-25",
-  //   endDate: null,
-  //   isActive: true
-  // },
-  // {
-  //   _id: "scheme004",
-  //   name: "Skill India Mission",
-  //   description: "Skill training for youth to improve employment opportunities.",
-  //   eligibilityCriteria: "Indian citizens aged 15–45.",
-  //   benefits: "Free training, certification, job placement assistance.",
-  //   requiredDocuments: ["Aadhaar Card", "Education Certificate", "Photograph"],
-  //   category: "Skills, Employment & Financial Services",
-  //   startDate: "2015-07-15",
-  //   endDate: null,
-  //   isActive: true
-  // },
-];
 
 const Schemes = () => {
-  const [schemes, setSchemes] = useState(mockSchemes);
+  const navigate = useNavigate();
+  const [schemes, setSchemes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [selectedScheme, setSelectedScheme] = useState(null);
-
+const [role, setRole] = useState(null);
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Are you sure?',
@@ -137,10 +89,18 @@ const Schemes = () => {
     }
   };
 
+
+  useEffect(() => {
+    const auth = JSON.parse(localStorage.getItem("authUser"));
+    const userRole = auth?.user?.role || auth?.role;
+    setRole(userRole);
+  }, []);
+
+
   return (
     <div className='page-content'>
       <Container fluid={true}>
-        <Breadcrumbs title="QR INTI ID" breadcrumbItem="Schemes" />
+        <Breadcrumbs title="Home QR" breadcrumbItem="Schemes" />
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-6">
@@ -152,7 +112,9 @@ const Schemes = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          {role === "SuperAdmin" && (
           <Button color="primary" onClick={handleAddClick}>+ Add Scheme</Button>
+          )}
         </div>
 
         <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
@@ -187,9 +149,16 @@ const Schemes = () => {
                   <td>{scheme.isActive ? <span className="badge bg-success">Active</span> : <span className="badge bg-danger">Inactive</span>}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-3">
-                      <FaRegEye size={20} className="cursor-pointer" title="View" />
-                      <FaEdit size={20} className="cursor-pointer text-info" title="Edit" onClick={() => handleEditClick(scheme)} />
+                      <FaRegEye size={20} className="cursor-pointer" title="View" 
+                      onClick={() => navigate(`/scheme/${scheme._id}`)}
+                      />
+                      {role === "SuperAdmin" && (
+                        <>
+                         <FaEdit size={20} className="cursor-pointer text-info" title="Edit" onClick={() => handleEditClick(scheme)} />
                       <MdDeleteForever size={20} className="cursor-pointer text-danger" title="Delete" onClick={() => handleDelete(scheme._id)} />
+                        </>
+                      )}
+                     
                     </div>
                   </td>
                 </tr>

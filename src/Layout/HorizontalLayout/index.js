@@ -43,7 +43,7 @@ const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } = useSelec
     const title = props.router.location.pathname;
     let currentage = title.charAt(1).toUpperCase() + title.slice(2);
 
-    document.title = currentage + " | QR INTI ID";
+    document.title = currentage + " | Home QR";
   }, [props.router.location.pathname]);
 
   useEffect(() => {

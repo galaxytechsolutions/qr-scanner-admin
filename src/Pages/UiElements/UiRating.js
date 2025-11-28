@@ -8,7 +8,7 @@ import { Row, Col, Card, CardBody, Container } from "reactstrap";
 import Rating from "react-rating";
 
 const UiRating = () => {
-  document.title = "Rating | QR INTI ID";
+  document.title = "Rating | Home QR";
 
   const [def, setdef] = useState("");
   const [customize, setcustomize] = useState("");

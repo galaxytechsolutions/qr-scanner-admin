@@ -23,7 +23,7 @@ import { useFormik } from "formik";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const FormValidations = () => {
-  document.title = "Form Validation | QR INTI ID";
+  document.title = "Form Validation | Home QR";
   // Form validation
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed

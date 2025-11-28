@@ -14,7 +14,7 @@ var regular = "";
 var brand = "";
 
 const IconFontawesome = () => {
-  document.title = "Font Awesome Icons | QR INTI ID";
+  document.title = "Font Awesome Icons | Home QR";
 
   useEffect(() => {
     icons.data.forEach(function (val) {

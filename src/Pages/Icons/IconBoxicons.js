@@ -14,7 +14,7 @@ var regularIcon = "";
 var logos = "";
 
 const IconBoxicons = (props) => {
-  document.title = "Boxicons | QR INTI ID";
+  document.title = "Boxicons | Home QR";
 
   useEffect(() => {
     icons.data.forEach(function (val) {
