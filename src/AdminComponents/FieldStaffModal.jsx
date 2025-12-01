@@ -148,7 +148,15 @@ const FieldStaffModal = ({
               type="text"
               id="phoneNo"
               value={newField.phoneNo}
-              onChange={(e) => handleChange("phoneNo", e.target.value)}
+              // onChange={(e) => handleChange("phoneNo", e.target.value)}
+               maxLength={10}
+              onChange={(e) => {
+                // Allow digits only
+                let v = e.target.value.replace(/\D/g, "");
+                // Limit to 10 digits
+                if (v.length > 10) v = v.slice(0, 10);
+                handleChange("phoneNo", v);
+              }}
             />
           </FormGroup>
 
@@ -226,7 +234,15 @@ const FieldStaffModal = ({
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={() => handleSave(newField)}>
+        <Button color="primary" 
+          onClick={() =>
+      handleSave({
+        ...newField,
+        phoneNo: "91" + newField.phoneNo,   // prepend 91
+      })
+    }
+        // onClick={() => handleSave(newField)}
+        >
           {editMode ? "Update" : "Save"}
         </Button>
 

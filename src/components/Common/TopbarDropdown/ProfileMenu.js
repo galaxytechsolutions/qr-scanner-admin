@@ -31,11 +31,11 @@ const [profile, setProfile] = useState(null);
         console.log("token details", obj)
         setusername(obj.user.name);
         // setProfile(obj.profileImage)
-           setProfile(obj.user.profilePic ? ImgBaseUrl + obj.user.profilePic : dummy);
+           setProfile(obj.user?.profilePic ? ImgBaseUrl + obj.user?.profilePic : dummy);
     }
   }, [props.success]);
 
-
+console.log("Profile", profile)
 const handleLogout = () => {
   localStorage.removeItem("authUser");
   navigate("/login");

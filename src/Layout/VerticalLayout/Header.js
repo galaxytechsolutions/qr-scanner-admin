@@ -10,7 +10,7 @@ import NotificationDropdown from "../../components/Common/TopbarDropdown/Notific
 import { withTranslation } from "react-i18next";
 
 //import images
-import logoSm from "../../assets/images/logo-sm.png";
+import logoSm from "../../assets/images/logoSm.jpg";
 import logoDark from "../../assets/images/logo-dark.png";
 import logoLight from "../../assets/images/logo-light.png";
 
@@ -89,11 +89,11 @@ const Header = (props) => {
 
               {/* <Link to="/" className="logo logo-light"> */}
                 <span className="logo-sm">
-                  {/* <img src={logoSm} alt="logo-sm-light" height="22" /> */}
+                  <img src={logoSm} alt="logo-sm-light" height="22" />
                 </span>
                 {/* <span className="logo-lg"> */}
                   {/* <img src={logoLight} alt="logo-light" height="24" /> */}
-                  <p className="font-size-18 font-bold text-white py-4 ">Home QR</p>
+                  <p className="font-size-18 font-extrabold text-white py-4 ">Home QR</p>
                 {/* </span> */}
                 
               {/* </Link> */}
