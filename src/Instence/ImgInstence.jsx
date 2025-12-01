@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export const ImgBaseUrl = "http://localhost:8080";
+// export const ImgBaseUrl = "http://localhost:8080";
 
-// export const ImgBaseUrl = "https://qrapi.plotnetwork.in";
+export const ImgBaseUrl = "https://qrapi.plotnetwork.in";
 
 // Country-State-City API Instance
 
