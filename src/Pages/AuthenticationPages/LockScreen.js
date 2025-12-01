@@ -16,7 +16,7 @@ const LockScreen = () => {
     const authUser = JSON.parse(localStorage.getItem('authUser'));
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (authUser && password === authUser.password) {
+        if (authUser && password === authUser.user.lockScreenPassword) {
             navigate('/dashboard');
         } else {
             setError('Incorrect password. Please try again.');

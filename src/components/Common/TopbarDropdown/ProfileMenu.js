@@ -13,28 +13,25 @@ import { withTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../withRouter";
-
+import dummy from "../../../assets/images/dummy.png"
 // users
 import user1 from "../../../assets/images/users/avatar-1.jpg";
+import {ImgBaseUrl} from "../../../Instence/ImgInstence.jsx";
+
 
 const ProfileMenu = props => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false);
 const navigate = useNavigate();
   const [username, setusername] = useState("Admin");
-
+const [profile, setProfile] = useState(null);
   useEffect(() => {
     if (localStorage.getItem("authUser")) {
-      if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
         const obj = JSON.parse(localStorage.getItem("authUser"));
-        setusername(obj.displayName);
-      } else if (
-        process.env.REACT_APP_DEFAULTAUTH === "fake" ||
-        process.env.REACT_APP_DEFAULTAUTH === "jwt"
-      ) {
-        const obj = JSON.parse(localStorage.getItem("authUser"));
-        setusername(obj.username);
-      }
+        console.log("token details", obj)
+        setusername(obj.user.name);
+        // setProfile(obj.profileImage)
+           setProfile(obj.user.profilePic ? ImgBaseUrl + obj.user.profilePic : dummy);
     }
   }, [props.success]);
 
@@ -60,15 +57,15 @@ const handleLogout = () => {
         >
           <img
             className="rounded-circle header-profile-user"
-            src={user1}
+            src={profile || dummy}
             alt="Header Avatar"
           />
           <span className="d-none d-xl-inline-block ms-2 me-2">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <DropdownItem tag="a" href="/userprofile">
-            {" "}
+          <DropdownItem tag={Link} to="/userprofile">
+            {" "} 
             <i className="ri-user-line align-middle me-2" />
             {props.t("Profile")}{" "}
           </DropdownItem>
@@ -81,7 +78,7 @@ const handleLogout = () => {
             <i className="ri-settings-2-line align-middle me-2" />
             {props.t("Settings")}
           </DropdownItem> */}
-          <DropdownItem tag="a" href="auth-lock-screen">
+          <DropdownItem tag={Link} to="/auth-lock-screen">
             <i className="ri-lock-unlock-line align-middle me-2" />
             {props.t("Lock screen")}
           </DropdownItem>

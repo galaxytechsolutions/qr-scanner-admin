@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -16,11 +18,13 @@ import {
 } from "reactstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { jwtDecode } from "jwt-decode"; // if you use JWT, otherwise remove
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import withRouter from "../../components/Common/withRouter";
 import Breadcrumb from "../../components/Common/Breadcrumb";
-import avatar from "../../assets/images/users/avatar-1.jpg";
+import avatar from "../../assets/images/dummy.png";
+import { Instance } from "../../Instence/Instence";
+import { ImgBaseUrl } from "../../Instence/ImgInstence";
+
 
 const UserProfile = () => {
   document.title = "Profile | Home QR Admin";
@@ -29,12 +33,14 @@ const UserProfile = () => {
   const [adminInfo, setAdminInfo] = useState({
     name: "",
     email: "",
-    phone: "",
+    phoneNo: "",
     role: "Admin",
     lockScreenPassword: "",
   });
+
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
   const [profileImage, setProfileImage] = useState(avatar);
   const [imageFile, setImageFile] = useState(null);
 
@@ -47,20 +53,26 @@ const UserProfile = () => {
 
   const [showReLoginModal, setShowReLoginModal] = useState(false);
 
-  // Load user from localStorage (your current auth method)
+  // Load user from localStorage
   useEffect(() => {
     const authUser = localStorage.getItem("authUser");
     if (authUser) {
-      const user = JSON.parse(authUser);
-      setAdminId(user.uid || user.id || "1");
+      const data = JSON.parse(authUser);
+     const user = data.user;
+
+      setAdminId(user?.id);
+
       setAdminInfo({
-        name: user.username || user.displayName || "",
+        name: user.name || "",
         email: user.email || "",
-        phone: user.phone || "",
+        phoneNo: user.phoneNo || "",
         role: user.role || "Admin",
         lockScreenPassword: user.lockScreenPassword || "",
       });
-      setProfileImage(user.profileImage || avatar);
+
+      setProfileImage(user.profilePic ? ImgBaseUrl + user.profilePic : avatar);
+
+
     }
   }, []);
 
@@ -69,87 +81,154 @@ const UserProfile = () => {
     setTimeout(() => setter(""), 3000);
   };
 
-  // Profile Info Formik (Name, Email, Phone, Lock Screen Password)
+  // ======================================================
+  // 1️⃣ UPDATE PROFILE INFO USING AXIOS
+  // ======================================================
   const infoFormik = useFormik({
     enableReinitialize: true,
     initialValues: {
       name: adminInfo.name,
       email: adminInfo.email,
-      phone: adminInfo.phone || "",
+      phoneNo: adminInfo.phoneNo || "",
       lockScreenPassword: adminInfo.lockScreenPassword || "",
     },
+
     validationSchema: Yup.object({
-      name: Yup.string().required("Please enter your name"),
-      email: Yup.string().email("Invalid email").required("Please enter email"),
-      phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits"),
-      lockScreenPassword: Yup.string()
-        .min(4, "Minimum 4 characters")
-        .required("Please enter Lock Screen Password"),
+      name: Yup.string().required("Enter your name"),
+      email: Yup.string().email("Invalid email").required("Enter email"),
+      phoneNo: Yup.string().matches(/^\d{10}$/, "phoneNo must be 10 digits"),
+      // lockScreenPassword: Yup.string()
+      //   .min(4)
+      //   .required("Lock screen password required"),
     }),
-    onSubmit: (values) => {
-      // Update localStorage or dispatch Redux action
-      const updatedUser = {
-        ...JSON.parse(localStorage.getItem("authUser")),
-        username: values.name,
-        email: values.email,
-        phone: values.phone,
-        lockScreenPassword: values.lockScreenPassword,
-      };
-      localStorage.setItem("authUser", JSON.stringify(updatedUser));
 
-      setAdminInfo((prev) => ({ ...prev, ...values }));
-      showTempMessage(setSuccessMsg, "Profile info updated successfully!");
+    onSubmit: async (values) => {
+      try {
+        const res = await Instance.put(`/admin/update-profile/${adminId}`, {
+          name: values.name,
+          email: values.email,
+          phoneNo: values.phoneNo,
+           lockScreenPassword: values.lockScreenPassword, 
+        });
 
-      if (values.lockScreenPassword !== adminInfo.lockScreenPassword) {
-        setShowReLoginModal(true);
+const old = JSON.parse(localStorage.getItem("authUser"));
+
+const updatedUser = {
+  ...old,
+  user: {
+    ...old.user,
+    name: values.name,
+    email: values.email,
+    phoneNo: values.phoneNo,
+    lockScreenPassword: values.lockScreenPassword
+  }
+};
+
+localStorage.setItem("authUser", JSON.stringify(updatedUser));
+
+
+        setAdminInfo((prev) => ({ ...prev, ...values }));
+
+        showTempMessage(setSuccessMsg, "Profile updated successfully!");
+
+        if (values.lockScreenPassword !== adminInfo.lockScreenPassword) {
+          setShowReLoginModal(true);
+        }
+      } catch (err) {
+        showTempMessage(
+          setErrorMsg,
+          err?.response?.data?.error || "Update failed"
+        );
       }
     },
   });
 
-  // Password Change Formik
+  // ======================================================
+  // 2️⃣ CHANGE PASSWORD USING AXIOS
+  // ======================================================
   const passwordFormik = useFormik({
     initialValues: {
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
+
     validationSchema: Yup.object({
       currentPassword: Yup.string().required("Enter current password"),
-      newPassword: Yup.string()
-        .min(6, "At least 6 characters")
-        .required("Enter new password"),
+      newPassword: Yup.string().min(6).required("Enter new password"),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("newPassword")], "Passwords must match")
-        .required("Confirm your new password"),
+        .required("Confirm your password"),
     }),
-    onSubmit: (values, { resetForm }) => {
-      console.log("Change password:", values);
-      showTempMessage(setSuccessMsg, "Password changed successfully!");
-      resetForm();
-      setShowReLoginModal(true);
+
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const res = await Instance.put(
+          `/admin/change-password/${adminId}`,
+          {
+            currentPassword: values.currentPassword,
+            newPassword: values.newPassword,
+          }
+        );
+
+        showTempMessage(setSuccessMsg, "Password changed successfully!");
+        resetForm();
+        setShowReLoginModal(true);
+      } catch (err) {
+        showTempMessage(
+          setErrorMsg,
+          err?.response?.data?.error || "Password change failed"
+        );
+      }
     },
   });
 
-  // Image Upload Handler
-  const handleImageUpload = () => {
+  // ======================================================
+  // 3️⃣ UPDATE PROFILE PIC (Multer) USING AXIOS
+  // ======================================================
+  const handleImageUpload = async () => {
     if (!imageFile) {
-      showTempMessage(setErrorMsg, "Please select an image");
-      return;
+      return showTempMessage(setErrorMsg, "Please select an image");
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result;
-      setProfileImage(base64);
 
-      const updatedUser = {
-        ...JSON.parse(localStorage.getItem("authUser")),
-        profileImage: base64,
-      };
-      localStorage.setItem("authUser", JSON.stringify(updatedUser));
+    const formData = new FormData();
+    formData.append("profilePic", imageFile);
 
-      showTempMessage(setSuccessMsg, "Profile picture updated successfully!");
-    };
-    reader.readAsDataURL(imageFile);
+    try {
+      const res = await Instance.put(
+        `/admin/change-profile/${adminId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+console.log("Image Res", res)
+      const imageUrl = `${ImgBaseUrl}${res.data?.profilePic}`;
+console.log("Image Url", imageUrl)
+      // Update UI & localStorage
+const old = JSON.parse(localStorage.getItem("authUser"));
+
+const updatedUser = {
+  ...old,
+  user: {
+    ...old.user,
+    profilePic: res.data.profilePic,
+  }
+};
+
+localStorage.setItem("authUser", JSON.stringify(updatedUser));
+
+
+      setProfileImage(ImgBaseUrl + res.data.profilePic);
+
+
+      showTempMessage(setSuccessMsg, "Profile picture updated!");
+    } catch (err) {
+      showTempMessage(
+        setErrorMsg,
+        err?.response?.data?.error || "Image upload failed"
+      );
+    }
   };
 
   const handleLogout = () => {
@@ -157,14 +236,9 @@ const UserProfile = () => {
     window.location.href = "/login";
   };
 
-  if (!adminId) {
-    return (
-      <Container fluid className="page-content">
-        <Breadcrumb title="Home QR Admin" breadcrumbItem="Profile" />
-        <Alert color="info">Loading profile...</Alert>
-      </Container>
-    );
-  }
+  // ======================================================
+  // UI
+  // ======================================================
 
   return (
     <div className="page-content">
@@ -174,11 +248,11 @@ const UserProfile = () => {
         {errorMsg && <Alert color="danger">{errorMsg}</Alert>}
         {successMsg && <Alert color="success">{successMsg}</Alert>}
 
-        {/* Profile Overview */}
+        {/* Profile card */}
         <Card className="mb-4">
           <CardBody className="d-flex align-items-center">
             <img
-              src={profileImage}
+              src={profileImage || avatar}
               alt="profile"
               className="avatar-md rounded-circle img-thumbnail me-3"
             />
@@ -190,169 +264,251 @@ const UserProfile = () => {
           </CardBody>
         </Card>
 
-        {/* Update Profile Info */}
+
+
         <Card className="mb-4">
-          <CardBody>
-            <h5 className="mb-3">Update Profile Info</h5>
-            <Form onSubmit={infoFormik.handleSubmit}>
-              <div className="mb-3">
-                <Label>Name</Label>
-                <Input
-                  name="name"
-                  value={infoFormik.values.name}
-                  onChange={infoFormik.handleChange}
-                  onBlur={infoFormik.handleBlur}
-                  invalid={infoFormik.touched.name && infoFormik.errors.name}
-                />
-                <FormFeedback>{infoFormik.errors.name}</FormFeedback>
-              </div>
+  <CardBody>
+    <h5 className="mb-3">Update Profile Info</h5>
 
-              <div className="mb-3">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  value={infoFormik.values.email}
-                  onChange={infoFormik.handleChange}
-                  invalid={infoFormik.touched.email && infoFormik.errors.email}
-                />
-                <FormFeedback>{infoFormik.errors.email}</FormFeedback>
-              </div>
+    <Form onSubmit={infoFormik.handleSubmit}>
+      {/* Name */}
+      <div className="mb-3">
+        <Label>Name</Label>
+        <Input
+          name="name"
+          value={infoFormik.values.name}
+          onChange={infoFormik.handleChange}
+          invalid={infoFormik.touched.name && infoFormik.errors.name}
+        />
+        <FormFeedback>{infoFormik.errors.name}</FormFeedback>
+      </div>
 
-              <div className="mb-3">
-                <Label>Phone</Label>
-                <Input
-                  name="phone"
-                  value={infoFormik.values.phone}
-                  onChange={infoFormik.handleChange}
-                  invalid={infoFormik.touched.phone && infoFormik.errors.phone}
-                />
-                <FormFeedback>{infoFormik.errors.phone}</FormFeedback>
-              </div>
+      {/* Email */}
+      <div className="mb-3">
+        <Label>Email</Label>
+        <Input
+          type="email"
+          name="email"
+          value={infoFormik.values.email}
+          onChange={infoFormik.handleChange}
+          invalid={infoFormik.touched.email && infoFormik.errors.email}
+        />
+        <FormFeedback>{infoFormik.errors.email}</FormFeedback>
+      </div>
 
-              {/* Lock Screen Password */}
-              <div className="mb-3 position-relative">
-                <Label>Lock Screen Password</Label>
-                <div className="position-relative">
-                  <Input
-                    type={showPassword.lock ? "text" : "password"}
-                    name="lockScreenPassword"
-                    value={infoFormik.values.lockScreenPassword}
-                    onChange={infoFormik.handleChange}
-                    invalid={
-                      infoFormik.touched.lockScreenPassword &&
-                      infoFormik.errors.lockScreenPassword
-                    }
-                  />
-                  <span
-                    onClick={() => setShowPassword((p) => ({ ...p, lock: !p.lock }))}
-                    style={{
-                      position: "absolute",
-                      right: "10px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {showPassword.lock ? <FaEyeSlash /> : <FaEye />}
-                  </span>
-                  <FormFeedback>{infoFormik.errors.lockScreenPassword}</FormFeedback>
-                </div>
-              </div>
+      {/* phoneNo */}
+      <div className="mb-3">
+        <Label>Phone Number</Label>
+        <Input
+          name="phoneNo"
+          value={infoFormik.values.phoneNo}
+          onChange={infoFormik.handleChange}
+          invalid={infoFormik.touched.phoneNo && infoFormik.errors.phoneNo}
+        />
+        <FormFeedback>{infoFormik.errors.phoneNo}</FormFeedback>
+      </div>
 
-              <Button color="primary" type="submit" block>
-                Update Info
-              </Button>
-            </Form>
-          </CardBody>
-        </Card>
+      {/* 🔥 Lock Screen Password (NEW FIELD) */}
+      <div className="mb-3 position-relative">
+        <Label>Lock Screen Password</Label>
+        <div className="position-relative">
+          <Input
+            type={showPassword.lock ? "text" : "password"}
+            name="lockScreenPassword"
+            value={infoFormik.values.lockScreenPassword}
+            onChange={infoFormik.handleChange}
+            invalid={
+              infoFormik.touched.lockScreenPassword &&
+              infoFormik.errors.lockScreenPassword
+            }
+          />
 
-        {/* Change Password */}
-        <h4 className="mt-4 mb-3">Change Password</h4>
+          {/* Eye Icon */}
+          <span
+            onClick={() =>
+              setShowPassword((prev) => ({
+                ...prev,
+                lock: !prev.lock,
+              }))
+            }
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+          >
+            {showPassword.lock ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
+        <FormFeedback>{infoFormik.errors.lockScreenPassword}</FormFeedback>
+      </div>
+
+      {/* SUBMIT */}
+      <Button color="primary" block type="submit">
+        Update Info
+      </Button>
+    </Form>
+  </CardBody>
+</Card>
+
+
+<Card className="mb-4">
+  <CardBody>
+    <h5 className="mb-3">Change Password</h5>
+
+    <Form onSubmit={passwordFormik.handleSubmit}>
+      {/* CURRENT PASSWORD */}
+      <div className="mb-3 position-relative">
+        <Label>Current Password</Label>
+        <div className="position-relative">
+          <Input
+            type={showPassword.current ? "text" : "password"}
+            name="currentPassword"
+            value={passwordFormik.values.currentPassword}
+            onChange={passwordFormik.handleChange}
+            invalid={
+              passwordFormik.touched.currentPassword &&
+              passwordFormik.errors.currentPassword
+            }
+          />
+
+          {/* Eye Icon */}
+          <span
+            onClick={() =>
+              setShowPassword((prev) => ({
+                ...prev,
+                current: !prev.current,
+              }))
+            }
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+          >
+            {showPassword.current ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+        <FormFeedback>{passwordFormik.errors.currentPassword}</FormFeedback>
+      </div>
+
+      {/* NEW PASSWORD */}
+      <div className="mb-3 position-relative">
+        <Label>New Password</Label>
+        <div className="position-relative">
+          <Input
+            type={showPassword.new ? "text" : "password"}
+            name="newPassword"
+            value={passwordFormik.values.newPassword}
+            onChange={passwordFormik.handleChange}
+            invalid={
+              passwordFormik.touched.newPassword &&
+              passwordFormik.errors.newPassword
+            }
+          />
+
+          <span
+            onClick={() =>
+              setShowPassword((prev) => ({
+                ...prev,
+                new: !prev.new,
+              }))
+            }
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+          >
+            {showPassword.new ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
+        <FormFeedback>{passwordFormik.errors.newPassword}</FormFeedback>
+      </div>
+
+      {/* CONFIRM NEW PASSWORD */}
+      <div className="mb-3 position-relative">
+        <Label>Confirm New Password</Label>
+        <div className="position-relative">
+          <Input
+            type={showPassword.confirm ? "text" : "password"}
+            name="confirmPassword"
+            value={passwordFormik.values.confirmPassword}
+            onChange={passwordFormik.handleChange}
+            invalid={
+              passwordFormik.touched.confirmPassword &&
+              passwordFormik.errors.confirmPassword
+            }
+          />
+
+          <span
+            onClick={() =>
+              setShowPassword((prev) => ({
+                ...prev,
+                confirm: !prev.confirm,
+              }))
+            }
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+          >
+            {showPassword.confirm ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
+        <FormFeedback>{passwordFormik.errors.confirmPassword}</FormFeedback>
+      </div>
+
+      <Button color="warning" block type="submit">
+        Change Password
+      </Button>
+    </Form>
+  </CardBody>
+</Card>
+
+
+
+        {/* Profile Picture */}
         <Card>
           <CardBody>
-            <Form onSubmit={passwordFormik.handleSubmit}>
-              {["currentPassword", "newPassword", "confirmPassword"].map((field) => (
-                <div className="mb-3 position-relative" key={field}>
-                  <Label>
-                    {field === "currentPassword"
-                      ? "Current Password"
-                      : field === "newPassword"
-                      ? "New Password"
-                      : "Confirm New Password"}
-                  </Label>
-                  <div className="position-relative">
-                    <Input
-                      type={
-                        showPassword[field.replace("Password", "").toLowerCase()]
-                          ? "text"
-                          : "password"
-                      }
-                      name={field}
-                      value={passwordFormik.values[field]}
-                      onChange={passwordFormik.handleChange}
-                      invalid={
-                        passwordFormik.touched[field] && passwordFormik.errors[field]
-                      }
-                    />
-                    <span
-                      onClick={() =>
-                        setShowPassword((p) => ({
-                          ...p,
-                          [field.replace("Password", "").toLowerCase()]:
-                            !p[field.replace("Password", "").toLowerCase()],
-                        }))
-                      }
-                      style={{
-                        position: "absolute",
-                        right: "10px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {showPassword[field.replace("Password", "").toLowerCase()] ? (
-                        <FaEyeSlash />
-                      ) : (
-                        <FaEye />
-                      )}
-                    </span>
-                    <FormFeedback>{passwordFormik.errors[field]}</FormFeedback>
-                  </div>
-                </div>
-              ))}
+            <h5 className="mb-3">Update Profile Picture</h5>
 
-              <Button color="warning" type="submit" block>
-                Change Password
-              </Button>
-            </Form>
-          </CardBody>
-        </Card>
-
-        {/* Update Profile Picture */}
-        <h4 className="mt-4 mb-3">Update Profile Picture</h4>
-        <Card>
-          <CardBody>
             <div className="text-center mb-3">
               <img
                 src={profileImage}
                 alt="profile-preview"
                 className="avatar-lg rounded-circle img-thumbnail mb-3"
               />
+
               <Input
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                  const file = e.target.files[0];
-                  setImageFile(file);
-                  if (file) {
+                  setImageFile(e.target.files[0]);
+
+                  // Preview
+                  if (e.target.files[0]) {
                     const reader = new FileReader();
-                    reader.onloadend = () => setProfileImage(reader.result);
-                    reader.readAsDataURL(file);
+                    reader.onloadend = () =>
+                      setProfileImage(reader.result);
+                    reader.readAsDataURL(e.target.files[0]);
                   }
                 }}
               />
             </div>
+
             <Button color="info" block onClick={handleImageUpload}>
               Upload Picture
             </Button>
@@ -360,14 +516,11 @@ const UserProfile = () => {
         </Card>
       </Container>
 
-      {/* Re-Login Modal */}
+      {/* Re-login Modal */}
       <Modal isOpen={showReLoginModal} centered>
         <ModalHeader>Re-login Required</ModalHeader>
         <ModalBody>
-          <p>
-            Your password or lock screen password has been updated. For security reasons,
-            please log in again.
-          </p>
+          Your password has been updated. Please log in again.
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={handleLogout}>
