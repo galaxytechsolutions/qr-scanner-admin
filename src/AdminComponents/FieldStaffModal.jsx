@@ -211,7 +211,7 @@ const FieldStaffModal = ({
             </span>
           </FormGroup>
 
-          <FormGroup>
+          {/* <FormGroup>
             <Label for="totalHousesCovered">Total Houses Assigned</Label>
             <Input
               type="number"
@@ -219,7 +219,7 @@ const FieldStaffModal = ({
               value={newField.totalHousesCovered}
               onChange={(e) => handleChange("totalHousesCovered", e.target.value)}
             />
-          </FormGroup>
+          </FormGroup> */}
 
 
           <FormGroup>
