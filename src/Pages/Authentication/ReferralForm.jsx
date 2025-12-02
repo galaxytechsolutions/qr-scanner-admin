@@ -51,8 +51,10 @@ const ReferralForm = () => {
         const formData = new FormData();
         formData.append("name", values.name);
         formData.append("email", values.email);
-        formData.append("phoneNo", values.phoneNo);
-        // Explicitly convert boolean to string "true" or "false" for FormData
+        // formData.append("phoneNo", values.phoneNo);
+        formData.append("phoneNo", "91" + values.phoneNo);
+
+        
         formData.append("whatsappActive", String(values.whatsappActive));
         if (values.profilePic) {
           formData.append("file", values.profilePic);
@@ -66,7 +68,8 @@ const ReferralForm = () => {
           text: "Thank you for your submission. We will be in touch shortly.",
           icon: "success",
           confirmButtonText: "OK",
-        }).then(() => navigate("/login"));
+        })
+        // .then(() => navigate("/login"));
       } catch (err) {
         console.error(err);
 
@@ -150,6 +153,7 @@ const ReferralForm = () => {
                       <Input
                         name="phoneNo"
                         placeholder="Enter your 10-digit phone number"
+                        max={10}
                         onChange={validation.handleChange}
                         onBlur={validation.handleBlur}
                         value={validation.values.phoneNo}
