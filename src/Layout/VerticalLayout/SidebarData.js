@@ -53,6 +53,13 @@ const SidebarData = [
         isHasArrow: true,
         url: "/schemes",
     },
+    {
+    label: "Reported Issues",
+    icon: "ri-error-warning-line",
+    isHasArrow: true,
+    url: "/issues",
+},
+
 
     // {
     //     label: "Franchise",

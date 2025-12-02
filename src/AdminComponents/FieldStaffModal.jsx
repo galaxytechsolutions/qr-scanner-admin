@@ -12,6 +12,7 @@ import {
   Button,
 } from "reactstrap";
 import { ImgBaseUrl } from "../Instence/ImgInstence";
+import ConstituencyDropdown from "../components/ContituenciesDropdown";
 
 const FieldStaffModal = ({
   modalOpen,
@@ -20,6 +21,10 @@ const FieldStaffModal = ({
   editMode,
   existingData,
   constituency,
+  constituencies,
+  role,
+  setSelectedConstituency
+
 }) => {
   const [newField, setNewField] = useState({
     name: "",
@@ -93,7 +98,7 @@ const FieldStaffModal = ({
         {editMode ? "Edit Field Staff" : "Add Field Staff"}
       </ModalHeader>
       <ModalBody style={{ height: "65vh", overflowY: "auto" }}>
-        <Form>
+        <div>
           <FormGroup>
             <Label for="name">Name</Label>
             <Input
@@ -109,16 +114,40 @@ const FieldStaffModal = ({
             <Input type="text" id="role" value={newField.role} readOnly />
           </FormGroup>
 
-          <FormGroup>
+          {/* <FormGroup>
             <Label for="constituency">Constituency</Label>
             <Input
               type="text"
               id="constituency"
               value={newField.constituency}
               onChange={(e) => handleChange("constituency", e.target.value)}
-              readOnly={!editMode} // Or based on user role
+              readOnly={!editMode} 
             />
-          </FormGroup>
+          </FormGroup> */}
+
+          <FormGroup>
+  <Label for="constituency">Constituency</Label>
+
+  {role === "SuperAdmin" ? (
+   
+   <div onClick={(e) => e.stopPropagation()}>
+  <ConstituencyDropdown
+    value={newField.constituency}
+    onChange={(value) => handleChange("constituency", value)}
+    placeholder="Select Constituency"
+  />
+</div>
+
+  ) : (
+    <Input
+      type="text"
+      id="constituency"
+      value={newField.constituency}
+      readOnly
+    />
+  )}
+</FormGroup>
+
 
           <FormGroup>
             <Label for="profilePic">Profile Picture</Label>
@@ -231,7 +260,7 @@ const FieldStaffModal = ({
               onChange={(e) => handleChange("notes", e.target.value)}
             />
           </FormGroup>
-        </Form>
+        </div>
       </ModalBody>
       <ModalFooter>
         <Button color="primary" 

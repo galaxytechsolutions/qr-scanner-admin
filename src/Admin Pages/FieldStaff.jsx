@@ -310,6 +310,9 @@ console.log("Admin Name", auth.user )
         editMode={editMode}
         existingData={selectedStaff}
         constituency={selectedConstituency}
+        constituencies={constituencies}   
+        setSelectedConstituency={setSelectedConstituency}
+        role={role}
       />
 
 

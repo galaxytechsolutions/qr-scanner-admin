@@ -108,6 +108,8 @@ import Applications from "../Admin Pages/Applications.jsx";
 import Schemes from "../Admin Pages/Schemes.jsx";
 import ApplicationOverview from "../AdminComponents/SinglePageComponents/ApplicationOverview.jsx";
 import SchemeDetails from "../Admin Pages/SchemeDetails.jsx";
+import Issues from "../Admin Pages/Issues.jsx";
+import IssueDetails from "../Admin Pages/IssueDetails.jsx";
 
 
 
@@ -129,8 +131,8 @@ const authProtectedRoutes = [
   { path: "/applications/:id", component: <ApplicationOverview /> },
   { path: "/schemes", component: <Schemes /> },
 { path:"/scheme/:id", component:<SchemeDetails />}, 
-
-
+  { path: "/issues", component: <Issues /> },
+ { path: "/issues/:id", component: <IssueDetails /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },
