@@ -17,7 +17,7 @@ const FieldStaff = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+console.log("Staff List", staffList)
   const itemsPerPage = 10;
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -253,7 +253,7 @@ console.log("Admin Name", auth.user )
                   <td>{staff.email || "-"}</td>
                   <td>{staff.whatsappActive ? "Yes" : "No"}</td>
                   <td>{staff.totalHousesCovered || 0}</td>
-                  <td>{staff.assignedHouses?.length || 0}</td>
+                  <td>{staff.todayCoveredHouses || 0}</td>
                   <td>{staff.notes || "-"}</td>
                   <td>{staff.addedBy?.name || "-"}</td>
                   <td>

@@ -108,9 +108,9 @@ const PropertyOverview = () => {
             <div className="d-flex flex-column gap-2">
               <div className="d-flex">
                 <span className="fw-semibold text-muted" style={{ width: "200px" }}>
-                  Total Houses Assigned
+                  Today Covered Houses 
                 </span>
-                <span className="text-dark">: {staff.assignedHouses.length}</span>
+                <span className="text-dark">: {staff.todayCoveredHouses}</span>
               </div>
 
               <div className="d-flex">
