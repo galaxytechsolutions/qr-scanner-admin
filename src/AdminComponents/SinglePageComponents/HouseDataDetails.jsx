@@ -453,12 +453,16 @@ import { Instance } from "../../Instence/Instence";
 import { ImgBaseUrl } from "../../Instence/ImgInstence";
 import { useParams } from "react-router-dom";
 import PropertyLocation from "./PropertyLocation";
+import QRCode from "react-qr-code";
+import dummy from "../../assets/images/dummy.png";
+
 
 const HouseDataDetails = () => {
   const { id } = useParams();
   const [house, setHouse] = useState(null);
   const [address, setAddress] = useState("");
   const [verifying, setVerifying] = useState(false);
+const [userSchemes, setUserSchemes] = useState([]);
 
   useEffect(() => {
     const fetchHouseData = async () => {
@@ -472,6 +476,24 @@ const HouseDataDetails = () => {
 
     fetchHouseData();
   }, [id]);
+
+
+useEffect(() => {
+  if (!house?._id) return;
+
+  const fetchSchemes = async () => {
+    try {
+      const res = await Instance.get(`/scheme/user/${house._id}`);
+      setUserSchemes(res.data.schemes || []);
+    } catch (err) {
+      console.error("Error fetching user schemes:", err);
+    }
+  };
+
+  fetchSchemes();
+}, [house]);
+
+
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -529,7 +551,7 @@ const HouseDataDetails = () => {
       <span className="text-dark">{value}</span>
     </p>
   );
-
+console.log("Single House Details", house);
   const AssignedStaffWidget = ({ staff }) => {
     if (!staff) return null;
 
@@ -572,6 +594,10 @@ const HouseDataDetails = () => {
               <Col md={3} className="text-center">
                 <Image
                   src={`${ImgBaseUrl}${house.profilePic}`}
+                   onError={(e) => {
+                      e.target.onerror = null;   
+                      e.target.src = dummy;      
+                    }}
                   alt="Profile"
                   fluid
                   roundedCircle
@@ -600,7 +626,7 @@ const HouseDataDetails = () => {
               </Col>
 
               <Col md={3} className="text-center">
-                <Image
+                {/* <Image
                   src={house.qrCodeImage || house.qrCode}
                   alt="QR Code"
                   fluid
@@ -610,7 +636,9 @@ const HouseDataDetails = () => {
                     height: "100px",
                     objectFit: "contain",
                   }}
-                />
+                /> */}
+                <QRCode value={house.qrCode} size={120} />
+
                 <p className="mt-2 fw-semibold text-muted">{house.qrCode}</p>
               </Col>
             </Row>
@@ -752,7 +780,7 @@ const HouseDataDetails = () => {
           </Card>
 
           {/* APPLIED SCHEMES */}
-          <Card className="p-4 mb-4 shadow-sm rounded-4">
+          {/* <Card className="p-4 mb-4 shadow-sm rounded-4">
             <h5 className="fw-bold mb-3 text-primary">Applied Schemes</h5>
 
             {house.appliedSchemes?.length === 0 ? (
@@ -768,7 +796,27 @@ const HouseDataDetails = () => {
                 </p>
               ))
             )}
-          </Card>
+          </Card> */}
+          {/* USER SCHEME LIST (FROM NEW API) */}
+<Card className="p-4 mb-4 shadow-sm rounded-4">
+  <h5 className="fw-bold mb-3 text-primary">User Applied Schemes</h5>
+
+  {userSchemes.length === 0 ? (
+    <p className="text-muted">No schemes applied.</p>
+  ) : (
+    userSchemes.map((scheme, index) => (
+      <div key={index} className="mb-3 p-2 border rounded">
+        <p className="mb-1">
+          <strong>{index + 1}. {scheme.name}</strong>
+        </p>
+        <p className="mb-0 text-muted">
+          <strong>Category:</strong> {scheme.category}
+        </p>
+      </div>
+    ))
+  )}
+</Card>
+
 
           {/* PAYMENT DETAILS */}
           {house.paymentDetails && (
