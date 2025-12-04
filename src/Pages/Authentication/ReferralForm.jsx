@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
   Row,
@@ -17,11 +17,14 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import ReactSwitch from "react-switch";
 import { Instance } from "../../Instence/Instence";
+
 const ReferralForm = () => {
   document.title = "Referral Form | Home QR";
-  const { referralId } = useParams();
+  const { referralId } = useParams(); // this is token
   const navigate = useNavigate();
-
+const location = useLocation();
+  const [staffId, setStaffId] = useState("");
+  const [constituency, setConstituency] = useState("");
 
   useEffect(() => {
     document.body.className = "bg-pattern";
@@ -29,6 +32,16 @@ const ReferralForm = () => {
       document.body.className = "";
     };
   }, []);
+
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const sid = params.get("staffId");
+  const con = params.get("constituency");
+
+  setStaffId(sid);
+  setConstituency(con);
+}, [location.search]);
+
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -51,14 +64,17 @@ const ReferralForm = () => {
         const formData = new FormData();
         formData.append("name", values.name);
         formData.append("email", values.email);
-        // formData.append("phoneNo", values.phoneNo);
         formData.append("phoneNo", "91" + values.phoneNo);
-
-        
         formData.append("whatsappActive", String(values.whatsappActive));
+
         if (values.profilePic) {
           formData.append("file", values.profilePic);
         }
+
+        // ⭐ Include NEW required fields
+        formData.append("staffId", staffId);
+        formData.append("constituency", constituency);
+
         await Instance.post(`/referral/submit/${referralId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -68,8 +84,8 @@ const ReferralForm = () => {
           text: "Thank you for your submission. We will be in touch shortly.",
           icon: "success",
           confirmButtonText: "OK",
-        })
-        // .then(() => navigate("/login"));
+        });
+
       } catch (err) {
         console.error(err);
 
@@ -92,8 +108,6 @@ const ReferralForm = () => {
     validation.setFieldValue("profilePic", file);
   };
 
-
-
   return (
     <React.Fragment>
       <div className="bg-overlay"></div>
@@ -109,7 +123,7 @@ const ReferralForm = () => {
                       Join Our Referral Program
                     </h4>
                     <p className="text-center">
-                      Referred by code: <strong>{referralId}</strong>
+                      Referral Code: <strong>{referralId}</strong>
                     </p>
                   </div>
 
@@ -125,9 +139,7 @@ const ReferralForm = () => {
                         value={validation.values.name}
                         invalid={!!(validation.touched.name && validation.errors.name)}
                       />
-                      {validation.touched.name && validation.errors.name && (
-                        <FormFeedback type="invalid">{validation.errors.name}</FormFeedback>
-                      )}
+                      <FormFeedback>{validation.errors.name}</FormFeedback>
                     </div>
 
                     {/* Email */}
@@ -142,9 +154,7 @@ const ReferralForm = () => {
                         value={validation.values.email}
                         invalid={!!(validation.touched.email && validation.errors.email)}
                       />
-                      {validation.touched.email && validation.errors.email && (
-                        <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
-                      )}
+                      <FormFeedback>{validation.errors.email}</FormFeedback>
                     </div>
 
                     {/* Phone */}
@@ -153,39 +163,31 @@ const ReferralForm = () => {
                       <Input
                         name="phoneNo"
                         placeholder="Enter your 10-digit phone number"
-                        max={10}
                         onChange={validation.handleChange}
                         onBlur={validation.handleBlur}
                         value={validation.values.phoneNo}
                         invalid={!!(validation.touched.phoneNo && validation.errors.phoneNo)}
                       />
-                      {validation.touched.phoneNo && validation.errors.phoneNo && (
-                        <FormFeedback type="invalid">{validation.errors.phoneNo}</FormFeedback>
-                      )}
+                      <FormFeedback>{validation.errors.phoneNo}</FormFeedback>
                     </div>
 
                     {/* WhatsApp Active */}
                     <FormGroup className="d-flex align-items-center mb-4">
                       <Label className="me-3 mb-0">WhatsApp Active</Label>
                       <ReactSwitch
-                        checked={!!validation.values.whatsappActive}
+                        checked={validation.values.whatsappActive}
                         onChange={(checked) =>
                           validation.setFieldValue("whatsappActive", checked)
                         }
                         onColor="#0d6efd"
                         offColor="#ccc"
-                        handleDiameter={12}
-                        height={20}
-                        width={40}
-                        uncheckedIcon={false}
-                        checkedIcon={false}
                       />
-                      <span className="ms-2 fw-bold justify-content-between">
+                      <span className="ms-2 fw-bold">
                         {validation.values.whatsappActive ? "Yes" : "No"}
                       </span>
                     </FormGroup>
 
-                    {/* Profile Picture Upload */}
+                    {/* Profile Picture */}
                     <div className="mb-3">
                       <Label className="form-label">Profile Picture</Label>
                       <input
@@ -196,8 +198,12 @@ const ReferralForm = () => {
                       />
                     </div>
 
+                    {/* Hidden values (for clarity) */}
+                    <input type="hidden" name="staffId" value={staffId} />
+                    <input type="hidden" name="constituency" value={constituency} />
+
                     <div className="d-grid mt-4">
-                      <button className="btn btn-primary waves-effect waves-light" type="submit">
+                      <button className="btn btn-primary" type="submit">
                         Submit
                       </button>
                     </div>
