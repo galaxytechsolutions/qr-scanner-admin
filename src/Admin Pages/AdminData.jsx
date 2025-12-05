@@ -8,6 +8,7 @@ import CustomPagination from "../AdminComponents/CustomPagination";
 import { useNavigate } from "react-router-dom";
 import { Instance } from "../Instence/Instence";
 import AddAdminModal from "../AdminComponents/AddAdminModal";
+import ReactSwitch from "react-switch";
 
 const AdminData = () => {
   const [admins, setAdmins] = useState([]);
@@ -17,6 +18,33 @@ const AdminData = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
+
+  const handleToggleStatus = async (admin) => {
+  const newStatus = !admin.status;
+
+  try {
+    const res = await Instance.put(`/admin/${admin._id}`, {
+      ...admin,
+      status: newStatus,
+      phoneNo: admin.phoneNo, // keep phone same
+    });
+
+    setAdmins((prev) =>
+      prev.map((a) => (a._id === admin._id ? { ...a, status: newStatus } : a))
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: `Admin is now ${newStatus ? "Active" : "Inactive"}`,
+      timer: 1200,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Failed to update status.", "error");
+  }
+};
+
 
   const handleDelete = async (id) => {
     Swal.fire({
@@ -104,7 +132,9 @@ const AdminData = () => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone Number</th>
+                <th>Role</th>
                 <th>Constituency</th>
+                 <th>Status</th> 
                 <th>Actions</th>
               </tr>
             </thead>
@@ -116,7 +146,30 @@ const AdminData = () => {
                     <td>{admin.name}</td>
                     <td>{admin.email}</td>
                     <td>{admin.phoneNo}</td>
+                    <td>{admin.role}</td>
                     <td>{admin.constituency || "—"}</td>
+
+<td>
+  <div className="d-flex justify-content-center align-items-center">
+    <ReactSwitch
+      checked={admin.status}
+      onChange={() => handleToggleStatus(admin)}
+      onColor="#28a745"
+      offColor="#dc3545"
+      checkedIcon={false}
+      uncheckedIcon={false}
+      height={22}
+      width={48}
+      handleDiameter={20}
+    />
+
+    <span className="ms-2 fw-bold" style={{ color: admin.status ? "green" : "red" }}>
+      {admin.status ? "Active" : "Inactive"}
+    </span>
+  </div>
+</td>
+
+
                     <td>
                       <div className="d-flex justify-content-center gap-3">
                         <FaRegEye

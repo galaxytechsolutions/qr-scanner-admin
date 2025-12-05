@@ -1,8 +1,8 @@
 // src/Instance.js
 import axios from 'axios';
 
-// const BaseUrl = 'http://localhost:8080/api'; 
-const BaseUrl = 'https://qrapi.plotnetwork.in/api';
+const BaseUrl = 'http://localhost:8080/api'; 
+// const BaseUrl = 'https://qrapi.plotnetwork.in/api';
 // Create an instance of axios with default configurations
 const Instance = axios.create({
   baseURL: BaseUrl,
@@ -23,8 +23,8 @@ Instance.interceptors.request.use((config) => {
 export  {Instance, BaseUrl};
 
 const authInstance = axios.create({
-  // baseURL: "http://localhost:8080/api/auth",
-   baseURL: "https://qrapi.plotnetwork.in/api/auth",
+  baseURL: "http://localhost:8080/api/auth",
+  //  baseURL: "https://qrapi.plotnetwork.in/api/auth",
   headers: { "Content-Type": "application/json" },
 });
 

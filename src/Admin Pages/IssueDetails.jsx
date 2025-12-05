@@ -54,7 +54,7 @@ const IssueDetails = () => {
                 </p>
               </Col>
 
-              <Col md={4} className="text-md-end text-center">
+              {/* <Col md={4} className="text-md-end text-center">
                 {issue.image && (
                   <img
                     src={`${ImgBaseUrl}${issue.image}`}
@@ -71,8 +71,31 @@ const IssueDetails = () => {
                     }
                   />
                 )}
-              </Col>
+              </Col> */}
             </Row>
+
+            {/* Full Width Image */}
+{issue.image && (
+  <Row className="mb-4">
+    <Col md={12} className="text-center">
+      <img
+        src={`${ImgBaseUrl}${issue.image}`}
+        alt="Issue"
+        className="rounded shadow"
+        style={{
+          width: "100%",
+          maxWidth: "700px",
+          height: "auto",
+          objectFit: "contain",
+          cursor: "pointer",
+        }}
+        onClick={() => window.open(`${ImgBaseUrl}${issue.image}`, "_blank")}
+      />
+      {/* <p className="text-muted mt-2">Click to open in full size</p> */}
+    </Col>
+  </Row>
+)}
+
 
             {/* Remarks */}
             <div className="mb-4">

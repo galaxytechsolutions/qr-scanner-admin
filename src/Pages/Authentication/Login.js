@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import logolight from "../../assets/images/logo-light.png";
-import logodark from "../../assets/images/logo-dark.png";
 
 import {
   Row,
@@ -29,6 +27,7 @@ import { useFormik } from "formik";
 import { loginUser, socialLogin } from "../../store/actions";
 import { createSelector } from "reselect";
 import { Instance } from "../../Instence/Instence";
+import Swal from "sweetalert2";
 
 const Login = (props) => {
   document.title = "Login | Home QR";
@@ -82,13 +81,38 @@ const Login = (props) => {
           password: "Invalid Email or Password",
         });
       }
-    } catch (error) {
-      console.error("Login failed:", error);
-      validation.setErrors({
-        email: "Something went wrong. Try again later.",
-      });
     }
+//     catch (error) {
+//   console.error("Login failed:", error);
 
+//   const backendError =
+//     error.response?.data?.error || "Something went wrong. Try again later.";
+
+//   validation.setErrors({
+//     email: backendError,
+//     password: backendError,
+//   });
+// }
+catch (error) {
+  console.error("Login failed:", error);
+
+  const backendError =
+    error.response?.data?.error || "Something went wrong. Try again later.";
+
+  // Show Modal
+  Swal.fire({
+    icon: "error",
+    title: "Login Failed",
+    text: backendError,
+    confirmButtonColor: "#d33",
+  });
+
+  // Also set form errors if needed
+  validation.setErrors({
+    email: backendError,
+    password: backendError,
+  });
+}
     return false;
   };
 
@@ -138,11 +162,11 @@ const Login = (props) => {
                       Sign in to continue to Home QR.
                     </p>
                     <Form className="form-horizontal" onSubmit={handleLogin}>
-                      {error ? (
+                      {/* {error ? (
                         <Alert color="danger">
                           <div>{error}</div>
                         </Alert>
-                      ) : null}
+                      ) : null} */}
                       <Row>
                         <Col md={12}>
                           <div className="mb-4">
