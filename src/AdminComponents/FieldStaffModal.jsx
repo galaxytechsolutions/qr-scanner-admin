@@ -38,6 +38,7 @@ const FieldStaffModal = ({
     totalHousesAssigned: "",
     totalHousesCovered: "",
     notes: "",
+    status: true,  
   });
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -47,6 +48,7 @@ const FieldStaffModal = ({
         ...existingData,
         totalHousesAssigned: existingData.assignedHouses?.length || 0,
         profilePic: existingData.profilePic || null, // Ensure profilePic is not undefined
+         status: existingData.status ?? true,
       });
     } else if (!editMode && modalOpen) {
       setNewField({
@@ -177,14 +179,16 @@ const FieldStaffModal = ({
               type="text"
               id="phoneNo"
               value={newField.phoneNo}
-              // onChange={(e) => handleChange("phoneNo", e.target.value)}
+              readOnly={editMode}
                maxLength={10}
               onChange={(e) => {
-                // Allow digits only
-                let v = e.target.value.replace(/\D/g, "");
-                // Limit to 10 digits
-                if (v.length > 10) v = v.slice(0, 10);
-                handleChange("phoneNo", v);
+                if(!editMode){
+                  // Allow digits only
+                  let v = e.target.value.replace(/\D/g, "");
+                  // Limit to 10 digits
+                  if (v.length > 10) v = v.slice(0, 10);
+                  handleChange("phoneNo", v);
+                }
               }}
             />
           </FormGroup>
@@ -250,6 +254,23 @@ const FieldStaffModal = ({
             />
           </FormGroup> */}
 
+<FormGroup className="d-flex align-items-center mt-3">
+  <Label className="me-3 mb-0">Status</Label>
+  <ReactSwitch
+    checked={!!newField.status}
+    onChange={(checked) => handleChange("status", checked)}
+    onColor="#28a745"
+    offColor="#dc3545"
+    handleDiameter={12}
+    height={20}
+    width={40}
+    uncheckedIcon={false}
+    checkedIcon={false}
+  />
+  <span className="ms-2 fw-bold">
+    {newField.status ? "Active" : "Inactive"}
+  </span>
+</FormGroup>
 
           <FormGroup>
             <Label for="notes">Notes</Label>
@@ -267,7 +288,7 @@ const FieldStaffModal = ({
           onClick={() =>
       handleSave({
         ...newField,
-        phoneNo: "91" + newField.phoneNo,   // prepend 91
+        phoneNo: editMode ? newField.phoneNo : "91" + newField.phoneNo,
       })
     }
         // onClick={() => handleSave(newField)}

@@ -238,3 +238,53 @@ select:valid {
   overflow-y: auto;
   padding-right: 0.5rem;
 }
+
+
+
+/* custom css for Reported Issues Date Picker */
+
+.date-range-container {
+  width: 300px;
+}
+
+.date-range-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #0ac075; /* blue border */
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #f9fbff;
+  cursor: pointer;
+}
+
+.date-range-wrapper:hover {
+  background: #eef4ff;
+}
+
+.date-range-icon {
+  font-size: 20px;
+  color: #0ac075;
+  margin-right: 10px;
+}
+
+.date-range-input .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.date-range-input .react-datepicker__input-container input {
+  border: none !important;
+  background: transparent !important;
+  width: 100%;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.date-range-input .react-datepicker__input-container input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.date-range-clear .react-datepicker__close-icon::after {
+  background: #dc3545;
+}
+
