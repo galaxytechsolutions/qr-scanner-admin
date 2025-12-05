@@ -89,7 +89,7 @@ const IssueDetails = () => {
           objectFit: "contain",
           cursor: "pointer",
         }}
-        onClick={() => window.open(`${ImgBaseUrl}${issue.image}`, "_blank")}
+        // onClick={() => window.open(`${ImgBaseUrl}${issue.image}`, "_blank")}
       />
       {/* <p className="text-muted mt-2">Click to open in full size</p> */}
     </Col>
