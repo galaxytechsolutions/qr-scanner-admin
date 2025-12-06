@@ -215,7 +215,7 @@ const FieldStaffModal = ({
           
 
           
-
+{/* 
           <FormGroup>
             <Label for="assignedRegion">Assigned Region</Label>
             <Input
@@ -224,7 +224,7 @@ const FieldStaffModal = ({
               value={newField.assignedRegion}
               onChange={(e) => handleChange("assignedRegion", e.target.value)}
             />
-          </FormGroup>
+          </FormGroup> */}
 
           <FormGroup className="d-flex align-items-center">
             <Label className="me-3 mb-0">WhatsApp Active</Label>

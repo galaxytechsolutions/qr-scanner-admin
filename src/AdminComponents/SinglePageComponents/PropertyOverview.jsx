@@ -121,11 +121,13 @@ const [totalEarnings, setTotalEarnings] = useState({ totalStaffEarnings: 0, tota
                   </div>
 
                   <div className="d-grid" style={{ gridTemplateColumns: "160px auto" }}>
-                    <span className="fw-semibold text-muted">Location</span>
-                    <span className="text-dark">
+                    <span className="fw-semibold text-muted">Constituency</span>
+                    {/* <span className="text-dark">
                       : <Badge bg="danger" pill>{staff.locationCode}</Badge>
-                    </span>
+                    </span> */}
+                      <span className="text-dark">: {staff.constituency}</span>
                   </div>
+
 
                   <div className="d-grid" style={{ gridTemplateColumns: "160px auto" }}>
                     <span className="fw-semibold text-muted">WhatsApp Active</span>
@@ -238,22 +240,22 @@ const [totalEarnings, setTotalEarnings] = useState({ totalStaffEarnings: 0, tota
             <h5 className="fw-bold text-primary mb-4">Contact Information</h5>
 
             <div className="d-flex flex-column gap-3">
-              <div className="d-grid" style={{ gridTemplateColumns: "30px 70px auto" }}>
+              <div className="d-grid" style={{ gridTemplateColumns: "30px 80px auto" }}>
                 <FaPhoneAlt className="text-primary mt-1" size={16} />
                 <span className="fw-semibold text-muted">Phone</span>
                 <span className="fw-semibold text-dark">: {staff.phoneNo}</span>
               </div>
 
-              <div className="d-grid" style={{ gridTemplateColumns: "30px 70px auto" }}>
+              <div className="d-grid" style={{ gridTemplateColumns: "30px 80px auto" }}>
                 <FaEnvelope className="text-info mt-1" size={16} />
                 <span className="fw-semibold text-muted">Email</span>
                 <span className="fw-semibold text-dark">: {staff.email}</span>
               </div>
 
-              <div className="d-grid" style={{ gridTemplateColumns: "30px 120px auto" }}>
+              <div className="d-grid" style={{ gridTemplateColumns: "30px 80px auto" }}>
                 <MdOutlineLocationOn className="text-danger mt-1" size={18} />
-                <span className="fw-semibold text-muted">Assigned Region</span>
-                <span className="fw-semibold text-dark">: {staff.assignedRegion}</span>
+                <span className="fw-semibold text-muted">Location</span>
+                <span className="fw-semibold text-dark">: {staff.locationCode}</span>
               </div>
             </div>
           </Card>
@@ -267,7 +269,7 @@ const [totalEarnings, setTotalEarnings] = useState({ totalStaffEarnings: 0, tota
 
             <div className="d-flex flex-column gap-2">
               <div className="d-flex">
-                <span className="fw-semibold text-muted" style={{ width: "150px" }}>
+                <span className="fw-semibold text-muted" style={{ width: "200px" }}>
                   Created At
                 </span>
                 <span className="text-dark">
@@ -276,7 +278,7 @@ const [totalEarnings, setTotalEarnings] = useState({ totalStaffEarnings: 0, tota
               </div>
 
               <div className="d-flex">
-                <span className="fw-semibold text-muted" style={{ width: "150px" }}>
+                <span className="fw-semibold text-muted" style={{ width: "200px" }}>
                   Updated At
                 </span>
                 <span className="text-dark">
@@ -292,3 +294,4 @@ const [totalEarnings, setTotalEarnings] = useState({ totalStaffEarnings: 0, tota
 };
 
 export default PropertyOverview;
+

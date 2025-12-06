@@ -237,7 +237,7 @@ const searchedData = (staffList || []).filter((staff) => {
                 <th>Name</th>
                 <th>Location</th>
                 <th>Constituency</th>
-                <th>Assigned Region</th>
+                {/* <th>Assigned Region</th> */}
                 <th>Phone Number</th>
                 <th>Email</th>
                 <th>Overall Houses Covered</th>
@@ -254,7 +254,7 @@ const searchedData = (staffList || []).filter((staff) => {
       <td>{staff.name || "-"}</td>
       <td>{staff.locationCode || "-"}</td>
       <td>{staff.constituency || "-"}</td>
-      <td>{staff.assignedRegion || "-"}</td>
+      {/* <td>{staff.assignedRegion || "-"}</td> */}
       <td><div className="d-flex align-items-center">{staff.phoneNo || "-"} {staff.whatsappActive && <FaWhatsapp className="ms-1 " style={{ fontSize: "16px", color: "#25D366" }}/>}</div></td>
       <td>{staff.email || "-"}</td>
       <td>{staff.totalHousesCovered || 0}</td>

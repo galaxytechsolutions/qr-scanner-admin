@@ -277,7 +277,35 @@ console.log("Referrals", referrals);
         </div>
 
 
-        {(role !== "SuperAdmin" || selectedConstituency) && (
+  
+
+                  {role === "SuperAdmin" && (
+         <div className="mb-3">
+
+           <div className="d-flex gap-3 mb-2">
+             {/* <div className="col-md-3">
+               <label className="form-label">Filter by City</label>
+               <CityDropdown
+                 value={selectedCity}
+                 list={citiesList}
+                 onChange={(city) => setSelectedCity(city)}
+                 placeholder="Select City"
+               />
+             </div> */}
+             <div className="col-md-3">
+               <label className="form-label">Filter by Constituency</label>
+               <ConstituencyDropdown
+                 value={selectedConstituency}
+                 onChange={(value) => handleConstituencyChange(value)}
+                 placeholder="Select Constituency"
+               />
+             </div>
+
+           </div>
+   
+         </div>
+       )}
+      {(role !== "SuperAdmin" || selectedConstituency) && (
           <div className="mb-3">
             <label className="form-label">Select Status</label>
             <div className="col-md-3">
@@ -338,44 +366,6 @@ console.log("Referrals", referrals);
             </div>
           </div>
         )}
-
-
-                  {role === "SuperAdmin" && (
-         <div className="mb-3">
-
-           <div className="d-flex gap-3 mb-2">
-             {/* <div className="col-md-3">
-               <label className="form-label">Filter by City</label>
-               <CityDropdown
-                 value={selectedCity}
-                 list={citiesList}
-                 onChange={(city) => setSelectedCity(city)}
-                 placeholder="Select City"
-               />
-             </div> */}
-             <div className="col-md-3">
-               <label className="form-label">Filter by Constituency</label>
-               <ConstituencyDropdown
-                 value={selectedConstituency}
-                 onChange={(value) => handleConstituencyChange(value)}
-                 placeholder="Select Constituency"
-               />
-             </div>
-        <div className="d-flex align-items-end">
-  <Button
-    color="secondary"
-    size="sm"
-    className="px-4 py-2"
-    onClick={handleClearFilters}
-  >
-    Clear Filters
-  </Button>
-</div>
-
-           </div>
-   
-         </div>
-       )}
 
 
         <div className="d-flex justify-content-between align-items-center mb-3">
