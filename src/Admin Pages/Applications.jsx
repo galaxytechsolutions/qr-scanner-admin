@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Container } from "reactstrap";
-import { FaRegEye } from "react-icons/fa";
+import { FaCheckCircle, FaRegEye, FaTimesCircle, FaTrashAlt } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
+import { RiCheckLine, RiCloseLine } from "react-icons/ri";
 import Swal from "sweetalert2";
 import CustomPagination from "../AdminComponents/CustomPagination";
 import Breadcrumbs from "../components/Common/Breadcrumb";
@@ -106,44 +107,35 @@ useEffect(() => {
     }
   };
 
-  // const searchedData = Array.isArray(applications)
-  //   ? applications.filter((app) => {
-  //       if (!app) return false;
+  const updateStatus = async (id, newStatus) => {
+  try {
+    const result = await Swal.fire({
+      title: `Are you sure you want to ${newStatus}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${newStatus}`,
+      cancelButtonText: "Cancel",
+    });
 
-  //       const flatValues = [];
+    if (!result.isConfirmed) return;
 
-  //       // include top-level fields
-  //       Object.keys(app).forEach((k) => {
-  //         const v = app[k];
-  //         if (v == null) return;
-  //         if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") {
-  //           flatValues.push(String(v).toLowerCase());
-  //         }
-  //       });
+    const res = await Instance.put(`/application/${id}`, { status: newStatus });
 
-  //       // applicant nested
-  //       if (app.applicant) {
-  //         Object.values(app.applicant).forEach((val) => {
-  //           if (val != null) flatValues.push(String(val).toLowerCase());
-  //         });
-  //       }
+    Swal.fire("Success!", `Application ${newStatus}.`, "success");
 
-  //       // address nested
-  //       if (app.address) {
-  //         Object.values(app.address).forEach((val) => {
-  //           if (val != null) flatValues.push(String(val).toLowerCase());
-  //         });
-  //       }
+    // Update local state without refetch
+    setApplications((prev) =>
+      prev.map((app) =>
+        app._id === id ? { ...app, status: newStatus } : app
+      )
+    );
+  } catch (err) {
+    console.error("Error updating status:", err);
+    Swal.fire("Error", "Unable to update status", "error");
+  }
+};
 
-  //       // schemeId may contain name/category
-  //       if (app.schemeId) {
-  //         if (typeof app.schemeId === "string") flatValues.push(app.schemeId.toLowerCase());
-  //         else Object.values(app.schemeId).forEach((val) => { if (val != null) flatValues.push(String(val).toLowerCase()); });
-  //       }
 
-  //       return flatValues.some((v) => v.includes(searchTerm.toLowerCase()));
-  //     })
-  //   : [];
 
 const filteredApplications = Array.isArray(applications)
   ? applications.filter((app) => {
@@ -394,12 +386,53 @@ const filteredApplications = Array.isArray(applications)
                     <td>{app.reviewedBy ? (app.reviewedBy.name || app.reviewedBy) : "-"}</td>
                     <td>{app.remarks || "-"}</td>
                     <td>{app.userId?.constituency || "-"}</td>
-                    <td>
+                    {/* <td>
                       <div className="d-flex justify-content-center gap-3">
                         <FaRegEye size={18} className="cursor-pointer" title="View" onClick={() => navigate(`/applications/${app._id || app.applicationId}`)} />
                         <MdDeleteForever size={18} className="cursor-pointer text-danger" title="Delete" onClick={() => handleDelete(app._id || app.applicationId)} />
                       </div>
-                    </td>
+                    </td> */}
+<td>
+  <div className="d-flex justify-content-center gap-3">
+
+    {/* APPROVE */}
+    <FaCheckCircle
+      size={22}
+      className={`cursor-pointer ${app.status === "Approved" ? "text-muted" : "text-success"}`}
+      title="Approve Application"
+      onClick={() => app.status !== "Approved" && updateStatus(app._id, "Approved")}
+      style={{ opacity: app.status === "Approved" ? 0.4 : 1 }}
+    />
+
+    {/* REJECT */}
+    <FaTimesCircle
+      size={22}
+      className={`cursor-pointer ${app.status === "Rejected" ? "text-muted" : "text-danger"}`}
+      title="Reject Application"
+      onClick={() => app.status !== "Rejected" && updateStatus(app._id, "Rejected")}
+      style={{ opacity: app.status === "Rejected" ? 0.4 : 1 }}
+    />
+
+    {/* VIEW */}
+    <FaRegEye
+      size={20}
+      className="cursor-pointer"
+      title="View Application"
+      onClick={() => navigate(`/applications/${app._id}`)}
+    />
+
+    {/* DELETE */}
+    <FaTrashAlt
+      size={22}
+      className="cursor-pointer text-danger"
+      title="Delete Application"
+      onClick={() => handleDelete(app._id)}
+    />
+
+  </div>
+</td>
+
+
                   </tr>
                 ))
               ) : (

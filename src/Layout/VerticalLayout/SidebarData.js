@@ -59,7 +59,14 @@ const SidebarData = [
     isHasArrow: true,
     url: "/issues",
 },
+ {
+        label: "My Earnings",
+        icon: "ri-wallet-3-line",
+        isHasArrow: true,
+        url: "/my-earnings",
+        visibleFor: ["Admin"]
 
+    },
 
     // {
     //     label: "Franchise",
