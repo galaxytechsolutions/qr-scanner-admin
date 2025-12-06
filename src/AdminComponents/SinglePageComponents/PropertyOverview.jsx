@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Badge, Image, Spinner } from "react-bootstrap";
-import { FaEnvelope, FaPhoneAlt, FaTasks, FaCalendarAlt } from "react-icons/fa";
+import { FaEnvelope, FaPhoneAlt, FaTasks, FaCalendarAlt,FaRupeeSign, FaTrophy, FaMoneyBillWave } from "react-icons/fa";
 import { MdOutlineLocationOn } from "react-icons/md";
 import { Instance } from "../../Instence/Instence";
 import { useParams } from "react-router-dom";
@@ -9,6 +9,8 @@ import { ImgBaseUrl } from "../../Instence/ImgInstence";
 const PropertyOverview = () => {
   const [staff, setStaff] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [dailyEarnings, setDailyEarnings] = useState(null);
+const [totalEarnings, setTotalEarnings] = useState({ totalStaffEarnings: 0, totalExtraRegistrations: 0 });
   const { id } = useParams();
 
   useEffect(() => {
@@ -33,6 +35,46 @@ const PropertyOverview = () => {
     if (id) fetchStaffDetails();
   }, [id]);
 
+
+  useEffect(() => {
+  const fetchAllData = async () => {
+    if (!id) return;
+
+    setLoading(true);
+    try {
+      // Fetch all 3 APIs in parallel (fast & clean)
+      const [staffResponse, dailyResponse, totalResponse] = await Promise.all([
+        Instance.get(`/staff/${id}`),
+        Instance.get(`/api/earnings/staff/${id}/daily`),   // Today's earnings
+        Instance.get(`/api/earnings/staff/${id}/total`),   // All-time earnings
+      ]);
+
+      // Staff basic details
+      setStaff({
+        ...staffResponse.data.staff,
+        assignedHouses: staffResponse.data.assignedHouses || [],
+      });
+
+      // Daily Earnings (today's performance + earnings)
+      setDailyEarnings(dailyResponse.data.data || dailyResponse.data);
+
+      // Total Earnings (lifetime)
+      setTotalEarnings({
+        totalStaffEarnings: totalResponse.data.totalStaffEarnings || 0,
+        totalExtraRegistrations: totalResponse.data.totalExtraRegistrations || 0,
+      });
+
+    } catch (err) {
+      console.error("Error fetching staff or earnings:", err);
+      // Optional: show toast error here
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAllData();
+}, [id]);
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -41,6 +83,8 @@ const PropertyOverview = () => {
     );
   }
 
+
+  
   if (!staff) {
     return (
       <div className="text-center mt-5">
@@ -128,7 +172,64 @@ const PropertyOverview = () => {
               </div>
             </div>
           </Card>
+
+                  {/* ==================== EARNINGS SECTION (ADD THIS) ==================== */}
+<Card className="p-4 shadow-sm rounded-4 mb-4 border-0">
+  <h5 className="fw-bold mb-4 text-primary d-flex align-items-center">
+    <FaRupeeSign className="me-2" style={{ fontSize: "1.4rem" }} />
+    Earnings Overview
+  </h5>
+
+  <Row className="g-4">
+    {/* Today's Earnings */}
+    <Col md={6}>
+      <Card>
+        <Card.Body className="text-decoration-none text-dark">
+          <div className="d-flex text-muted align-items-center">
+            <FaRupeeSign className="icon text-warning me-3" size={30} />
+            <div className="flex-grow-1 overflow-hidden">
+              <p className="mb-1">Today's Earnings</p>
+              <h5 className="mb-3">₹{dailyEarnings?.staffEarnings || 0}</h5>
+              <small>
+                From {dailyEarnings?.extraRegistrations || 0} extra registrations
+              </small>
+              {dailyEarnings?.extraRegistrations > 0 && (
+                <Badge bg="success" text="white" className="mt-1">
+                  <FaTrophy className="me-1" /> Bonus
+                </Badge>
+              )}
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    </Col>
+
+    {/* Total Earnings */}
+    <Col md={6}>
+      <Card>
+        <Card.Body className="text-decoration-none text-dark">
+          <div className="d-flex text-muted align-items-center">
+            <FaMoneyBillWave className="icon text-info me-3" size={30} />
+            <div className="flex-grow-1 overflow-hidden">
+              <p className="mb-1">Total Earnings</p>
+              <h5 className="mb-3">₹{totalEarnings?.totalStaffEarnings || 0}</h5>
+              <small>
+                From {totalEarnings?.totalExtraRegistrations || 0} extra registrations
+              </small>
+              <Badge bg="primary" text="white" className="mt-1">
+                All Time
+              </Badge>
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    </Col>
+  </Row>
+</Card>
+
         </Col>
+
+
 
         {/* Right Section */}
         <Col md={4}>

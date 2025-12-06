@@ -26,7 +26,21 @@ const [selectedScheme, setSelectedScheme] = useState("");
   const navigate = useNavigate();
 
   const categories = [...new Set(applications.map(a => a.schemeId?.category).filter(Boolean))];
-const schemeNames = [...new Set(applications.map(a => a.schemeId?.name).filter(Boolean))];
+  const schemeNames = [...new Set(applications.map(a => a.schemeId?.name).filter(Boolean))];
+
+  const getStatusBadge = (status) => {
+    const base = "px-3 py-1 rounded-pill text-capitalize fw-semibold";
+    const styles = {
+      approved: { background: "#E6F4EA", color: "#137333" },
+      rejected: { background: "#FDEAEA", color: "#A50E0E" },
+      pending: { background: "#FFF4E5", color: "#B06000" },
+    };
+    return (
+      <span className={base} style={styles[status.toLowerCase()] || styles.pending}>
+        {status}
+      </span>
+    );
+  };
 
 
   useEffect(() => {
@@ -189,6 +203,12 @@ const filteredApplications = Array.isArray(applications)
     currentPage * itemsPerPage
   );
 
+  // Calculate summary counts for admin
+  const totalApplications = applications.length;
+  const approved = applications.filter(a => a.status === 'Approved').length;
+  const pending = applications.filter(a => a.status === 'Pending').length;
+  const rejected = applications.filter(a => a.status === 'Rejected').length;
+
   return (
     <div className="page-content">
       <Container fluid={true}>
@@ -204,6 +224,43 @@ const filteredApplications = Array.isArray(applications)
           </div>
         </div>
 
+        )}
+
+        {(role === "Admin" || role === "admin") && (
+          <div className="row mb-4">
+            <div className="col-md-3">
+              <div className="card text-center h-100">
+                <div className="card-body">
+                  <h5 className="card-title">Total Applications</h5>
+                  <p className="card-text display-4">{totalApplications}</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="card text-center h-100">
+                <div className="card-body">
+                  <h5 className="card-title">Approved</h5>
+                  <p className="card-text display-5 text-success">{approved}</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="card text-center h-100">
+                <div className="card-body">
+                  <h5 className="card-title">Pending</h5>
+                  <p className="card-text display-4 text-warning">{pending}</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="card text-center h-100">
+                <div className="card-body">
+                  <h5 className="card-title">Rejected</h5>
+                  <p className="card-text display-4 text-danger">{rejected}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -306,7 +363,13 @@ const filteredApplications = Array.isArray(applications)
               </tr>
             </thead>
             <tbody className="text-center">
-              {loading ? (
+              {role === "SuperAdmin" && !selectedConstituency ? (
+                <tr>
+                  <td colSpan="15" className="text-muted py-5">
+                    Choose a constituency to view applications.
+                  </td>
+                </tr>
+              ) : loading ? (
                 <tr>
                   <td colSpan="15">Loading...</td>
                 </tr>
@@ -323,15 +386,7 @@ const filteredApplications = Array.isArray(applications)
                     <td>{app.schemeId?.name || app.schemeName || "-"}</td>
                     <td>{app.schemeId?.category || app.schemeCategory || "-"}</td>
                     <td>{app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "-"}</td>
-                    <td>
-                      <span className={`badge ${
-                        app.status === "Approved" ? "bg-success" :
-                        app.status === "Pending" ? "bg-warning" :
-                        app.status === "Rejected" ? "bg-danger" : "bg-secondary"
-                      }`}>
-                        {app.status || "-"}
-                      </span>
-                    </td>
+                    <td>{app.status ? getStatusBadge(app.status) : "-"}</td>
                     <td>{app.applicant?.aadhaar || app.applicantDetails?.aadhaarNumber || "-"}</td>
                     <td>{app.applicant?.email || "-"}</td>
                     <td>{app.applicant?.gender || "-"}</td>

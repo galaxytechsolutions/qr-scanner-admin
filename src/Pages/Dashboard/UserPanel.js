@@ -194,28 +194,43 @@ console.log("Admin Id", adminId)
   return (
     <React.Fragment>
       <Row>
-        {role === "SuperAdmin" && (
-          <Col md={4} className="mb-3">
-            <ConstituencyDropdown
-              value={selectedConstituency}
-              onChange={(value) => setSelectedConstituency(value)}
-              constituencies={constituencies}
-              placeholder="Select Constituency"
-            />
-          </Col>
-        )}
+      {/* Dropdown + Highlighted Message Below */}
+{role === "SuperAdmin" && (
+  <Row className="mb-5">
+    <Col md={5} lg={4}>
+      <ConstituencyDropdown
+        value={selectedConstituency}
+        onChange={(value) => setSelectedConstituency(value)}
+        constituencies={constituencies}
+        placeholder="Select Constituency"
+      />
+
+      {/* Simple highlighted message – only when nothing selected */}
+      {!selectedConstituency && (
+        <div className="mt-3 text-center">
+          <span className=" text-gray px-4 py-2  fw-semibold ">
+           select a constituency to view the constituency-wise information
+          </span>
+        </div>
+      )}
+    </Col>
+  </Row>
+)}
       </Row>
 
     {(role === "Admin" || role === "admin") && (
-        <div className="card-title mb-4 font-size-15">
-          <div className="mb-2">
-            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
-          </div>
-          <div>
-            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
-          </div>
-        </div>
-        )}
+            <div className="card-title mb-4 font-size-15">
+              <div className="mb-2">
+                <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+              </div>
+              <div className="mb-2">
+                <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+              </div>
+              <div>
+                <strong>Last Sync Time:</strong> <span className="text-primary">{new Date().toLocaleString()}</span>
+              </div>
+            </div>
+            )}
 
 {/* Dashboard Cards */}
 <Row>

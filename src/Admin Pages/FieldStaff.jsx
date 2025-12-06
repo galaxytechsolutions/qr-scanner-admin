@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Container } from "reactstrap";
-import { FaRegEye, FaUserEdit } from "react-icons/fa";
+import { FaRegEye, FaUserEdit, FaWhatsapp } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import Swal from "sweetalert2";
 import CustomPagination from "../AdminComponents/CustomPagination";
@@ -80,6 +80,11 @@ console.log("Admin Name", auth.user )
       .finally(() => setLoading(false));
   };
 
+  const handleClearFilters = () => {
+    setSelectedConstituency("");
+    setSearchTerm("");
+  };
+
 
 
 
@@ -156,13 +161,14 @@ console.log("Admin Name", auth.user )
 
 
 
-  const searchedData = Array.isArray(staffList)
-    ? staffList.filter((item) =>
-      Object.values(item).some((val) =>
-        String(val).toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
-    : [];
+const searchedData = (staffList || []).filter((staff) => {
+  if (!staff) return false;
+  const term = searchTerm.toLowerCase();
+  return (
+    (staff.name && staff.name.toLowerCase().includes(term)) ||
+    (staff.phoneNo && staff.phoneNo.toLowerCase().includes(term))
+  );
+});
 
   // Pagination
   const totalPages = Math.ceil(searchedData.length / itemsPerPage);
@@ -192,6 +198,7 @@ console.log("Admin Name", auth.user )
           <div className="col-md-6 border-1px-gray">
             {role === "SuperAdmin" && (
               <div className="col-md-7 mt-2 mb-2">
+                <label className="form-label">Filter by Constituency</label>
                 <ConstituencyDropdown
                   value={selectedConstituency}
                   onChange={(value) => {
@@ -233,7 +240,6 @@ console.log("Admin Name", auth.user )
                 <th>Assigned Region</th>
                 <th>Phone Number</th>
                 <th>Email</th>
-                <th>WhatsApp Active</th>
                 <th>Overall Houses Covered</th>
                 <th>Today Houses Covered</th>
                 <th>Notes</th>
@@ -241,52 +247,61 @@ console.log("Admin Name", auth.user )
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {paginatedData.map((staff, index) => (
-                <tr key={staff.staffId || index}>
-                  <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td>{staff.name || "-"}</td>
-                  <td>{staff.locationCode || "-"}</td>
-                  <td>{staff.constituency || "-"}</td>
-                  <td>{staff.assignedRegion || "-"}</td>
-                  <td>{staff.phoneNo || "-"}</td>
-                  <td>{staff.email || "-"}</td>
-                  <td>{staff.whatsappActive ? "Yes" : "No"}</td>
-                  <td>{staff.totalHousesCovered || 0}</td>
-                  <td>{staff.todayCoveredHouses || 0}</td>
-                  <td>{staff.notes || "-"}</td>
-                  <td>{staff.addedBy?.name || "-"}</td>
-                  <td>
-                    <div className="d-flex justify-content-center align-items-center gap-3">
-                      <FaRegEye
-                        size={20}
-                        title="View"
-                        className="cursor-pointer"
-                        onClick={() => navigate(`/fieldStaff/${staff._id}`)}
-                      />
+      <tbody>
+  {paginatedData.map((staff, index) => (
+    <tr key={staff.staffId || index}>
+      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+      <td>{staff.name || "-"}</td>
+      <td>{staff.locationCode || "-"}</td>
+      <td>{staff.constituency || "-"}</td>
+      <td>{staff.assignedRegion || "-"}</td>
+      <td><div className="d-flex align-items-center">{staff.phoneNo || "-"} {staff.whatsappActive && <FaWhatsapp className="ms-1 " style={{ fontSize: "16px", color: "#25D366" }}/>}</div></td>
+      <td>{staff.email || "-"}</td>
+      <td>{staff.totalHousesCovered || 0}</td>
+      <td>{staff.todayCoveredHouses || 0}</td>
+      <td>{staff.notes || "-"}</td>
+      <td>{staff.addedBy?.name || "-"}</td>
+      <td>
+        <div className="d-flex justify-content-center align-items-center gap-3">
+          <FaRegEye
+            size={20}
+            title="View"
+            className="cursor-pointer"
+            onClick={() => navigate(`/fieldStaff/${staff._id}`)}
+          />
+          <FaUserEdit
+            size={20}
+            className="cursor-pointer text-info"
+            onClick={() => {
+              setSelectedStaff(staff);
+              setEditMode(true);
+              setModalOpen(true);
+            }}
+          />
+          <MdDeleteForever
+            size={20}
+            title="Delete"
+            className="cursor-pointer text-danger"
+            onClick={() => handleDelete(staff._id)}
+          />
+        </div>
+      </td>
+    </tr>
+  ))}
 
-                      <FaUserEdit
-                        size={20}
-                        className="cursor-pointer text-info"
-                        onClick={() => {
-                          setSelectedStaff(staff);
-                          setEditMode(true);
-                          setModalOpen(true);
-                        }}
-                      />
+  {paginatedData.length === 0 && (
+    <tr>
+      <td colSpan="26" className="text-center py-5">
+        <h5 className="text-muted">
+          {selectedConstituency
+            ? "No staff found."
+            : "Choose a constituency to view constituency-wise staff data."}
+        </h5>
+      </td>
+    </tr>
+  )}
+</tbody>
 
-                      <MdDeleteForever
-                        size={20}
-                        title="Delete"
-                        className="cursor-pointer text-danger"
-                        onClick={() => handleDelete(staff._id)}
-                      />
-
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
           </Table>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Container } from "reactstrap";
+import { Table, Container, Button } from "reactstrap";
 import { Dropdown, ListGroup } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../components/Common/Breadcrumb";
@@ -8,6 +8,7 @@ import { FaCheckCircle, FaRegEye, FaTimesCircle, FaTrashAlt } from "react-icons/
 import { useNavigate } from "react-router-dom"; 
 import { Instance } from "../Instence/Instence";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
+import CityDropdown from "../components/CityDropdown";
 
 const ReferralProgram = () => {
   const [referrals, setReferrals] = useState([]);
@@ -20,6 +21,8 @@ const ReferralProgram = () => {
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [admin, setAdmin] = useState(null);
   const [error, setError] = useState(null);
+  const [citiesList, setCitiesList] = useState([]);
+  const [selectedCity, setSelectedCity] = useState(null);
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
@@ -33,6 +36,34 @@ console.log("Referrals", referrals);
     }
     return error?.message || "Something went wrong";
   };
+
+  const API_KEY = "RjNobEwxWTR0VFhFWVFzRWpkdWsxMjJDWXEyZmVBaDJmSVpYR1JJTg==";
+  const BASE_URL = "https://api.countrystatecity.in/v1";
+
+  // Fetch Telangana cities
+  useEffect(() => {
+    fetchCities("TG");
+  }, []);
+
+  const fetchCities = async (stateCode) => {
+    try {
+      const res = await Instance.get(
+        `${BASE_URL}/countries/IN/states/${stateCode}/cities`,
+        { headers: { "X-CSCAPI-KEY": API_KEY } }
+      );
+      // Store as objects {id, name} for dropdown
+      setCitiesList(res.data.map((c) => ({ id: c.id, name: c.name })));
+    } catch (err) {
+      console.log("City Error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (role === "SuperAdmin") {
+      // Reset constituency if city changes
+      setSelectedConstituency("");
+    }
+  }, [selectedCity, role]);
 
   // Fetch referrals for a constituency
   const fetchReferralsForConstituency = async (constituency) => {
@@ -98,6 +129,13 @@ console.log("Referrals", referrals);
   const handleConstituencyChange = (value) => {
     setSelectedConstituency(value);
     fetchReferralsForConstituency(value);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedCity(null);
+    setSelectedConstituency("");
+    setStatusFilter("all");
+    setSearchTerm("");
   };
 
 
@@ -205,7 +243,7 @@ console.log("Referrals", referrals);
         {/* Summary Cards */}
         <div className="row mb-4">
           <div className="col-md-3">
-            <div className="card text-center">
+            <div className="card text-center h-100">
               <div className="card-body">
                 <h5 className="card-title">Total Referrals</h5>
                 <p className="card-text display-4">{totalReferrals}</p>
@@ -213,7 +251,7 @@ console.log("Referrals", referrals);
             </div>
           </div>
           <div className="col-md-3">
-            <div className="card text-center">
+            <div className="card text-center h-100">
               <div className="card-body">
                 <h5 className="card-title">Approved</h5>
                 <p className="card-text display-5 text-success">{approved}</p>
@@ -221,7 +259,7 @@ console.log("Referrals", referrals);
             </div>
           </div>
           <div className="col-md-3">
-            <div className="card text-center">
+            <div className="card text-center h-100">
               <div className="card-body">
                 <h5 className="card-title">Pending</h5>
                 <p className="card-text display-4 text-warning">{pending}</p>
@@ -229,7 +267,7 @@ console.log("Referrals", referrals);
             </div>
           </div>
           <div className="col-md-3">
-            <div className="card text-center">
+            <div className="card text-center h-100">
               <div className="card-body">
                 <h5 className="card-title">Rejected</h5>
                 <p className="card-text display-4 text-danger">{rejected}</p>
@@ -239,78 +277,105 @@ console.log("Referrals", referrals);
         </div>
 
 
-        <div className="mb-3">
-          <label className="form-label">Select Status</label>
-          <div className="col-md-3">
-            <Dropdown show={statusDropdownOpen}>
-              <Dropdown.Toggle
-                onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-                variant="light"
-                className="border border-primary rounded-1"
-                style={{ width: "100%" }}
-              >
-                {statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
-              </Dropdown.Toggle>
-              <Dropdown.Menu style={{ width: "100%" }}>
-                <ListGroup variant="flush">
-                  <ListGroup.Item
-                    action
-                    active={statusFilter === "all"}
-                    onClick={() => {
-                      setStatusFilter("all");
-                      setStatusDropdownOpen(false);
-                    }}
-                  >
-                    All Status
-                  </ListGroup.Item>
-                  <ListGroup.Item
-                    action
-                    active={statusFilter === "pending"}
-                    onClick={() => {
-                      setStatusFilter("pending");
-                      setStatusDropdownOpen(false);
-                    }}
-                  >
-                    Pending
-                  </ListGroup.Item>
-                  <ListGroup.Item
-                    action
-                    active={statusFilter === "accepted"}
-                    onClick={() => {
-                      setStatusFilter("accepted");
-                      setStatusDropdownOpen(false);
-                    }}
-                  >
-                    Accepted
-                  </ListGroup.Item>
-                  <ListGroup.Item
-                    action
-                    active={statusFilter === "rejected"}
-                    onClick={() => {
-                      setStatusFilter("rejected");
-                      setStatusDropdownOpen(false);
-                    }}
-                  >
-                    Rejected
-                  </ListGroup.Item>
-                </ListGroup>
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
-        </div>
-
-
-                  {role === "SuperAdmin" && (
+        {(role !== "SuperAdmin" || selectedConstituency) && (
           <div className="mb-3">
-            <div className="col-md-4">
-              <ConstituencyDropdown
-                value={selectedConstituency}
-                onChange={(value) => handleConstituencyChange(value)}
-                placeholder="Select Constituency"
-              />
+            <label className="form-label">Select Status</label>
+            <div className="col-md-3">
+              <Dropdown show={statusDropdownOpen}>
+                <Dropdown.Toggle
+                  onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                  variant="light"
+                  className="border border-primary rounded-1"
+                  style={{ width: "100%" }}
+                >
+                  {statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                </Dropdown.Toggle>
+                <Dropdown.Menu style={{ width: "100%" }}>
+                  <ListGroup variant="flush">
+                    <ListGroup.Item
+                      action
+                      active={statusFilter === "all"}
+                      onClick={() => {
+                        setStatusFilter("all");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      All Status
+                    </ListGroup.Item>
+                    <ListGroup.Item
+                      action
+                      active={statusFilter === "pending"}
+                      onClick={() => {
+                        setStatusFilter("pending");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Pending
+                    </ListGroup.Item>
+                    <ListGroup.Item
+                      action
+                      active={statusFilter === "accepted"}
+                      onClick={() => {
+                        setStatusFilter("accepted");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Accepted
+                    </ListGroup.Item>
+                    <ListGroup.Item
+                      action
+                      active={statusFilter === "rejected"}
+                      onClick={() => {
+                        setStatusFilter("rejected");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Rejected
+                    </ListGroup.Item>
+                  </ListGroup>
+                </Dropdown.Menu>
+              </Dropdown>
             </div>
           </div>
         )}
+
+
+                  {role === "SuperAdmin" && (
+         <div className="mb-3">
+
+           <div className="d-flex gap-3 mb-2">
+             {/* <div className="col-md-3">
+               <label className="form-label">Filter by City</label>
+               <CityDropdown
+                 value={selectedCity}
+                 list={citiesList}
+                 onChange={(city) => setSelectedCity(city)}
+                 placeholder="Select City"
+               />
+             </div> */}
+             <div className="col-md-3">
+               <label className="form-label">Filter by Constituency</label>
+               <ConstituencyDropdown
+                 value={selectedConstituency}
+                 onChange={(value) => handleConstituencyChange(value)}
+                 placeholder="Select Constituency"
+               />
+             </div>
+        <div className="d-flex align-items-end">
+  <Button
+    color="secondary"
+    size="sm"
+    className="px-4 py-2"
+    onClick={handleClearFilters}
+  >
+    Clear Filters
+  </Button>
+</div>
+
+           </div>
+   
+         </div>
+       )}
 
 
         <div className="d-flex justify-content-between align-items-center mb-3">
