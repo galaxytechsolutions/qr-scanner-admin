@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Badge } from "reactstrap";
+import { Card, CardBody, CardHeader, Badge, Container } from "reactstrap";
 import { useParams, Link } from "react-router-dom";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
@@ -36,8 +36,8 @@ const SchemeDetails = () => {
 
   return (
     <div className="page-content">
+      <Container fluid={true}>
       <Breadcrumbs title="Home QR" breadcrumbItem="Scheme Details" />
-
       <Card className="shadow">
         <CardHeader className="d-flex justify-content-between align-items-center">
           <h4 className="mb-0">{scheme.name}</h4>
@@ -140,6 +140,7 @@ const SchemeDetails = () => {
           </div>
         </CardBody>
       </Card>
+      </Container>
     </div>
   );
 };

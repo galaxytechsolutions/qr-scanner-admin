@@ -20,6 +20,9 @@ const Schemes = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [selectedScheme, setSelectedScheme] = useState(null);
 const [role, setRole] = useState(null);
+const [selectedCategory, setSelectedCategory] = useState("");
+const categories = [...new Set(schemes.map(s => s.category))];
+
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Are you sure?',
@@ -64,7 +67,11 @@ const [role, setRole] = useState(null);
       Swal.fire('Added!', 'The scheme has been added.', 'success');
     }
   };
-  const searchedData = schemes.filter((item) =>
+  const searchedData = schemes
+  .filter((scheme) =>
+    selectedCategory ? scheme.category === selectedCategory : true
+  )
+  .filter((item) =>
     Object.values(item).some((val) =>
       String(val).toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -117,16 +124,46 @@ const [role, setRole] = useState(null);
           )}
         </div>
 
+<div className="row mb-3">
+  <div className="col-md-4">
+    <label className="fw-bold">Filter by Category</label>
+    <select
+      className="form-control"
+      value={selectedCategory}
+      onChange={(e) => setSelectedCategory(e.target.value)}
+    >
+      <option value="">All Categories</option>
+      {categories.map((cat, index) => (
+        <option key={index} value={cat}>
+          {cat}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Clear Filter Button */}
+  <div className="col-md-2 d-flex align-items-end">
+    <button
+      className="btn btn-secondary w-100"
+      onClick={() => setSelectedCategory("")}
+    >
+      Clear Category
+    </button>
+  </div>
+</div>
+
+
+
         <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
           <Table striped bordered hover responsive>
             <thead className="">
               <tr>
                 <th>S.No.</th>
-                <th>Scheme Name</th>
-                <th>Description</th>
-                <th>Eligibility Criteria</th>
-                <th>Benefits</th>
-                <th>Required Documents</th>
+                <th style={{ width: "200px", whiteSpace:"normal" }}>Scheme Name</th>
+                <th style={{ width: "350px" }}>Description</th>
+                <th style={{ width: "350px" }}>Eligibility Criteria</th>
+                <th style={{ width: "350px" }}>Benefits</th>
+                {/* <th>Required Documents</th> */}
                 <th>Category</th>
                 <th>Start Date</th>
                 <th>End Date</th>
@@ -142,7 +179,7 @@ const [role, setRole] = useState(null);
                   <td>{scheme.description?.slice(0, 50)}...</td>
                   <td>{scheme.eligibilityCriteria?.slice(0, 50)}...</td>
                   <td>{scheme.benefits?.slice(0, 50)}...</td >
-                  <td>{scheme.requiredDocuments.join(", ")}</td>
+                  {/* <td>{scheme.requiredDocuments.join(", ")}</td> */}
                   <td>{scheme.category}</td>
                   <td>{new Date(scheme.startDate).toLocaleDateString()}</td>
                   <td>{scheme.endDate ? new Date(scheme.endDate).toLocaleDateString() : "-"}</td>
