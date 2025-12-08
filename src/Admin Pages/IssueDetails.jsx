@@ -41,7 +41,8 @@ const IssueDetails = () => {
         <Card className="shadow-sm border-0 rounded-3">
           <CardBody>
 
-            {/* Issue Header */}
+            {/* Issue Header detaild*/}
+            
             <Row className="border-bottom pb-3 mb-3">
               <Col md={8}>
                 <h5 className="fw-bold mb-1">{issue.issueType}</h5>
