@@ -12,6 +12,7 @@ const Instance = axios.create({
   },
 });
 
+
 Instance.interceptors.request.use((config) => {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
   if (authUser?.token) {
