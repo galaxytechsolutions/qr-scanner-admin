@@ -358,7 +358,7 @@ const filteredApplications = Array.isArray(applications)
               {role === "SuperAdmin" && !selectedConstituency ? (
                 <tr>
                   <td colSpan="15" className="text-muted py-5">
-                    Choose a constituency to view applications.
+                    <h5 className="text-muted">Choose a constituency to view applications.</h5>
                   </td>
                 </tr>
               ) : loading ? (
