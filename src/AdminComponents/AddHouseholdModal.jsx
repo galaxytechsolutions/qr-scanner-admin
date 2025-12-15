@@ -23,15 +23,10 @@ const AddHouseholdModal = ({
   setNewHouse,
   handleAddHousehold,
   handleUpdateHousehold,
+  role,
 }) => {
   const [cities, setCities] = useState([]);
   const [states, setStates] = useState([]);
-const [selectedConstituency, setSelectedConstituency] = useState("");
-
-  const handleConstituencyChange = (e) => {
-    const value = e.target.value;
-    setSelectedConstituency(value);
-  };
   // Fetch Indian states (keep only Telangana)
   useEffect(() => {
     const fetchStates = async () => {
@@ -65,20 +60,57 @@ const [selectedConstituency, setSelectedConstituency] = useState("");
   }, [newHouse.state]);
 
   // Prefill cities when modal opens for edit
-  useEffect(() => {
-    if (modalOpen && newHouse.state) {
-      fetchCities(newHouse.state);
-    }
+  // useEffect(() => {
+  //   if (modalOpen && newHouse.state) {
+  //     fetchCities(newHouse.state);
+  //   }
 
-    // Set default constituency for new entries
-    if (modalOpen && !newHouse._id) {
-      const authUser = JSON.parse(localStorage.getItem("authUser"));
-      const userConstituency = authUser?.user?.constituency || authUser?.constituency || "";
-      if (userConstituency) {
-        setNewHouse(prev => ({ ...prev, constituency: userConstituency }));
-      }
-    }
-  }, [modalOpen, newHouse.state]);
+  //   // Set default constituency for new entries
+  //   if (modalOpen && !newHouse._id) {
+  //     const authUser = JSON.parse(localStorage.getItem("authUser"));
+  //     const userConstituency = authUser?.user?.constituency || authUser?.constituency || "";
+  //     if (userConstituency) {
+  //       setNewHouse(prev => ({ ...prev, constituency: userConstituency }));
+  //     }
+  //   }
+  // }, [modalOpen, newHouse.state]);
+
+
+useEffect(() => {
+  if (!modalOpen) return;
+
+  const auth = JSON.parse(localStorage.getItem("authUser"));
+  const userRole = role?.toLowerCase();
+  const adminConstituency =
+    auth?.user?.constituency || auth?.constituency || "";
+
+  // 🔹 UPDATE MODE (Admin + SuperAdmin)
+  if (newHouse?._id) {
+    // constituency already comes from selected row
+    return;
+  }
+
+  // 🔹 ADD MODE
+  if (userRole === "admin" && adminConstituency) {
+    // Admin → force constituency
+    setNewHouse(prev => ({
+      ...prev,
+      constituency: adminConstituency
+    }));
+  }
+
+  if (userRole === "superadmin") {
+    // SuperAdmin → DO NOT prefill
+    setNewHouse(prev => ({
+      ...prev,
+      constituency: ""
+    }));
+  }
+}, [modalOpen, role]);
+
+
+
+
 
   return (
     <Modal isOpen={modalOpen} toggle={toggle} size="md">
@@ -194,16 +226,20 @@ const [selectedConstituency, setSelectedConstituency] = useState("");
             <FormGroup>
               <Label for="constituency">Constituency</Label>
              
-              <div className="col-md-7 mt-2 mb-2">
+              <div className="col-md-8 mt-2 mb-2">
                 <ConstituencyDropdown
-                  value={selectedConstituency}
-                  onChange={(value) => {
-                    setSelectedConstituency(value);
-                    // handleConstituencyChange({ target: { value } });
-                    setNewHouse({ ...newHouse, constituency: value });
-
-                  }}
+                     value={newHouse.constituency || ""}
                   placeholder="Select Constituency"
+                  onChange={(value) => {
+                    // SuperAdmin ADD → allow change
+                    if (role === "SuperAdmin" && !newHouse._id) {
+                      setNewHouse({ ...newHouse, constituency: value });
+                    }
+                  }}
+                  isDisabled={
+                    role === "admin" ||           // Admin never edits
+                    (role === "SuperAdmin" && newHouse._id) // SuperAdmin update = readonly
+                  }
                 />
               </div>
             </FormGroup>
