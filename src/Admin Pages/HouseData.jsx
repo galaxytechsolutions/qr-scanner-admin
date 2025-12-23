@@ -635,6 +635,7 @@ formData.append(
                             members: household.members || [],
                             votedMembers: household.votedMembers || [],
                           });
+                     
                           setModalOpen(true);
                         }}
                       />
@@ -674,6 +675,7 @@ formData.append(
           setNewHouse={setNewHouse}
           handleAddHousehold={handleAddHousehold}
           handleUpdateHousehold={handleUpdateHousehold}
+            role={role} 
         />
       </Container>
     </div>
