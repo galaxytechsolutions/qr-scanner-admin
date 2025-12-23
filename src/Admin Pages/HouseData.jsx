@@ -65,6 +65,7 @@ const HouseData = () => {
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [selectedCity, setSelectedCity] = useState(null);
   const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const API_KEY = "RjNobEwxWTR0VFhFWVFzRWpkdWsxMjJDWXEyZmVBaDJmSVpYR1JJTg==";
   const BASE_URL = "https://api.countrystatecity.in/v1";
@@ -106,19 +107,40 @@ const HouseData = () => {
     return error.message || "Something went wrong";
   };
 
+  // useEffect(() => {
+  //   const auth = JSON.parse(localStorage.getItem("authUser"));
+  //   const role = auth?.user?.role || auth?.role || "";
+  //   setRole(role);
+  //   setAdmin(auth?.user);
+  //   if (role.toLowerCase() === "admin") {
+  //     const constituency = auth?.user?.constituency || auth?.constituency;
+  //     setSelectedConstituency(constituency);
+  //     getData(constituency);
+  //   } else if (role === "SuperAdmin") {
+  //     setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
+  //   }
+  // }, []);
+
+
   useEffect(() => {
-    const auth = JSON.parse(localStorage.getItem("authUser"));
-    const role = auth?.user?.role || auth?.role || "";
-    setRole(role);
-    setAdmin(auth?.user);
-    if (role.toLowerCase() === "admin") {
-      const constituency = auth?.user?.constituency || auth?.constituency;
-      setSelectedConstituency(constituency);
-      getData(constituency);
-    } else if (role === "SuperAdmin") {
-      setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
-    }
-  }, []);
+  const auth = JSON.parse(localStorage.getItem("authUser"));
+  const userRole = auth?.user?.role || auth?.role || "";
+
+  setRole(userRole);
+  setAdmin(auth?.user);
+
+  if (userRole.toLowerCase() === "admin") {
+    const constituency = auth?.user?.constituency || auth?.constituency;
+
+    // ✅ only set state
+    setSelectedConstituency(constituency);
+  }
+
+  if (userRole === "SuperAdmin") {
+    setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
+  }
+}, []);
+
 
   useEffect(() => {
     if (selectedConstituency) getData(selectedConstituency);
@@ -143,14 +165,26 @@ const HouseData = () => {
     getData(value);
   };
 
+  // const handleClearFilters = () => {
+  //   if (role.toLowerCase() === "admin") {
+  //     setSelectedCity(null);
+  //   } else {
+  //     setSelectedCity(null);
+  //     setSearchTerm("");
+  //   }
+  // };
+
   const handleClearFilters = () => {
-    if (role.toLowerCase() === "admin") {
-      setSelectedCity(null);
-    } else {
-      setSelectedCity(null);
-      setSearchTerm("");
-    }
-  };
+  if (role === "SuperAdmin") {
+    //  SuperAdmin: clear BOTH
+    setSelectedCity(null);
+    setSelectedConstituency("");
+ 
+  } else {
+    //  Admin: clear ONLY city
+    setSelectedCity(null);
+  }
+};
 
   const handleDelete = async (_id) => {
     Swal.fire({
@@ -438,70 +472,61 @@ formData.append(
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-10 border-1px-gray">
-            {role === "SuperAdmin" && (
-              <div className="mb-3">
-                <div className="row mb-2 align-items-end">
-                  <div className="col-md-4">
-                    <label className="form-label">Filter by City</label>
-                    <CityDropdown
-                      value={selectedCity}
-                      list={citiesList}
-                      onChange={(city) => setSelectedCity(city)}
-                      placeholder="Select City"
-                    />
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Filter by Constituency</label>
-                    <ConstituencyDropdown
-                      value={selectedConstituency}
-                      onChange={handleConstituencyChange}
-                      placeholder="Select Constituency"
-                    />
-                  </div>
-                  <div className="col-md-4 d-flex justify-content-end">
-                    <Button color="secondary" onClick={handleClearFilters}>
-                      Clear City
-                    </Button>
-                  </div>
-                </div>
-            
-              </div>
+{(role === "SuperAdmin" || role.toLowerCase() === "admin") && (
+  <div className="mb-3">
+    <div className="row align-items-end g-3">
 
-              
-            )}
 
-            {role.toLowerCase() === "admin" && (
-         <div className="mb-3">
-  <div className="d-flex align-items-end gap-3">
 
-    {/* City Dropdown - smaller width */}
-    <div style={{ width: "250px" }}>
-      <label className="form-label">Filter by City</label>
-      <CityDropdown
-        value={selectedCity}
-        list={citiesList}
-        onChange={(city) => setSelectedCity(city)}
-        placeholder="Select City"
-      />
+      <div className="col-md-4">
+        <label className="form-label">Filter by City</label>
+        <CityDropdown
+          value={selectedCity}
+          list={citiesList}
+          onChange={setSelectedCity}
+          placeholder="Select City"
+        />
+      </div>
+      {/* Constituency Dropdown (ONLY for SuperAdmin) */}
+      {role === "SuperAdmin" && (
+
+                      <div className="col-md-4">
+          <label className="form-label">Filter by Constituency</label>
+          <ConstituencyDropdown
+            value={selectedConstituency}
+            onChange={handleConstituencyChange}
+            placeholder="Select Constituency"
+          />
+        </div>
+
+      )}
+     
+    
+
+   
+ 
+
+      {/* Clear Button */}
+      <div className="col-md-2">
+        <Button
+          color="secondary"
+          className="w-100"
+          style={{ height: "38px" }}
+          onClick={handleClearFilters}
+        >
+          {role === "SuperAdmin" ? "Clear Filters" : "Clear City"}
+        </Button>
+      </div>
+
     </div>
-
-    {/* Clear Button right after dropdown */}
-    <div>
-      <Button
-        color="secondary"
-        size="sm"
-        className="px-4"
-        style={{ height: "38px" }}   // same height as dropdown
-        onClick={handleClearFilters}
-      >
-        Clear City
-      </Button>
-    </div>
-
   </div>
-</div>
+)}
 
-            )}
+
+
+
+            <div className="row align-items-end mt-3">
+  <div className="col-md-7">
 
             {(role !== "SuperAdmin" || selectedConstituency) && role.toLowerCase() !== "admin" && (
               <input
@@ -513,7 +538,12 @@ formData.append(
               />
             )}
 
+            </div>
+            </div>
+
             {role.toLowerCase() === "admin" && (
+                <div className="row mt-3">
+    <div className="col-md-7">
               <input
                 className="form-control cursor-pointer border border-primary"
                 type="search"
@@ -521,7 +551,9 @@ formData.append(
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+               </div></div>
             )}
+           
           </div>
 
           <div className="d-flex gap-2">
