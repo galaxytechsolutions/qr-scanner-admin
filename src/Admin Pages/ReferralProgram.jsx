@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, Container, Button } from "reactstrap";
+import { Table, Container, Button, Row, Col } from "reactstrap";
 import { Dropdown, ListGroup } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../components/Common/Breadcrumb";
-import CustomPagination from "../AdminComponents/CustomPagination"; 
+import CustomPagination from "../AdminComponents/CustomPagination";
 import { FaCheckCircle, FaRegEye, FaTimesCircle, FaTrashAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; 
+import { useLocation, useNavigate } from "react-router-dom";
 import { Instance } from "../Instence/Instence";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
 import CityDropdown from "../components/CityDropdown";
@@ -25,8 +25,21 @@ const ReferralProgram = () => {
   const [selectedCity, setSelectedCity] = useState(null);
   const itemsPerPage = 10;
   const navigate = useNavigate();
+  const location = useLocation();
+  const passedConstituency = location.state?.constituency || location.state?.Passed?.constituency || "";
+  console.log("Passed Constituency:", passedConstituency);
 
-console.log("Referrals", referrals);
+
+  useEffect(() => {
+    if (passedConstituency) {
+      setSelectedConstituency(passedConstituency); // ✅ will set "Secunderabad"
+      setLoading(false);
+    }
+  }, [passedConstituency]);
+
+
+
+  console.log("Referrals", referrals);
 
   const getErrorMessage = (error) => {
     if (error?.response?.data) {
@@ -58,12 +71,7 @@ console.log("Referrals", referrals);
     }
   };
 
-  useEffect(() => {
-    if (role === "SuperAdmin") {
-      // Reset constituency if city changes
-      setSelectedConstituency("");
-    }
-  }, [selectedCity, role]);
+
 
   // Fetch referrals for a constituency
   const fetchReferralsForConstituency = async (constituency) => {
@@ -112,24 +120,26 @@ console.log("Referrals", referrals);
     const userRole = auth?.user?.role || auth?.role || "";
     setRole(userRole);
     setAdmin(auth?.user);
-    if (userRole === "Admin" || userRole === "admin") {
-      const constituency = auth?.user?.constituency || auth?.constituency || "";
-      setSelectedConstituency(constituency);
-        // fetchAllReferrals();
+
+    const constituency = passedConstituency || auth?.user?.constituency || "";
+
+    // 🔥 Correctly set the dropdown value
+    setSelectedConstituency(constituency);
+
+    if (constituency) {
       fetchReferralsForConstituency(constituency);
-    } else if (userRole === "SuperAdmin") {
-      setReferrals([]);
-    } else {
-      // fallback - fetch all (keeps your existing behavior if role is different)
-      fetchAllReferrals();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // stop initial loader after setting state
+    setLoading(false);
   }, []);
+
 
   const handleConstituencyChange = (value) => {
     setSelectedConstituency(value);
     fetchReferralsForConstituency(value);
   };
+
 
   const handleClearFilters = () => {
     setSelectedCity(null);
@@ -200,13 +210,13 @@ console.log("Referrals", referrals);
 
   const searchedData = Array.isArray(referrals)
     ? referrals.filter((item) => {
-        if (!item) return false;
-        const matchesSearch = Object.values(item).some((val) =>
-          String(val).toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-        return matchesSearch && matchesStatus;
-      })
+      if (!item) return false;
+      const matchesSearch = Object.values(item).some((val) =>
+        String(val).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      const matchesStatus = statusFilter === "all" || item.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
     : [];
 
   const totalPages = Math.ceil(searchedData.length / itemsPerPage);
@@ -226,19 +236,17 @@ console.log("Referrals", referrals);
       <Container fluid={true}>
         <Breadcrumbs title="Home QR" breadcrumbItem="Referral Program" />
 
-               {(role === "Admin" || role === "admin") && (
-        <div className="card-title mb-4 font-size-15">
-          <div className="mb-2">
-            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+        {(role === "Admin" || role === "admin") && (
+          <div className="card-title mb-4 font-size-15">
+            <div className="mb-2">
+              <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+            </div>
+            <div>
+              <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+            </div>
           </div>
-          <div>
-            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
-          </div>
-        </div>
 
         )}
-
-      
 
         {/* Summary Cards */}
         <div className="row mb-4">
@@ -277,108 +285,84 @@ console.log("Referrals", referrals);
         </div>
 
 
-  
-
-                  {role === "SuperAdmin" && (
-         <div className="mb-3">
-
-           <div className="d-flex gap-3 mb-2">
-             {/* <div className="col-md-3">
-               <label className="form-label">Filter by City</label>
-               <CityDropdown
-                 value={selectedCity}
-                 list={citiesList}
-                 onChange={(city) => setSelectedCity(city)}
-                 placeholder="Select City"
-               />
-             </div> */}
-             <div className="col-md-3">
-               <label className="form-label">Filter by Constituency</label>
-               <ConstituencyDropdown
-                 value={selectedConstituency}
-                 onChange={(value) => handleConstituencyChange(value)}
-                 placeholder="Select Constituency"
-               />
-             </div>
-
-           </div>
-   
-         </div>
-       )}
-      {(role !== "SuperAdmin" || selectedConstituency) && (
+        {role === "SuperAdmin" && (
           <div className="mb-3">
-            <label className="form-label">Select Status</label>
-            <div className="col-md-3">
-              <Dropdown show={statusDropdownOpen}>
-                <Dropdown.Toggle
-                  onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-                  variant="light"
-                  className="border border-primary rounded-1"
-                  style={{ width: "100%" }}
+            <Row className="mb-4 align-items-end">
+
+              {/* Constituency Dropdown */}
+              <Col md={3}>
+                <label className="fw-semibold mb-1">Constituency</label>
+                <ConstituencyDropdown
+                  value={selectedConstituency}   // ← MUST be this
+                  onChange={handleConstituencyChange}
+                  placeholder="Select Constituency"
+                />
+              </Col>
+
+              {/* Search Box */}
+              <Col md={5}>
+                <label className="fw-semibold mb-1">Search</label>
+                <input
+                  className="form-control border border-primary"
+                  type="search"
+                  placeholder="Search referrals..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </Col>
+
+              {/* Status Dropdown (Only show when constituency selected) */}
+              <Col md={2}>
+                <label className="fw-semibold mb-1">Status</label>
+                <Dropdown show={statusDropdownOpen}>
+                  <Dropdown.Toggle
+                    onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                    variant="light"
+                    className="border border-primary rounded-1"
+                    style={{ width: "100%" }}
+                  >
+                    {statusFilter === "all"
+                      ? "All Status"
+                      : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu style={{ width: "100%" }}>
+                    <ListGroup variant="flush">
+                      <ListGroup.Item action active={statusFilter === "all"} onClick={() => { setStatusFilter("all"); setStatusDropdownOpen(false); }}>All</ListGroup.Item>
+                      <ListGroup.Item action active={statusFilter === "pending"} onClick={() => { setStatusFilter("pending"); setStatusDropdownOpen(false); }}>Pending</ListGroup.Item>
+                      <ListGroup.Item action active={statusFilter === "accepted"} onClick={() => { setStatusFilter("accepted"); setStatusDropdownOpen(false); }}>Accepted</ListGroup.Item>
+                      <ListGroup.Item action active={statusFilter === "rejected"} onClick={() => { setStatusFilter("rejected"); setStatusDropdownOpen(false); }}>Rejected</ListGroup.Item>
+                    </ListGroup>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Col>
+
+              {/* Clear Filters Button */}
+              <Col md={2}>
+                <Button
+                  color="primary"
+                  className="w-100"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setStatusFilter("all");
+                    setSelectedConstituency("");
+                    setCurrentPage(1);
+                    setStatusDropdownOpen(false);
+                    setReferrals([]);
+                  }}
                 >
-                  {statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
-                </Dropdown.Toggle>
-                <Dropdown.Menu style={{ width: "100%" }}>
-                  <ListGroup variant="flush">
-                    <ListGroup.Item
-                      action
-                      active={statusFilter === "all"}
-                      onClick={() => {
-                        setStatusFilter("all");
-                        setStatusDropdownOpen(false);
-                      }}
-                    >
-                      All Status
-                    </ListGroup.Item>
-                    <ListGroup.Item
-                      action
-                      active={statusFilter === "pending"}
-                      onClick={() => {
-                        setStatusFilter("pending");
-                        setStatusDropdownOpen(false);
-                      }}
-                    >
-                      Pending
-                    </ListGroup.Item>
-                    <ListGroup.Item
-                      action
-                      active={statusFilter === "accepted"}
-                      onClick={() => {
-                        setStatusFilter("accepted");
-                        setStatusDropdownOpen(false);
-                      }}
-                    >
-                      Accepted
-                    </ListGroup.Item>
-                    <ListGroup.Item
-                      action
-                      active={statusFilter === "rejected"}
-                      onClick={() => {
-                        setStatusFilter("rejected");
-                        setStatusDropdownOpen(false);
-                      }}
-                    >
-                      Rejected
-                    </ListGroup.Item>
-                  </ListGroup>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
+                  Clear Filters
+                </Button>
+              </Col>
+
+            </Row>
           </div>
         )}
 
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="col-md-6">
-            <input
-              className="form-control cursor-pointer border border-primary"
-              type="search"
-              placeholder="Search referrals..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
 
         <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
           <Table striped bordered hover responsive>
@@ -395,74 +379,74 @@ console.log("Referrals", referrals);
                 <th>Actions</th>
               </tr>
             </thead>
-        <tbody className="text-center">
-  {role === "SuperAdmin" && !selectedConstituency ? (
-    <tr>
-      <td colSpan="9" className="text-muted py-5">
-        Choose a constituency to view constituency-wise referrals.
-      </td>
-    </tr>
-  ) : loading ? (
-    <tr>
-      <td colSpan="9">Loading...</td>
-    </tr>
-  ) : error ? (
-    <tr>
-      <td colSpan="9" className="text-danger">
-        {error}
-      </td>
-    </tr>
-  ) : paginatedData.length > 0 ? (
-    paginatedData.map((referral, index) => (
-      <tr key={referral._id}>
-        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-        <td>{referral.friendName || "-"}</td>
-        <td>{referral.friendPhone || "-"}</td>
-        <td>{referral.friendEmail || "-"}</td>
-        <td>{referral.whatsappActive ? 'Yes' : 'No'}</td>
-        <td>{getStatusBadge(referral.status)}</td>
-        <td>{referral.referrerStaff?.name || "-"}</td>
-        <td>{referral.constituency || "-"}</td>
-        <td>
-          <div className="d-flex justify-content-center gap-3">
-            {referral.status === "pending" && (
-              <>
-                <FaCheckCircle
-                  size={22}
-                  className="cursor-pointer text-success"
-                  title="Accept Referral"
-                  onClick={() => handleStatusUpdate(referral._id, "accepted")}
-                />
-                <FaTimesCircle
-                  size={22}
-                  className="cursor-pointer text-danger"
-                  title="Reject Referral"
-                  onClick={() => handleStatusUpdate(referral._id, "rejected")}
-                />
-              </>
-            )}
-            <FaRegEye
-              size={20}
-              title="View"
-              className="cursor-pointer"
-              onClick={() => navigate(`/referrals/${referral._id}`)}
-            />
-            <FaTrashAlt
-              size={18}
-              title="Delete"
-              className="cursor-pointer text-danger"
-              onClick={() => handleDeleteReferral(referral._id)}
-            />
-          </div>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="9">No referrals found.</td>
-    </tr>
-  )}
-</tbody>
+            <tbody className="text-center">
+              {role === "SuperAdmin" && !selectedConstituency ? (
+                <tr>
+                  <td colSpan="9" className="text-muted py-5">
+                    Choose a constituency to view constituency-wise referrals.
+                  </td>
+                </tr>
+              ) : loading ? (
+                <tr>
+                  <td colSpan="9">Loading...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="9" className="text-danger">
+                    {error}
+                  </td>
+                </tr>
+              ) : paginatedData.length > 0 ? (
+                paginatedData.map((referral, index) => (
+                  <tr key={referral._id}>
+                    <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                    <td>{referral.friendName || "-"}</td>
+                    <td>{referral.friendPhone || "-"}</td>
+                    <td>{referral.friendEmail || "-"}</td>
+                    <td>{referral.whatsappActive ? 'Yes' : 'No'}</td>
+                    <td>{getStatusBadge(referral.status)}</td>
+                    <td>{referral.referrerStaff?.name || "-"}</td>
+                    <td>{referral.constituency || "-"}</td>
+                    <td>
+                      <div className="d-flex justify-content-center gap-3">
+                        {referral.status === "pending" && (
+                          <>
+                            <FaCheckCircle
+                              size={22}
+                              className="cursor-pointer text-success"
+                              title="Accept Referral"
+                              onClick={() => handleStatusUpdate(referral._id, "accepted")}
+                            />
+                            <FaTimesCircle
+                              size={22}
+                              className="cursor-pointer text-danger"
+                              title="Reject Referral"
+                              onClick={() => handleStatusUpdate(referral._id, "rejected")}
+                            />
+                          </>
+                        )}
+                        <FaRegEye
+                          size={20}
+                          title="View"
+                          className="cursor-pointer"
+                          onClick={() => navigate(`/referrals/${referral._id}`)}
+                        />
+                        <FaTrashAlt
+                          size={18}
+                          title="Delete"
+                          className="cursor-pointer text-danger"
+                          onClick={() => handleDeleteReferral(referral._id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9">No referrals found.</td>
+                </tr>
+              )}
+            </tbody>
 
           </Table>
         </div>

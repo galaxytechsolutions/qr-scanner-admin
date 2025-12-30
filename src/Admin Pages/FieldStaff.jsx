@@ -7,7 +7,7 @@ import CustomPagination from "../AdminComponents/CustomPagination";
 import FieldStaffModal from "../AdminComponents/FieldStaffModal";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
 
 const FieldStaff = () => {
@@ -17,7 +17,7 @@ const FieldStaff = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-console.log("Staff List", staffList)
+  console.log("Staff List", staffList)
   const itemsPerPage = 10;
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -26,19 +26,28 @@ console.log("Staff List", staffList)
   const [role, setRole] = useState("");
   const [constituencies, setConstituencies] = useState([]);
   const [selectedConstituency, setSelectedConstituency] = useState("");
-const [admin, setAdmin] = useState(null);
-
+  const [admin, setAdmin] = useState(null);
+  const location = useLocation();
+  const passedConstituency = location.state?.constituency;
   // Fetch staff on mount
+
   useEffect(() => {
-    const fetchStaff = async (constituency) => {
-      if (!constituency) return;
+    if (role === "SuperAdmin" && passedConstituency) {
+      setSelectedConstituency(passedConstituency);
+    }
+  }, [role, passedConstituency]);
+
+
+  useEffect(() => {
+    const fetchStaff = async (c) => {  // rename param to avoid confusion
+      if (!c) return;
       setLoading(true);
       setError(null);
       try {
-        const res = await Instance.get(`/staff/constituency/${constituency}`);
+        const res = await Instance.get(`/staff/constituency/${c}`); // now sends correct value
         const staffArray = Array.isArray(res.data.staff) ? res.data.staff : [];
         setStaffList(staffArray);
-        console.log("Fetched staff:", staffArray);
+        console.log("Fetched staff:", staffArray.length);
       } catch (err) {
         console.error("Error fetching staff:", err);
         setError("Failed to load staff data");
@@ -48,20 +57,19 @@ const [admin, setAdmin] = useState(null);
       }
     };
 
-
     const auth = JSON.parse(localStorage.getItem("authUser"));
     const userRole = auth?.user?.role || auth?.role || "";
     setRole(userRole);
     setAdmin(auth.user);
-console.log("Admin Name", auth.user )
-    if (userRole === "Admin" || userRole === "admin") {
-      const constituency = auth?.user?.constituency || auth?.constituency;
-      setSelectedConstituency(constituency);
-      fetchStaff(constituency);
-    } else if (userRole === "SuperAdmin") {
-      setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
-    }
+
+    // 🔥 Use passed constituency and fetch immediately
+    const useConstituency = passedConstituency || auth?.user?.constituency || "";
+    setSelectedConstituency(useConstituency);
+    fetchStaff(useConstituency);
+
   }, []);
+
+
 
   const handleConstituencyChange = (e) => {
     const value = e.target.value;
@@ -161,14 +169,14 @@ console.log("Admin Name", auth.user )
 
 
 
-const searchedData = (staffList || []).filter((staff) => {
-  if (!staff) return false;
-  const term = searchTerm.toLowerCase();
-  return (
-    (staff.name && staff.name.toLowerCase().includes(term)) ||
-    (staff.phoneNo && staff.phoneNo.toLowerCase().includes(term))
-  );
-});
+  const searchedData = (staffList || []).filter((staff) => {
+    if (!staff) return false;
+    const term = searchTerm.toLowerCase();
+    return (
+      (staff.name && staff.name.toLowerCase().includes(term)) ||
+      (staff.phoneNo && staff.phoneNo.toLowerCase().includes(term))
+    );
+  });
 
   // Pagination
   const totalPages = Math.ceil(searchedData.length / itemsPerPage);
@@ -181,15 +189,15 @@ const searchedData = (staffList || []).filter((staff) => {
     <div className="page-content">
       <Container fluid={true}>
         <Breadcrumbs title="Home QR" breadcrumbItem="Field Staff Data" />
-             {(role === "Admin" || role === "admin") && (
-        <div className="card-title mb-4 font-size-15">
-          <div className="mb-2">
-            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+        {(role === "Admin" || role === "admin") && (
+          <div className="card-title mb-4 font-size-15">
+            <div className="mb-2">
+              <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+            </div>
+            <div>
+              <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+            </div>
           </div>
-          <div>
-            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
-          </div>
-        </div>
 
         )}
 
@@ -247,60 +255,60 @@ const searchedData = (staffList || []).filter((staff) => {
                 <th>Actions</th>
               </tr>
             </thead>
-      <tbody>
-  {paginatedData.map((staff, index) => (
-    <tr key={staff.staffId || index}>
-      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-      <td>{staff.name || "-"}</td>
-      <td>{staff.locationCode || "-"}</td>
-      <td>{staff.constituency || "-"}</td>
-      {/* <td>{staff.assignedRegion || "-"}</td> */}
-      <td><div className="d-flex align-items-center">{staff.phoneNo || "-"} {staff.whatsappActive && <FaWhatsapp className="ms-1 " style={{ fontSize: "16px", color: "#25D366" }}/>}</div></td>
-      <td>{staff.email || "-"}</td>
-      <td>{staff.totalHousesCovered || 0}</td>
-      <td>{staff.todayCoveredHouses || 0}</td>
-      <td>{staff.notes || "-"}</td>
-      <td>{staff.addedBy?.name || "-"}</td>
-      <td>
-        <div className="d-flex justify-content-center align-items-center gap-3">
-          <FaRegEye
-            size={20}
-            title="View"
-            className="cursor-pointer"
-            onClick={() => navigate(`/fieldStaff/${staff._id}`)}
-          />
-          <FaUserEdit
-            size={20}
-            className="cursor-pointer text-info"
-            onClick={() => {
-              setSelectedStaff(staff);
-              setEditMode(true);
-              setModalOpen(true);
-            }}
-          />
-          <MdDeleteForever
-            size={20}
-            title="Delete"
-            className="cursor-pointer text-danger"
-            onClick={() => handleDelete(staff._id)}
-          />
-        </div>
-      </td>
-    </tr>
-  ))}
+            <tbody>
+              {paginatedData.map((staff, index) => (
+                <tr key={staff.staffId || index}>
+                  <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td>{staff.name || "-"}</td>
+                  <td>{staff.locationCode || "-"}</td>
+                  <td>{staff.constituency || "-"}</td>
+                  {/* <td>{staff.assignedRegion || "-"}</td> */}
+                  <td><div className="d-flex align-items-center">{staff.phoneNo || "-"} {staff.whatsappActive && <FaWhatsapp className="ms-1 " style={{ fontSize: "16px", color: "#25D366" }} />}</div></td>
+                  <td>{staff.email || "-"}</td>
+                  <td>{staff.totalHousesCovered || 0}</td>
+                  <td>{staff.todayCoveredHouses || 0}</td>
+                  <td>{staff.notes || "-"}</td>
+                  <td>{staff.addedBy?.name || "-"}</td>
+                  <td>
+                    <div className="d-flex justify-content-center align-items-center gap-3">
+                      <FaRegEye
+                        size={20}
+                        title="View"
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/fieldStaff/${staff._id}`)}
+                      />
+                      <FaUserEdit
+                        size={20}
+                        className="cursor-pointer text-info"
+                        onClick={() => {
+                          setSelectedStaff(staff);
+                          setEditMode(true);
+                          setModalOpen(true);
+                        }}
+                      />
+                      <MdDeleteForever
+                        size={20}
+                        title="Delete"
+                        className="cursor-pointer text-danger"
+                        onClick={() => handleDelete(staff._id)}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
 
-  {paginatedData.length === 0 && (
-    <tr>
-      <td colSpan="26" className="text-center py-5">
-        <h5 className="text-muted">
-          {selectedConstituency
-            ? "No staff found."
-            : "Choose a constituency to view constituency-wise staff data."}
-        </h5>
-      </td>
-    </tr>
-  )}
-</tbody>
+              {paginatedData.length === 0 && (
+                <tr>
+                  <td colSpan="26" className="text-center py-5">
+                    <h5 className="text-muted">
+                      {selectedConstituency
+                        ? "No staff found."
+                        : "Choose a constituency to view constituency-wise staff data."}
+                    </h5>
+                  </td>
+                </tr>
+              )}
+            </tbody>
 
           </Table>
         </div>
@@ -325,7 +333,7 @@ const searchedData = (staffList || []).filter((staff) => {
         editMode={editMode}
         existingData={selectedStaff}
         constituency={selectedConstituency}
-        constituencies={constituencies}   
+        constituencies={constituencies}
         setSelectedConstituency={setSelectedConstituency}
         role={role}
       />

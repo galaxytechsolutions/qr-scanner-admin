@@ -34,28 +34,28 @@ const IssueDetails = () => {
   return (
     <div className="page-content">
       <Container fluid={true}>
-            <Breadcrumbs title="Home QR" breadcrumbItem="Reported Issues" />
-      <div className="container mt-4">
-        <h3 className="mb-3 fw-bold text-primary">Issue Details</h3>
+        <Breadcrumbs title="Home QR" breadcrumbItem="Reported Issues" />
+        <div className="container mt-4">
+          <h3 className="mb-3 fw-bold text-primary">Issue Details</h3>
 
-        <Card className="shadow-sm border-0 rounded-3">
-          <CardBody>
+          <Card className="shadow-sm border-0 rounded-3">
+            <CardBody>
 
-            {/* Issue Header detaild*/}
-            
-            <Row className="border-bottom pb-3 mb-3">
-              <Col md={8}>
-                <h5 className="fw-bold mb-1">{issue.issueType}</h5>
-                <p className="text-muted mb-1">
-                  <strong>Constituency:</strong> {issue.staffConstituency}
-                </p>
-                <p className="text-muted mb-0">
-                  <strong>Reported At:</strong>{" "}
-                  {new Date(issue.createdAt).toLocaleString()}
-                </p>
-              </Col>
+              {/* Issue Header detaild*/}
 
-              {/* <Col md={4} className="text-md-end text-center">
+              <Row className="border-bottom pb-3 mb-3">
+                <Col md={8}>
+                  <h5 className="fw-bold mb-1">{issue.issueType}</h5>
+                  <p className="text-muted mb-1">
+                    <strong>Constituency:</strong> {issue.staffConstituency}
+                  </p>
+                  <p className="text-muted mb-0">
+                    <strong>Reported At:</strong>{" "}
+                    {new Date(issue.createdAt).toLocaleString()}
+                  </p>
+                </Col>
+
+                {/* <Col md={4} className="text-md-end text-center">
                 {issue.image && (
                   <img
                     src={`${ImgBaseUrl}${issue.image}`}
@@ -73,68 +73,68 @@ const IssueDetails = () => {
                   />
                 )}
               </Col> */}
-            </Row>
-
-            {/* Full Width Image */}
-{issue.image && (
-  <Row className="mb-4">
-    <Col md={12} className="text-center">
-      <img
-        src={`${ImgBaseUrl}${issue.image}`}
-        alt="Issue"
-        className="rounded shadow"
-        style={{
-          width: "100%",
-          maxWidth: "700px",
-          height: "auto",
-          objectFit: "contain",
-          cursor: "pointer",
-        }}
-        // onClick={() => window.open(`${ImgBaseUrl}${issue.image}`, "_blank")}
-      />
-      {/* <p className="text-muted mt-2">Click to open in full size</p> */}
-    </Col>
-  </Row>
-)}
-
-
-            {/* Remarks */}
-            <div className="mb-4">
-              <h6 className="fw-bold">Remarks:</h6>
-              <p className="text-dark px-2 py-2 bg-light rounded">
-                {issue.remarks || "No remarks provided."}
-              </p>
-            </div>
-
-            {/* Staff Info */}
-            <div>
-              <h5 className="fw-bold mb-3">Staff Details</h5>
-              <Row>
-                <Col md={6} className="mb-3">
-                  <p className="mb-1"><strong>Name:</strong></p>
-                  <p className="text-muted">{issue.staffId?.name}</p>
-                </Col>
-
-                <Col md={6} className="mb-3">
-                  <p className="mb-1"><strong>Phone:</strong></p>
-                  <p className="text-muted">{issue.staffId?.phoneNo}</p>
-                </Col>
-
-                <Col md={6} className="mb-3">
-                  <p className="mb-1"><strong>Location Code:</strong></p>
-                  <p className="text-muted">{issue.staffId?.locationCode}</p>
-                </Col>
-
-                <Col md={6}>
-                  <p className="mb-1"><strong>Staff Constituency:</strong></p>
-                  <p className="text-muted">{issue.staffId?.constituency}</p>
-                </Col>
               </Row>
-            </div>
 
-          </CardBody>
-        </Card>
-      </div>
+              {/* Full Width Image */}
+              {issue.image && (
+                <Row className="mb-4">
+                  <Col md={12} className="text-center">
+                    <img
+                      src={`${ImgBaseUrl}${issue.image}`}
+                      alt="Issue"
+                      className="rounded shadow"
+                      style={{
+                        width: "100%",
+                        maxWidth: "700px",
+                        height: "auto",
+                        objectFit: "contain",
+                        cursor: "pointer",
+                      }}
+                    // onClick={() => window.open(`${ImgBaseUrl}${issue.image}`, "_blank")}
+                    />
+                    {/* <p className="text-muted mt-2">Click to open in full size</p> */}
+                  </Col>
+                </Row>
+              )}
+
+
+              {/* Remarks */}
+              <div className="mb-4">
+                <h6 className="fw-bold">Remarks:</h6>
+                <p className="text-dark px-2 py-2 bg-light rounded">
+                  {issue.remarks || "No remarks provided."}
+                </p>
+              </div>
+
+              {/* Staff Info */}
+              <div>
+                <h5 className="fw-bold mb-3">Staff Details</h5>
+                <Row>
+                  <Col md={6} className="mb-3">
+                    <p className="mb-1"><strong>Name:</strong></p>
+                    <p className="text-muted">{issue.staffId?.name}</p>
+                  </Col>
+
+                  <Col md={6} className="mb-3">
+                    <p className="mb-1"><strong>Phone:</strong></p>
+                    <p className="text-muted">{issue.staffId?.phoneNo}</p>
+                  </Col>
+
+                  <Col md={6} className="mb-3">
+                    <p className="mb-1"><strong>Location Code:</strong></p>
+                    <p className="text-muted">{issue.staffId?.locationCode}</p>
+                  </Col>
+
+                  <Col md={6}>
+                    <p className="mb-1"><strong>Staff Constituency:</strong></p>
+                    <p className="text-muted">{issue.staffId?.constituency}</p>
+                  </Col>
+                </Row>
+              </div>
+
+            </CardBody>
+          </Card>
+        </div>
       </Container>
     </div>
   );

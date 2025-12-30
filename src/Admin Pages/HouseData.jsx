@@ -10,7 +10,7 @@ import { Instance } from "../Instence/Instence";
 import { useNavigate } from "react-router-dom";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
 import CityDropdown from "../components/CityDropdown";
-
+import { useLocation } from "react-router-dom";
 const emptyHouse = {
   _id: "",
   qrCode: "",
@@ -66,7 +66,8 @@ const HouseData = () => {
   const [selectedCity, setSelectedCity] = useState(null);
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const location = useLocation();
+  const passedConstituency = location.state?.constituency;
   const API_KEY = "RjNobEwxWTR0VFhFWVFzRWpkdWsxMjJDWXEyZmVBaDJmSVpYR1JJTg==";
   const BASE_URL = "https://api.countrystatecity.in/v1";
 
@@ -94,6 +95,14 @@ const HouseData = () => {
       setSelectedConstituency("");
     }
   }, [selectedCity, role]);
+  // 👇 Place your new useEffect HERE (with other effects)
+
+  useEffect(() => {
+    if (role === "SuperAdmin" && passedConstituency) {
+      setSelectedConstituency(passedConstituency);
+    }
+  }, [role, passedConstituency]);
+
 
   const getErrorMessage = (error) => {
     if (error.response) {
@@ -123,23 +132,23 @@ const HouseData = () => {
 
 
   useEffect(() => {
-  const auth = JSON.parse(localStorage.getItem("authUser"));
-  const userRole = auth?.user?.role || auth?.role || "";
+    const auth = JSON.parse(localStorage.getItem("authUser"));
+    const userRole = auth?.user?.role || auth?.role || "";
 
-  setRole(userRole);
-  setAdmin(auth?.user);
+    setRole(userRole);
+    setAdmin(auth?.user);
 
-  if (userRole.toLowerCase() === "admin") {
-    const constituency = auth?.user?.constituency || auth?.constituency;
+    if (userRole.toLowerCase() === "admin") {
+      const constituency = auth?.user?.constituency || auth?.constituency;
 
-    // ✅ only set state
-    setSelectedConstituency(constituency);
-  }
+      // ✅ only set state
+      setSelectedConstituency(constituency);
+    }
 
-  if (userRole === "SuperAdmin") {
-    setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
-  }
-}, []);
+    if (userRole === "SuperAdmin") {
+      setConstituencies(["Adilabad", "Karimnagar", "Hyderabad", "Warangal"]);
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -175,16 +184,16 @@ const HouseData = () => {
   // };
 
   const handleClearFilters = () => {
-  if (role === "SuperAdmin") {
-    //  SuperAdmin: clear BOTH
-    setSelectedCity(null);
-    setSelectedConstituency("");
- 
-  } else {
-    //  Admin: clear ONLY city
-    setSelectedCity(null);
-  }
-};
+    if (role === "SuperAdmin") {
+      //  SuperAdmin: clear BOTH
+      setSelectedCity(null);
+      setSelectedConstituency("");
+
+    } else {
+      //  Admin: clear ONLY city
+      setSelectedCity(null);
+    }
+  };
 
   const handleDelete = async (_id) => {
     Swal.fire({
@@ -208,68 +217,68 @@ const HouseData = () => {
   };
 
 
- const handleAddHousehold = async () => {
+  const handleAddHousehold = async () => {
     try {
 
- const formatTo91 = (raw) => {
-      if (!raw && raw !== 0) return "";
-      let s = String(raw).replace(/\D/g, ""); // keep digits only
-      // if starts with country code and longer than 10, drop leftmost until 10 remain
-      if (s.length > 10) {
-        // if it already contains 91 as prefix and length === 12, keep last 10
-        if (s.startsWith("91") && s.length >= 12) {
-          s = s.slice(-10);
-        } else if (s.length > 10) {
-          s = s.slice(-10);
+      const formatTo91 = (raw) => {
+        if (!raw && raw !== 0) return "";
+        let s = String(raw).replace(/\D/g, ""); // keep digits only
+        // if starts with country code and longer than 10, drop leftmost until 10 remain
+        if (s.length > 10) {
+          // if it already contains 91 as prefix and length === 12, keep last 10
+          if (s.startsWith("91") && s.length >= 12) {
+            s = s.slice(-10);
+          } else if (s.length > 10) {
+            s = s.slice(-10);
+          }
         }
-      }
-      // if length is exactly 10, prefix 91
-      if (s.length === 10) return "91" + s;
-      // if it's already 12 and startsWith 91, keep as-is (defensive)
-      if (s.length === 12 && s.startsWith("91")) return s;
-      // otherwise return original digits prefixed if possible (best-effort)
-      return s ? "91" + s.slice(-10) : "";
-    };
+        // if length is exactly 10, prefix 91
+        if (s.length === 10) return "91" + s;
+        // if it's already 12 and startsWith 91, keep as-is (defensive)
+        if (s.length === 12 && s.startsWith("91")) return s;
+        // otherwise return original digits prefixed if possible (best-effort)
+        return s ? "91" + s.slice(-10) : "";
+      };
 
 
 
       const formData = new FormData();
 
-formData.append(
-  "data",
-  JSON.stringify({
-    qrCode: newHouse.qrCode,
-    location: newHouse.location,
-    booth: newHouse.booth,
-    mandal: newHouse.mandal,
-    state: newHouse.state,
-    city: newHouse.city,
-    constituency: newHouse.constituency,
-    // phoneNo: newHouse.phoneNo,
-    phoneNo: formatTo91(newHouse.phoneNo),
-    headOfFamily: newHouse.headOfFamily,
-    houseNo: newHouse.houseNo,
-    noOfMembers: newHouse.noOfMembers,
-    members: newHouse.members,
-    membersOutside: newHouse.membersOutside,
-    votedLocation: newHouse.votedLocation,
-    votedHereNumber: newHouse.votedHereNumber,
-    votedMembers: newHouse.votedMembers,
-    rationCardActive: newHouse.rationCardActive,
-    healthCardActive: newHouse.healthCardActive,
-    familyPension: newHouse.familyPension,
-    farmerIncomeSupport: newHouse.farmerIncomeSupport,
-    farmerInsurance: newHouse.farmerInsurance,
-    lpgConnection: newHouse.lpgConnection,
-    housingBenefit: newHouse.housingBenefit,
-    electricitySubsidy: newHouse.electricitySubsidy,
-    studentScholarship: newHouse.studentScholarship,
-    houseType: newHouse.houseType,
-    caste: newHouse.caste,
-    subCaste: newHouse.subCaste,
-    remarks: newHouse.remarks,
-  })
-);
+      formData.append(
+        "data",
+        JSON.stringify({
+          qrCode: newHouse.qrCode,
+          location: newHouse.location,
+          booth: newHouse.booth,
+          mandal: newHouse.mandal,
+          state: newHouse.state,
+          city: newHouse.city,
+          constituency: newHouse.constituency,
+          // phoneNo: newHouse.phoneNo,
+          phoneNo: formatTo91(newHouse.phoneNo),
+          headOfFamily: newHouse.headOfFamily,
+          houseNo: newHouse.houseNo,
+          noOfMembers: newHouse.noOfMembers,
+          members: newHouse.members,
+          membersOutside: newHouse.membersOutside,
+          votedLocation: newHouse.votedLocation,
+          votedHereNumber: newHouse.votedHereNumber,
+          votedMembers: newHouse.votedMembers,
+          rationCardActive: newHouse.rationCardActive,
+          healthCardActive: newHouse.healthCardActive,
+          familyPension: newHouse.familyPension,
+          farmerIncomeSupport: newHouse.farmerIncomeSupport,
+          farmerInsurance: newHouse.farmerInsurance,
+          lpgConnection: newHouse.lpgConnection,
+          housingBenefit: newHouse.housingBenefit,
+          electricitySubsidy: newHouse.electricitySubsidy,
+          studentScholarship: newHouse.studentScholarship,
+          houseType: newHouse.houseType,
+          caste: newHouse.caste,
+          subCaste: newHouse.subCaste,
+          remarks: newHouse.remarks,
+        })
+      );
 
 
 
@@ -277,7 +286,7 @@ formData.append(
       if (newHouse.profilePicFile) {
         formData.append("profilePic", newHouse.profilePicFile);
       }
-      console.log(formData,"formData")
+      console.log(formData, "formData")
       const res = await Instance.post("/houseData", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
@@ -299,46 +308,46 @@ formData.append(
     try {
       const formData = new FormData();
 
-       // EXACT SAME STRUCTURE AS ADD
-    formData.append(
-      "data",
-      JSON.stringify({
-        qrCode: household.qrCode,
-        location: household.location,
-        booth: household.booth,
-        mandal: household.mandal,
-        state: household.state,
-        city: household.city,
-        constituency: household.constituency,
-        phoneNo: household.phoneNo,
-        headOfFamily: household.headOfFamily,
-        houseNo: household.houseNo,
-        noOfMembers: household.noOfMembers,
-        
-        // Arrays
-        members: household.members || [],
-        membersOutside: household.membersOutside,
-        votedLocation: household.votedLocation,
-        votedHereNumber: household.votedHereNumber,
-        votedMembers: household.votedMembers || [],
+      // EXACT SAME STRUCTURE AS ADD
+      formData.append(
+        "data",
+        JSON.stringify({
+          qrCode: household.qrCode,
+          location: household.location,
+          booth: household.booth,
+          mandal: household.mandal,
+          state: household.state,
+          city: household.city,
+          constituency: household.constituency,
+          phoneNo: household.phoneNo,
+          headOfFamily: household.headOfFamily,
+          houseNo: household.houseNo,
+          noOfMembers: household.noOfMembers,
 
-        // Scheme fields
-        rationCardActive: household.rationCardActive,
-        healthCardActive: household.healthCardActive,
-        familyPension: household.familyPension,
-        farmerIncomeSupport: household.farmerIncomeSupport,
-        farmerInsurance: household.farmerInsurance,
-        lpgConnection: household.lpgConnection,
-        housingBenefit: household.housingBenefit,
-        electricitySubsidy: household.electricitySubsidy,
-        studentScholarship: household.studentScholarship,
+          // Arrays
+          members: household.members || [],
+          membersOutside: household.membersOutside,
+          votedLocation: household.votedLocation,
+          votedHereNumber: household.votedHereNumber,
+          votedMembers: household.votedMembers || [],
 
-        houseType: household.houseType,
-        caste: household.caste,
-        subCaste: household.subCaste,
-        remarks: household.remarks,
-      })
-    );
+          // Scheme fields
+          rationCardActive: household.rationCardActive,
+          healthCardActive: household.healthCardActive,
+          familyPension: household.familyPension,
+          farmerIncomeSupport: household.farmerIncomeSupport,
+          farmerInsurance: household.farmerInsurance,
+          lpgConnection: household.lpgConnection,
+          housingBenefit: household.housingBenefit,
+          electricitySubsidy: household.electricitySubsidy,
+          studentScholarship: household.studentScholarship,
+
+          houseType: household.houseType,
+          caste: household.caste,
+          subCaste: household.subCaste,
+          remarks: household.remarks,
+        })
+      );
 
       // Append profilePic if selected
       if (household.profilePicFile) {
@@ -429,21 +438,25 @@ formData.append(
 
   // Filter households based on selected city and constituency
   const filteredData = (households || []).filter((h) => {
+    const constituencyMatch = selectedConstituency
+      ? h.constituency?.toLowerCase() === selectedConstituency.toLowerCase()
+      : true;
+
     const cityMatch = selectedCity
       ? h.city?.toLowerCase() === selectedCity.name.toLowerCase()
       : true;
-  // ----- SEARCH FILTER -----
-  const term = searchTerm.toLowerCase().trim();
 
-  const searchMatch =
-    term === "" ||
-    h.qrCode?.toLowerCase().includes(term) ||
-    h.houseNo?.toLowerCase().includes(term) ||
-    h.phoneNo?.toString().includes(term) ||
-    h.headOfFamily?.toLowerCase().includes(term);
+    const term = searchTerm.toLowerCase().trim();
+    const searchMatch =
+      term === "" ||
+      h.qrCode?.toLowerCase().includes(term) ||
+      h.houseNo?.toLowerCase().includes(term) ||
+      h.phoneNo?.toString().includes(term) ||
+      h.headOfFamily?.toLowerCase().includes(term);
 
-    return cityMatch && searchMatch;
+    return constituencyMatch && cityMatch && searchMatch;
   });
+
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
@@ -451,8 +464,8 @@ formData.append(
     currentPage * itemsPerPage
   );
   useEffect(() => {
-  setCurrentPage(1);
-}, [searchTerm]);
+    setCurrentPage(1);
+  }, [searchTerm]);
 
 
   return (
@@ -472,88 +485,88 @@ formData.append(
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="col-md-10 border-1px-gray">
-{(role === "SuperAdmin" || role.toLowerCase() === "admin") && (
-  <div className="mb-3">
-    <div className="row align-items-end g-3">
+            {(role === "SuperAdmin" || role.toLowerCase() === "admin") && (
+              <div className="mb-3">
+                <div className="row align-items-end g-3">
 
 
 
-      <div className="col-md-4">
-        <label className="form-label">Filter by City</label>
-        <CityDropdown
-          value={selectedCity}
-          list={citiesList}
-          onChange={setSelectedCity}
-          placeholder="Select City"
-        />
-      </div>
-      {/* Constituency Dropdown (ONLY for SuperAdmin) */}
-      {role === "SuperAdmin" && (
+                  <div className="col-md-4">
+                    <label className="form-label">Filter by City</label>
+                    <CityDropdown
+                      value={selectedCity}
+                      list={citiesList}
+                      onChange={setSelectedCity}
+                      placeholder="Select City"
+                    />
+                  </div>
+                  {/* Constituency Dropdown (ONLY for SuperAdmin) */}
+                  {role === "SuperAdmin" && (
 
-                      <div className="col-md-4">
-          <label className="form-label">Filter by Constituency</label>
-          <ConstituencyDropdown
-            value={selectedConstituency}
-            onChange={handleConstituencyChange}
-            placeholder="Select Constituency"
-          />
-        </div>
+                    <div className="col-md-4">
+                      <label className="form-label">Filter by Constituency</label>
+                      <ConstituencyDropdown
+                        value={selectedConstituency}
+                        onChange={handleConstituencyChange}
+                        placeholder="Select Constituency"
+                      />
+                    </div>
 
-      )}
-     
-    
+                  )}
 
-   
- 
 
-      {/* Clear Button */}
-      <div className="col-md-2">
-        <Button
-          color="secondary"
-          className="w-100"
-          style={{ height: "38px" }}
-          onClick={handleClearFilters}
-        >
-          {role === "SuperAdmin" ? "Clear Filters" : "Clear City"}
-        </Button>
-      </div>
 
-    </div>
-  </div>
-)}
+
+
+
+                  {/* Clear Button */}
+                  <div className="col-md-2">
+                    <Button
+                      color="secondary"
+                      className="w-100"
+                      style={{ height: "38px" }}
+                      onClick={handleClearFilters}
+                    >
+                      {role === "SuperAdmin" ? "Clear Filters" : "Clear City"}
+                    </Button>
+                  </div>
+
+                </div>
+              </div>
+            )}
 
 
 
 
             <div className="row align-items-end mt-3">
-  <div className="col-md-7">
+              <div className="col-md-7">
 
-            {(role !== "SuperAdmin" || selectedConstituency) && role.toLowerCase() !== "admin" && (
-              <input
-                className="form-control cursor-pointer border border-primary"
-                type="search"
-                placeholder="Search here..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            )}
+                {(role !== "SuperAdmin" || selectedConstituency) && role.toLowerCase() !== "admin" && (
+                  <input
+                    className="form-control cursor-pointer border border-primary"
+                    type="search"
+                    placeholder="Search here..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                )}
 
-            </div>
+              </div>
             </div>
 
             {role.toLowerCase() === "admin" && (
-                <div className="row mt-3">
-    <div className="col-md-7">
-              <input
-                className="form-control cursor-pointer border border-primary"
-                type="search"
-                placeholder="Search here..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-               </div></div>
+              <div className="row mt-3">
+                <div className="col-md-7">
+                  <input
+                    className="form-control cursor-pointer border border-primary"
+                    type="search"
+                    placeholder="Search here..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div></div>
             )}
-           
+
           </div>
 
           <div className="d-flex gap-2">
@@ -635,7 +648,7 @@ formData.append(
                             members: household.members || [],
                             votedMembers: household.votedMembers || [],
                           });
-                     
+
                           setModalOpen(true);
                         }}
                       />
@@ -653,8 +666,8 @@ formData.append(
                 <tr>
                   <td colSpan="27" className="text-center py-5">
                     <h5 className="text-muted"> {selectedConstituency
-            ? "No household found."
-            : "Choose a constituency to view constituency-wise Household data."}</h5>
+                      ? "No household found."
+                      : "Choose a constituency to view constituency-wise Household data."}</h5>
                   </td>
                 </tr>
               )}
@@ -675,7 +688,7 @@ formData.append(
           setNewHouse={setNewHouse}
           handleAddHousehold={handleAddHousehold}
           handleUpdateHousehold={handleUpdateHousehold}
-            role={role} 
+          role={role}
         />
       </Container>
     </div>

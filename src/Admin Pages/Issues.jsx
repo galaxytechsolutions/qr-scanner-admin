@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Container } from "reactstrap";
+import { Table, Container, Row, Col } from "reactstrap";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import CustomPagination from "../AdminComponents/CustomPagination";
@@ -28,17 +28,17 @@ const Issues = () => {
   const [role, setRole] = useState("");
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const [admin, setAdmin] = useState(null);
-const [imageModalOpen, setImageModalOpen] = useState(false);
-const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
 
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
   const openImageModal = (img) => {
-  setSelectedImage(img);
-  setImageModalOpen(true);
-};
+    setSelectedImage(img);
+    setImageModalOpen(true);
+  };
 
 
   const getErrorMessage = (error) => {
@@ -180,28 +180,30 @@ const [selectedImage, setSelectedImage] = useState(null);
 
         {/* SuperAdmin Constituency Filter */}
         {role === "SuperAdmin" && (
-          <div className="mb-3 col-md-6">
-            <ConstituencyDropdown
-              value={selectedConstituency}
-              onChange={(value) => {
-                setSelectedConstituency(value);
-                fetchIssuesByConstituency(value);
-              }}
-              placeholder="Select Constituency"
-            />
-          </div>
+          <Row className="mb-3">
+            <Col md={6} className="mb-2">
+              <ConstituencyDropdown
+                value={selectedConstituency}
+                onChange={(value) => {
+                  setSelectedConstituency(value);
+                  fetchIssuesByConstituency(value);
+                }}
+                placeholder="Select Constituency"
+              />
+            </Col>
+
+            <Col md={6}>
+              <input
+                className="form-control border border-primary"
+                type="search"
+                placeholder="Search issues..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </Col>
+          </Row>
         )}
 
-        {/* Search */}
-        <div className="mb-3 col-md-6">
-          <input
-            className="form-control border border-primary"
-            type="search"
-            placeholder="Search issues..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
 
         {/* FILTERS ROW */}
         <div className="row mb-4">
@@ -241,30 +243,30 @@ const [selectedImage, setSelectedImage] = useState(null);
 
           {/* Date Range Picker */}
 
-        <div className="col-md-4">
-          <label className="fw-bold">Date Range</label>
+          <div className="col-md-4">
+            <label className="fw-bold">Date Range</label>
 
-          <div className="date-range-container">
-            <div className="date-range-wrapper">
+            <div className="date-range-container">
+              <div className="date-range-wrapper">
 
-              {/* Calendar Icon */}
-              <i className="bi bi-calendar-range date-range-icon"></i>
+                {/* Calendar Icon */}
+                <i className="bi bi-calendar-range date-range-icon"></i>
 
-              {/* Date Picker */}
-              <div className="date-range-input w-100">
-                <DatePicker
-                  selectsRange={true}
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={(update) => setDateRange(update)}
-                  isClearable={true}
-                  placeholderText="Select Date Range"
-                />
+                {/* Date Picker */}
+                <div className="date-range-input w-100">
+                  <DatePicker
+                    selectsRange={true}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onChange={(update) => setDateRange(update)}
+                    isClearable={true}
+                    placeholderText="Select Date Range"
+                  />
+                </div>
+
               </div>
-
             </div>
           </div>
-        </div>
 
 
           {/* Clear Filters */}
@@ -379,45 +381,45 @@ const [selectedImage, setSelectedImage] = useState(null);
           totalPages={totalPages}
           onPageChange={setCurrentPage}
         />
-      {/* Fullscreen Image Modal */}
-      <div>
-        <div
-          className={`modal fade ${imageModalOpen ? "show d-block" : ""}`}
-          tabIndex="-1"
-          onClick={() => setImageModalOpen(false)}
-          style={{ background: "rgba(0,0,0,0.7)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered modal-fullscreen">
-            <div className="modal-content bg-transparent border-0">
-              <div className="modal-body text-center p-0">
-                <img
-                  src={selectedImage}
-                  alt="Issue Fullscreen"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
+        {/* Fullscreen Image Modal */}
+        <div>
+          <div
+            className={`modal fade ${imageModalOpen ? "show d-block" : ""}`}
+            tabIndex="-1"
+            onClick={() => setImageModalOpen(false)}
+            style={{ background: "rgba(0,0,0,0.7)" }}
+          >
+            <div className="modal-dialog modal-dialog-centered modal-fullscreen">
+              <div className="modal-content bg-transparent border-0">
+                <div className="modal-body text-center p-0">
+                  <img
+                    src={selectedImage}
+                    alt="Issue Fullscreen"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
 
-              {/* Close Button */}
-              <button
-                className="btn btn-light position-absolute"
-                style={{
-                  top: "20px",
-                  right: "20px",
-                  fontWeight: "bold",
-                  borderRadius: "50%",
-                }}
-                onClick={() => setImageModalOpen(false)}
-              >
-                ✕
-              </button>
+                {/* Close Button */}
+                <button
+                  className="btn btn-light position-absolute"
+                  style={{
+                    top: "20px",
+                    right: "20px",
+                    fontWeight: "bold",
+                    borderRadius: "50%",
+                  }}
+                  onClick={() => setImageModalOpen(false)}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </Container>
     </div>
   );

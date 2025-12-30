@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Container } from "reactstrap";
+import { Table, Button, Container, Col, Row } from "reactstrap";
 import { FaCheckCircle, FaRegEye, FaTimesCircle, FaTrashAlt } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import { RiCheckLine, RiCloseLine } from "react-icons/ri";
@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import CustomPagination from "../AdminComponents/CustomPagination";
 import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
 
 const Applications = () => {
@@ -16,7 +16,7 @@ const Applications = () => {
   const [error, setError] = useState(null);
   const [admin, setAdmin] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
-const [selectedScheme, setSelectedScheme] = useState("");
+  const [selectedScheme, setSelectedScheme] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,8 @@ const [selectedScheme, setSelectedScheme] = useState("");
   const [role, setRole] = useState("");
   const [selectedConstituency, setSelectedConstituency] = useState("");
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const passedConstituency = location.state?.constituency;
   const categories = [...new Set(applications.map(a => a.schemeId?.category).filter(Boolean))];
   const schemeNames = [...new Set(applications.map(a => a.schemeId?.name).filter(Boolean))];
 
@@ -43,6 +44,12 @@ const [selectedScheme, setSelectedScheme] = useState("");
     );
   };
 
+  useEffect(() => {
+    if (role === "SuperAdmin" && passedConstituency) {
+      setSelectedConstituency(passedConstituency);
+    }
+  }, [role, passedConstituency]);
+
 
   useEffect(() => {
     const auth = JSON.parse(localStorage.getItem("authUser"));
@@ -52,7 +59,7 @@ const [selectedScheme, setSelectedScheme] = useState("");
     if (userRole === "Admin" || userRole === "admin") {
       const constituency = auth?.user?.constituency || auth?.constituency || "";
       setSelectedConstituency(constituency);
-    } 
+    }
   }, []);
 
   // Fetch applications (optionally by constituency)
@@ -65,8 +72,8 @@ const [selectedScheme, setSelectedScheme] = useState("");
       const apps = Array.isArray(res.data?.applications)
         ? res.data.applications
         : Array.isArray(res.data)
-        ? res.data
-        : res.data?.applications || [];
+          ? res.data
+          : res.data?.applications || [];
       setApplications(apps);
     } catch (err) {
       console.error("Error fetching applications:", err);
@@ -77,10 +84,10 @@ const [selectedScheme, setSelectedScheme] = useState("");
     }
   };
 
-useEffect(() => {
-  if (!selectedConstituency) return; 
-  fetchApplications(selectedConstituency);
-}, [selectedConstituency]);
+  useEffect(() => {
+    if (!selectedConstituency) return;
+    fetchApplications(selectedConstituency);
+  }, [selectedConstituency]);
 
 
   const handleConstituencyChange = (value) => {
@@ -108,37 +115,37 @@ useEffect(() => {
   };
 
   const updateStatus = async (id, newStatus) => {
-  try {
-    const result = await Swal.fire({
-      title: `Are you sure you want to ${newStatus}?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: `Yes, ${newStatus}`,
-      cancelButtonText: "Cancel",
-    });
+    try {
+      const result = await Swal.fire({
+        title: `Are you sure you want to ${newStatus}?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${newStatus}`,
+        cancelButtonText: "Cancel",
+      });
 
-    if (!result.isConfirmed) return;
+      if (!result.isConfirmed) return;
 
-    const res = await Instance.put(`/application/${id}`, { status: newStatus });
+      const res = await Instance.put(`/application/${id}`, { status: newStatus });
 
-    Swal.fire("Success!", `Application ${newStatus}.`, "success");
+      Swal.fire("Success!", `Application ${newStatus}.`, "success");
 
-    // Update local state without refetch
-    setApplications((prev) =>
-      prev.map((app) =>
-        app._id === id ? { ...app, status: newStatus } : app
-      )
-    );
-  } catch (err) {
-    console.error("Error updating status:", err);
-    Swal.fire("Error", "Unable to update status", "error");
-  }
-};
+      // Update local state without refetch
+      setApplications((prev) =>
+        prev.map((app) =>
+          app._id === id ? { ...app, status: newStatus } : app
+        )
+      );
+    } catch (err) {
+      console.error("Error updating status:", err);
+      Swal.fire("Error", "Unable to update status", "error");
+    }
+  };
 
 
 
-const filteredApplications = Array.isArray(applications)
-  ? applications.filter((app) => {
+  const filteredApplications = Array.isArray(applications)
+    ? applications.filter((app) => {
       if (!app) return false;
 
       // CATEGORY FILTER
@@ -185,7 +192,7 @@ const filteredApplications = Array.isArray(applications)
 
       return flatValues.some((v) => v.includes(searchTerm.toLowerCase()));
     })
-  : [];
+    : [];
 
 
 
@@ -206,15 +213,15 @@ const filteredApplications = Array.isArray(applications)
       <Container fluid={true}>
         <Breadcrumbs title="Home QR" breadcrumbItem="Applications" />
 
-                {(role === "Admin" || role === "admin") && (
-        <div className="card-title mb-4 font-size-15">
-          <div className="mb-2">
-            <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+        {(role === "Admin" || role === "admin") && (
+          <div className="card-title mb-4 font-size-15">
+            <div className="mb-2">
+              <strong>Constituency:</strong> <span className="text-primary">{selectedConstituency}</span>
+            </div>
+            <div>
+              <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
+            </div>
           </div>
-          <div>
-            <strong>Admin:</strong> <span className="text-primary">{admin?.name}</span>
-          </div>
-        </div>
 
         )}
 
@@ -255,82 +262,82 @@ const filteredApplications = Array.isArray(applications)
           </div>
         )}
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="col-md-6">
-            {role === "SuperAdmin" && (
-              <div className="mb-2" style={{ maxWidth: 360 }}>
-                <ConstituencyDropdown
-                  value={selectedConstituency}
-                  onChange={handleConstituencyChange}
-                  placeholder="Select Constituency"
-                />
-              </div>
-            )}
-            <input
-              className="form-control cursor-pointer border border-primary"
-              type="search"
-              placeholder="Search applications..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
+        <div>
+          <Row className="justify-content-between align-items-center mb-3">
+            <Col md={6}>
+              {role === "SuperAdmin" && (
+                <div style={{ maxWidth: 360 }} className="mb-2">
+                  <ConstituencyDropdown
+                    value={selectedConstituency}
+                    onChange={handleConstituencyChange}
+                    placeholder="Select Constituency"
+                  />
+                </div>
+              )}
+            </Col>
 
-          <div>
-            {/* Add button skipped as requested */}
-            {/* <Button color="primary">+ Add Application</Button> */}
-          </div>
+            <Col md={6}>
+              <input
+                className="form-control border border-primary"
+                type="search"
+                placeholder="Search applications..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </Col>
+          </Row>
         </div>
 
-<div className="row mb-3">
+        <div className="row mb-3">
 
-  {/* Category Filter */}
-  <div className="col-md-3">
-    <label className="fw-bold">Filter by Category</label>
-    <select
-      className="form-control"
-      value={selectedCategory}
-      onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
-    >
-      <option value="">All Categories</option>
-      {categories.map((cat, idx) => (
-        <option key={idx} value={cat}>{cat}</option>
-      ))}
-    </select>
-  </div>
+          {/* Category Filter */}
+          <div className="col-md-3">
+            <label className="fw-bold">Filter by Category</label>
+            <select
+              className="form-control"
+              value={selectedCategory}
+              onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat, idx) => (
+                <option key={idx} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
 
-  {/* Scheme Filter */}
-  <div className="col-md-3">
-    <label className="fw-bold">Filter by Scheme</label>
-    <select
-      className="form-control"
-      value={selectedScheme}
-      onChange={(e) => { setSelectedScheme(e.target.value); setCurrentPage(1); }}
-    >
-      <option value="">All Schemes</option>
-      {schemeNames.map((name, idx) => (
-        <option key={idx} value={name}>{name}</option>
-      ))}
-    </select>
-  </div>
+          {/* Scheme Filter */}
+          <div className="col-md-3">
+            <label className="fw-bold">Filter by Scheme</label>
+            <select
+              className="form-control"
+              value={selectedScheme}
+              onChange={(e) => { setSelectedScheme(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="">All Schemes</option>
+              {schemeNames.map((name, idx) => (
+                <option key={idx} value={name}>{name}</option>
+              ))}
+            </select>
+          </div>
 
-  {/* Clear Filters */}
-  <div className="col-md-2 d-flex align-items-end">
-    <button
-      className="btn btn-secondary w-100"
-      onClick={() => {
-        setSelectedCategory("");
-        setSelectedScheme("");
-        setSearchTerm("");
-      }}
-    >
-      Clear Filters
-    </button>
-  </div>
+          {/* Clear Filters */}
+          <div className="col-md-2 d-flex align-items-end">
+            <button
+              className="btn btn-secondary w-100"
+              onClick={() => {
+                setSelectedCategory("");
+                setSelectedScheme("");
+                setSearchTerm("");
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
 
-</div>
+        </div>
 
 
         <div className="py-3" style={{ width: "100%", overflowX: "auto" }}>
@@ -392,45 +399,45 @@ const filteredApplications = Array.isArray(applications)
                         <MdDeleteForever size={18} className="cursor-pointer text-danger" title="Delete" onClick={() => handleDelete(app._id || app.applicationId)} />
                       </div>
                     </td> */}
-<td>
-  <div className="d-flex justify-content-center gap-3">
+                    <td>
+                      <div className="d-flex justify-content-center gap-3">
 
-    {/* APPROVE */}
-    <FaCheckCircle
-      size={22}
-      className={`cursor-pointer ${app.status === "Approved" ? "text-muted" : "text-success"}`}
-      title="Approve Application"
-      onClick={() => app.status !== "Approved" && updateStatus(app._id, "Approved")}
-      style={{ opacity: app.status === "Approved" ? 0.4 : 1 }}
-    />
+                        {/* APPROVE */}
+                        <FaCheckCircle
+                          size={22}
+                          className={`cursor-pointer ${app.status === "Approved" ? "text-muted" : "text-success"}`}
+                          title="Approve Application"
+                          onClick={() => app.status !== "Approved" && updateStatus(app._id, "Approved")}
+                          style={{ opacity: app.status === "Approved" ? 0.4 : 1 }}
+                        />
 
-    {/* REJECT */}
-    <FaTimesCircle
-      size={22}
-      className={`cursor-pointer ${app.status === "Rejected" ? "text-muted" : "text-danger"}`}
-      title="Reject Application"
-      onClick={() => app.status !== "Rejected" && updateStatus(app._id, "Rejected")}
-      style={{ opacity: app.status === "Rejected" ? 0.4 : 1 }}
-    />
+                        {/* REJECT */}
+                        <FaTimesCircle
+                          size={22}
+                          className={`cursor-pointer ${app.status === "Rejected" ? "text-muted" : "text-danger"}`}
+                          title="Reject Application"
+                          onClick={() => app.status !== "Rejected" && updateStatus(app._id, "Rejected")}
+                          style={{ opacity: app.status === "Rejected" ? 0.4 : 1 }}
+                        />
 
-    {/* VIEW */}
-    <FaRegEye
-      size={20}
-      className="cursor-pointer"
-      title="View Application"
-      onClick={() => navigate(`/applications/${app._id}`)}
-    />
+                        {/* VIEW */}
+                        <FaRegEye
+                          size={20}
+                          className="cursor-pointer"
+                          title="View Application"
+                          onClick={() => navigate(`/applications/${app._id}`)}
+                        />
 
-    {/* DELETE */}
-    <FaTrashAlt
-      size={22}
-      className="cursor-pointer text-danger"
-      title="Delete Application"
-      onClick={() => handleDelete(app._id)}
-    />
+                        {/* DELETE */}
+                        <FaTrashAlt
+                          size={22}
+                          className="cursor-pointer text-danger"
+                          title="Delete Application"
+                          onClick={() => handleDelete(app._id)}
+                        />
 
-  </div>
-</td>
+                      </div>
+                    </td>
 
 
                   </tr>
