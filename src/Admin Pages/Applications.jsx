@@ -17,6 +17,7 @@ const Applications = () => {
   const [admin, setAdmin] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedScheme, setSelectedScheme] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -143,54 +144,41 @@ const Applications = () => {
   };
 
 
-
   const filteredApplications = Array.isArray(applications)
     ? applications.filter((app) => {
       if (!app) return false;
 
-      // CATEGORY FILTER
+      // 🔹 Category Filter
       if (selectedCategory && app.schemeId?.category !== selectedCategory) {
         return false;
       }
 
-      // SCHEME FILTER
+      // 🔹 Scheme Filter
       if (selectedScheme && app.schemeId?.name !== selectedScheme) {
         return false;
       }
 
-      // SEARCH FILTER
-      const flatValues = [];
-
-      Object.keys(app).forEach((k) => {
-        const v = app[k];
-        if (v == null) return;
-        if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") {
-          flatValues.push(String(v).toLowerCase());
+      // 🔍 Search Filter (flat + nested)
+      const search = searchTerm.toLowerCase();
+      if (search) {
+        const textBlob = JSON.stringify(app).toLowerCase();
+        if (!textBlob.includes(search)) {
+          return false;
         }
-      });
-
-      // Applicant nested
-      if (app.applicant) {
-        Object.values(app.applicant).forEach((val) =>
-          val != null && flatValues.push(String(val).toLowerCase())
-        );
       }
 
-      // Address nested
-      if (app.address) {
-        Object.values(app.address).forEach((val) =>
-          val != null && flatValues.push(String(val).toLowerCase())
-        );
+      // 🗓 Date Filter (NEW)
+      if (dateFilter) {
+        const created = new Date(app.createdAt);
+        const now = new Date();
+        const diffDays = (now - created) / (1000 * 60 * 60 * 24);
+
+        if (dateFilter === "today" && diffDays >= 1) return false;
+        if (dateFilter === "7days" && diffDays > 7) return false;
+        if (dateFilter === "30days" && diffDays > 30) return false;
       }
 
-      // Scheme nested
-      if (app.schemeId) {
-        Object.values(app.schemeId).forEach((val) =>
-          val != null && flatValues.push(String(val).toLowerCase())
-        );
-      }
-
-      return flatValues.some((v) => v.includes(searchTerm.toLowerCase()));
+      return true; // ✔ passes all active filters
     })
     : [];
 
@@ -323,6 +311,25 @@ const Applications = () => {
             </select>
           </div>
 
+          {/* Date Filter (Added) */}
+          <div className="col-md-3">
+            <label className="fw-bold">Filter by Date</label>
+            <select
+              className="form-control border border-primary rounded-1"
+              value={dateFilter}
+              onChange={(e) => {
+                setDateFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">Select Date Filter</option>
+              <option value="">All</option>
+              <option value="today">Today</option>
+              <option value="7days">Last 7 Days</option>
+              <option value="30days">Last 30 Days</option>
+            </select>
+          </div>
+
           {/* Clear Filters */}
           <div className="col-md-2 d-flex align-items-end">
             <button
@@ -331,6 +338,7 @@ const Applications = () => {
                 setSelectedCategory("");
                 setSelectedScheme("");
                 setSearchTerm("");
+                setDateFilter("");   // reset date filter
               }}
             >
               Clear Filters

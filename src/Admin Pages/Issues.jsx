@@ -7,7 +7,7 @@ import { FaRegEye, FaTrashAlt } from "react-icons/fa";
 import { Instance } from "../Instence/Instence";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
 import { ImgBaseUrl } from "../Instence/ImgInstence";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/style.css";
 // Date Picker
 import DatePicker from "react-datepicker";
@@ -30,7 +30,15 @@ const Issues = () => {
   const [admin, setAdmin] = useState(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const location = useLocation();
+  const passedConstituency = location.state?.constituency;
+  // Fetch staff on mount
 
+  useEffect(() => {
+    if (role === "SuperAdmin" && passedConstituency) {
+      setSelectedConstituency(passedConstituency);
+    }
+  }, [role, passedConstituency]);
 
   const itemsPerPage = 10;
   const navigate = useNavigate();

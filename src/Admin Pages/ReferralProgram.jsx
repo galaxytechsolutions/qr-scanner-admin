@@ -23,6 +23,9 @@ const ReferralProgram = () => {
   const [error, setError] = useState(null);
   const [citiesList, setCitiesList] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
+
+  const [dateFilter, setDateFilter] = useState("");
+
   const itemsPerPage = 10;
   const navigate = useNavigate();
   const location = useLocation();
@@ -211,13 +214,29 @@ const ReferralProgram = () => {
   const searchedData = Array.isArray(referrals)
     ? referrals.filter((item) => {
       if (!item) return false;
+
       const matchesSearch = Object.values(item).some((val) =>
         String(val).toLowerCase().includes(searchTerm.toLowerCase())
       );
+
       const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-      return matchesSearch && matchesStatus;
+
+      // 🗓 Correct Date filter logic
+      const referralDate = new Date(item.createdAt);
+      const today = new Date();
+      const diffDays = (today - referralDate) / (1000 * 60 * 60 * 24);
+
+      const matchesDate =
+        !dateFilter || // 🔥 if empty → show all
+        (dateFilter === "today" && diffDays < 1) ||
+        (dateFilter === "7days" && diffDays <= 7) ||
+        (dateFilter === "30days" && diffDays <= 30);
+
+      return matchesSearch && matchesStatus && matchesDate;
     })
     : [];
+
+
 
   const totalPages = Math.ceil(searchedData.length / itemsPerPage);
   const paginatedData = searchedData.slice(
@@ -300,7 +319,7 @@ const ReferralProgram = () => {
               </Col>
 
               {/* Search Box */}
-              <Col md={5}>
+              <Col md={3}>
                 <label className="fw-semibold mb-1">Search</label>
                 <input
                   className="form-control border border-primary"
@@ -339,6 +358,25 @@ const ReferralProgram = () => {
                   </Dropdown.Menu>
                 </Dropdown>
               </Col>
+              <Col md={2}>
+                <label className="fw-semibold mb-1">Filter by Date</label>
+
+                <select
+                  className="form-control border border-primary rounded-1"
+                  value={dateFilter}
+                  onChange={(e) => {
+                    setDateFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="">Select Date Filter</option>  {/* ✅ Placeholder */}
+                  <option value="">All</option>
+                  <option value="today">Today</option>
+                  <option value="7days">Last 7 Days</option>
+                  <option value="30days">Last 30 Days</option>
+                </select>
+              </Col>
+
 
               {/* Clear Filters Button */}
               <Col md={2}>
@@ -350,6 +388,7 @@ const ReferralProgram = () => {
                     setStatusFilter("all");
                     setSelectedConstituency("");
                     setCurrentPage(1);
+                    setDateFilter("")
                     setStatusDropdownOpen(false);
                     setReferrals([]);
                   }}
@@ -357,6 +396,7 @@ const ReferralProgram = () => {
                   Clear Filters
                 </Button>
               </Col>
+
 
             </Row>
           </div>

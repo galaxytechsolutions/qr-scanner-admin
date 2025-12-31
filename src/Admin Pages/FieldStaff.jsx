@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Container } from "reactstrap";
+import { Table, Button, Container, Label, FormGroup } from "reactstrap";
 import { FaRegEye, FaUserEdit, FaWhatsapp } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import Swal from "sweetalert2";
@@ -9,6 +9,7 @@ import Breadcrumbs from "../components/Common/Breadcrumb";
 import { Instance } from "../Instence/Instence";
 import { useLocation, useNavigate } from "react-router-dom";
 import ConstituencyDropdown from "../components/ContituenciesDropdown";
+import ReactSwitch from "react-switch";
 
 const FieldStaff = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,8 +94,30 @@ const FieldStaff = () => {
     setSearchTerm("");
   };
 
+  const getErrorMessage = (error) => {
+    if (error?.response?.data) {
+      if (typeof error.response.data === "string") return error.response.data;
+      if (error.response.data.error) return error.response.data.error;
+      return JSON.stringify(error.response.data);
+    }
+    return error?.message || "Something went wrong";
+  };
 
 
+  const handleToggleStatus = async (staff) => {
+    try {
+      const newStatus = !staff.status;
+      const res = await Instance.patch(`/staff/toggle-status/${staff._id}`);
+
+      setStaffList(prev =>
+        prev.map(s => s._id === staff._id ? { ...s, status: res.data.status } : s)
+      );
+
+      Swal.fire("Updated!", `Staff is now ${res.data.status ? "Active" : "Inactive"}`, "success");
+    } catch (err) {
+      Swal.fire("Error", getErrorMessage(err), "error");
+    }
+  };
 
 
   // Add staff
@@ -271,6 +294,21 @@ const FieldStaff = () => {
                   <td>{staff.addedBy?.name || "-"}</td>
                   <td>
                     <div className="d-flex justify-content-center align-items-center gap-3">
+                      <FormGroup className="d-flex align-items-center">
+                        <ReactSwitch
+                          checked={!!staff.status}
+                          onChange={() => handleToggleStatus(staff)}
+                          handleDiameter={12}
+                          height={20}
+                          width={40}
+                          uncheckedIcon={false}
+                          checkedIcon={false}
+                        />
+                        <span className="ms-2 fw-bold">
+                          {staff.status ? "Active" : "Inactive"}
+                        </span>
+                      </FormGroup>
+
                       <FaRegEye
                         size={20}
                         title="View"
