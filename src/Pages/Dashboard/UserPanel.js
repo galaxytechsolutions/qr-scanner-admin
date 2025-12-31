@@ -132,7 +132,7 @@ const UserPanel = () => {
       <Row>
         {/* Houses */}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/house-data", { state: { constituency: selectedConstituency } })}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/house-data", { state: { constituency: selectedConstituency } })}>
             <CardBody className="d-flex align-items-center text-dark text-decoration-none">
               <FaRegBuilding className="me-3" size={28} />
               <div>
@@ -145,7 +145,7 @@ const UserPanel = () => {
 
         {/* Field Staff */}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/fieldStaff", { state: { constituency: selectedConstituency } })}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/fieldStaff", { state: { constituency: selectedConstituency } })}>
             <CardBody className="d-flex align-items-center text-dark text-decoration-none">
               <FaUserTie className="me-3" size={28} />
               <div>
@@ -158,7 +158,7 @@ const UserPanel = () => {
 
         {/* Referrals */}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/referrals", { state: { constituency: selectedConstituency } })}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/referrals", { state: { constituency: selectedConstituency } })}>
             <CardBody className="d-flex align-items-center text-dark text-decoration-none">
               <FaPenFancy className="me-3" size={26} />
               <div>
@@ -171,7 +171,7 @@ const UserPanel = () => {
 
         {/* Applications */}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/applications", { state: { constituency: selectedConstituency } })}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/applications", { state: { constituency: selectedConstituency } })}>
             <CardBody className="d-flex align-items-center text-dark text-decoration-none">
               <FaFileAlt className="me-3" size={26} />
               <div>
@@ -184,7 +184,7 @@ const UserPanel = () => {
 
         {/* Schemes */}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/schemes")}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/schemes")}>
             <CardBody className="d-flex align-items-center text-dark text-decoration-none">
               <FaTools className="me-3 text-danger" size={26} />
               <div>
@@ -197,7 +197,7 @@ const UserPanel = () => {
 
         {/* Issues */}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/issues", { state: { constituency: selectedConstituency } })}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/issues", { state: { constituency: selectedConstituency } })}>
             <CardBody className="d-flex align-items-center text-dark text-decoration-none">
               <FaFileAlt className="me-3" size={26} />
               <div>
@@ -212,7 +212,7 @@ const UserPanel = () => {
         {role === "Admin" && (
           <>
             <Col xl={3} sm={6}>
-              <Card>
+              <Card className="cursor-pointer" style={{ cursor: "pointer" }}>
                 <CardBody className="d-flex align-items-center text-dark">
                   <FaRupeeSign className="me-3 text-warning" size={26} />
                   <div>
@@ -224,7 +224,7 @@ const UserPanel = () => {
             </Col>
 
             <Col xl={3} sm={6}>
-              <Card>
+              <Card className="cursor-pointer" style={{ cursor: "pointer" }}>
                 <CardBody className="d-flex align-items-center text-dark">
                   <FaMoneyBillWave className="me-3 text-success" size={26} />
                   <div>
@@ -266,7 +266,7 @@ const UserPanel = () => {
           </>
         )}
         <Col xl={3} sm={6}>
-          <Card onClick={() => navigate("/issues", { state: { constituency: selectedConstituency } })}>
+          <Card className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => navigate("/issues", { state: { constituency: selectedConstituency } })}>
             <CardBody className="d-flex align-items-center text-dark">
               <FaFileAlt className="me-3 text-info" size={26} />
               <div>
